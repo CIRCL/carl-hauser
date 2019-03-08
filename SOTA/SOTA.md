@@ -15,6 +15,7 @@
     -   [ORB – Oriented FAST and Rotated BRIEF](#orb-oriented-fast-and-rotated-brief)
     -   [KASE - ](#kase--)
     -   [Delaunay Graph Matching](#delaunay-graph-matching)
+    -   [Fast Spectral Ranking](#fast-spectral-ranking)
 -   [Hash algorithms](#hash-pictures)
     -   [A-HASH : Average Hash](#ahash)
     -   [D-HASH](#dhash)
@@ -23,8 +24,14 @@
     -   [R-HASH](#rhash)
     -   [Spectral-HASH](#spectral-hash)
     -   [E2LSH - LSH - Locality Sensitve Hashing](#E2LSH)
+-   [FH or CTPH - Fuzzy Hashing Algorithms](#fuzzy-hashing)
+    -   [SSDeep - Similarity Digest ](#ssdeep)
+    -   [SDHash - Similarity Digest Hash](#sdhash)
+    -   [MVHash - Majority Vote Hash](#mvhash)
+    -   [MRSH V2 - MultiResolution Similarity Hashing](#mrsh-v2)
 -   [Neural networks – Black box algorithms](#neural-networks-black-box-algorithms)
     -   [FAST – Features from Accelerated Segment Test](#fast-features-from-accelerated-segment-test)
+    -   [FRCNN - Faster RCNN](#frcnn)
     -   [RBM - Restricted Boltzmann machine](#rbm)
     -   [RPA - Robust Projection Algorith](#rpa)
     -   [Boosting SSC](#bssc)
@@ -33,7 +40,7 @@
 Introduction
 ============
 
-A general overview was made through standard web lookup. \[3\] A look was given to libraries, which also provide detailed and useful information. \[19\]
+A general overview was made through standard web lookup. \[3\] A look was given to libraries, which also provide detailed and useful information. \[23\]
 
 In the following, we expose :
 
@@ -63,7 +70,7 @@ Distinctive features :
 
 #### FAST - Features from Accelerated Segment Test
 
-From the original paper \[11\] cited in \[16\]
+From the original paper \[12\] cited in \[19\]
 Is a corner detector, based on machine learning.
 
 Distinctive features :
@@ -109,7 +116,7 @@ Vector descriptors based on our keypoints, each descriptor has size 64 and we ha
 
 ##### Descriptor’s quality
 
-A good descriptor code would be, according to \[20\] :
+A good descriptor code would be, according to \[24\] :
 
 -   easily computed for a novel input
 
@@ -130,7 +137,7 @@ Linked to correspondence problem ?
 
 #### Hamming distance
 
-Partially solved by \[9\]
+Partially solved by \[10\]
 
 #### Bruteforce
 
@@ -154,7 +161,7 @@ Partially solved by \[9\]
 
 -   Returns the K (parameter) best matchs
 
--   \[21\]
+-   \[25\]
 
 ### Compression of descriptors before matching
 
@@ -164,7 +171,7 @@ Partially solved by \[9\]
 
 -   Returns the K (parameter) best matchs
 
--   \[21\]
+-   \[25\]
 
 -   Convert descriptor (floats) to binary strings. Binary strings matched with Hamming Distance, equivalent to a XOR and bit count (very fast with SSE instructions on CPU)
 
@@ -183,7 +190,7 @@ Step 4 - Model Fitting
 
 -   outliers : “bad” points matching
 
--   See \[19\]
+-   See \[23\]
 
 ### RANSAC – Random Sample Consensus
 
@@ -199,7 +206,7 @@ Goal is to transform visual information into vector space
 SIFT- Scale Invariant Feature Transform
 ---------------------------------------
 
-From the original paper \[8\] and a concise explanation from \[17\] 3x less fast than Harris Detector
+From the original paper \[9\] and a concise explanation from \[20\] 3x less fast than Harris Detector
 
 #### Pro
 
@@ -242,7 +249,7 @@ From the original paper \[8\] and a concise explanation from \[17\] 3x less fast
 SUSAN
 -----
 
-From ... a word in \[11\]
+From ... a word in \[12\]
 
 #### Pro
 
@@ -301,7 +308,7 @@ BRIEF – Binary Robust Independent Elementary Features
 
 Extract binary strings equivalent to a descriptor without having to create a descriptor
 
-See BRIEF \[22\]
+See BRIEF \[26\]
 
 #### Pro
 
@@ -346,7 +353,7 @@ CenSurE
 ORB – Oriented FAST and Rotated BRIEF
 -------------------------------------
 
-From \[12\] which is rougly a fusion of FAST and BRIEF. See also \[18\]
+From \[13\] which is rougly a fusion of FAST and BRIEF. See also \[21\]
 
 #### Pro
 
@@ -381,7 +388,7 @@ From \[12\] which is rougly a fusion of FAST and BRIEF. See also \[18\]
 KASE - 
 -------
 
-Shipped in OpenCV library. Example can be found at \[10\]
+Shipped in OpenCV library. Example can be found at \[11\]
 
 #### Pro
 
@@ -427,6 +434,17 @@ Based on diffusion process and Delaunay graph characterization, with critical ti
 
 #### Steps of the algorithm
 
+Fast Spectral Ranking
+---------------------
+
+From \[8\] Seems to have quite fast result, ranking algorithm. Still dark areas over the explanations.
+
+#### Pro
+
+#### Con
+
+#### Steps of the algorithm
+
 Hash algorithms
 ===============
 
@@ -435,7 +453,7 @@ The following algorithms does not intend to match pictures with common part, but
 A-HASH : Average Hash
 ---------------------
 
-From ... \[13\]
+From ... \[16\]
 
 “the result is better than it has any right to be.”
 relationship between parts of the hash and areas of the input image = ability to apply “masks” (like "ignore the bottom 25 8 bits for a image vector.
@@ -486,10 +504,10 @@ The hash can be of length 128 or 512 bits. The delta between 2 “matches” is 
 P-HASH - Perceptual Hash
 ------------------------
 
-From ... \[13\] and \[7\] and \[15\]
+From ... \[16\] and \[7\] and \[18\]
 Exist in mean and median flavors
 8 bits for a image vector.
-Java implementation : \[14\]
+Java implementation : \[17\]
 
 #### Pro
 
@@ -524,7 +542,7 @@ Java implementation : \[14\]
 SimHash - Charikar’s simhash
 ----------------------------
 
-From ... \[9\]
+From ... \[10\]
 repository of 8B webpages, 64-bit simhash fingerprints and k = 3 are reasonable.
 C++ Implementation
 
@@ -537,7 +555,7 @@ C++ Implementation
 R-HASH
 ------
 
-From ... \[13\]
+From ... \[16\]
 
 Equivalent to A-Hash with more granularity of masks and transformation. Ability to apply “masks” (color channel, ignoring (f.ex. the lowest two) bits of some/all values) and “transformations” at comparison time. (color channel swaps)
 
@@ -566,13 +584,13 @@ Equivalent to A-Hash with more granularity of masks and transformation. Ability 
 Spectral-HASH
 -------------
 
-From \[20\]. A word is given in \[13\]
+From \[24\]. A word is given in \[16\]
 
 The bits are calculated by thresholding a subset of eigenvectors of the Laplacian of the similarity graph
 
 Similar performance to RBM
 
-![Spectral Hashing comparison from \[20\] <span data-label="fig:spectral_hashing_comparison"></span>](sota-ressources/spectral_hashing_comparison.png)
+![Spectral Hashing comparison from \[24\] <span data-label="fig:spectral_hashing_comparison"></span>](sota-ressources/spectral_hashing_comparison.png)
 
 #### Pro
 
@@ -583,7 +601,7 @@ Similar performance to RBM
 E2LSH - LSH - Locality Sensitve Hashing
 ---------------------------------------
 
-From ... A word is given in \[20\] The code is calculated by a random linear projection followed by a random threshold, then the Hamming distance between codewords will asymptotically approach the Euclidean distance between the items.
+From ... A word is given in \[24\] The code is calculated by a random linear projection followed by a random threshold, then the Hamming distance between codewords will asymptotically approach the Euclidean distance between the items.
 
 Not so far from Machine Learning Approaches, but outperformed by them.
 
@@ -597,17 +615,111 @@ Not so far from Machine Learning Approaches, but outperformed by them.
 
 #### Steps of the algorithm
 
+FH or CTPH - Fuzzy Hashing Algorithms
+=====================================
+
+From \[14\] : Also called Context Triggered Piecewise Hashing (CTPH). It is a combination of Cryptographic Hashes (CH), Rolling Hashes (RH) and Piecewise Hashes (PH).
+Fuzzy hashing has as a goal of identifying two files that may be near copies of one another.
+
+SDHash seesm the more accurate, but the slower. Cross-reference seems a good way to go.
+
+SSDeep - Similarity Digest 
+---------------------------
+
+From ... few words on it in \[14\]
+
+Implementation (C) at \[22\]
+
+Historically the first fuzzing algorithm.
+
+#### Pro
+
+-   Effective for text (Spam, ..)
+
+#### Con
+
+-   Not effective for Images, Videos, ...
+
+#### Steps of the algorithm
+
+1.  Rolling hashing to split document into “6 bits values segments”
+
+2.  Uses hash function (MD5, SHA1, ..) to produce a hash of each segment
+
+3.  Concatenate all hashes to create the signature (= the fuzzy hash)
+
+SDHash - Similarity Digest Hash
+-------------------------------
+
+From ... Roussev in 2010 few words on it in \[14\]
+
+Uses Bloom Filters to identify similarities between files on condition with common features. (Quite blurry)
+
+#### Pro
+
+-   More accurate than VHash, SSDeep, MRSHV2
+
+-   Options available (TO CHECK) - See a particular implementation used in \[14\]
+
+#### Con
+
+-   Slow compared to MVHash, SSDeep, MRSHV2
+
+#### Steps of the algorithm
+
+1.  Perform a hash/entropy (TO CHECK) calculation with a moving window of 64 bits.
+
+2.  Features (? How are they recognized?) are hashed with SHA-1
+
+3.  Features are inserted into a Bloom Filter
+
+MVHash - Majority Vote Hash
+---------------------------
+
+From ... few words on it in \[14\]
+
+It is Similarity Preserving Digest (SPD) Uses Bloom Filters
+
+#### Pro
+
+-   almost as fast as SHA-1 (paper)
+
+#### Con
+
+#### Steps of the algorithm
+
+1.  Majority vote on bit level (transformation to 0s or 1s)
+
+2.  RLE = Run Length Encoding, represents 0s and 1s by their length
+
+3.  Create the similarity digest (? TO CHECK)
+
+MRSH V2 - MultiResolution Similarity Hashing
+--------------------------------------------
+
+From ... few words on it in \[14\] Variation of SSDeep, with polynomial hash instead of rolling hash (djb2)
+
+#### Pro
+
+-   Fast than SDHash
+
+#### Con
+
+-   Slow compared to MVHash, SSDeep
+
+#### Steps of the algorithm
+
 Neural networks – Black box algorithms
 ======================================
 
 FAST – Features from Accelerated Segment Test
 ---------------------------------------------
 
-From \[16\] the algorithm is mainly Machine Learning, but as far as I can see, there is no direct need of machine learning in the algorithm, but for speed.
+From \[19\] the algorithm is mainly Machine Learning, but as far as I can see, there is no direct need of machine learning in the algorithm, but for speed.
 
 It seems that the selection of candidate pixel, and the selection of a threeshold is holded by Machine Learning. It also seems, that “mostly brighter”, “similar” and “mostly darker” pixels are used to feed a decision tree (ID3 algorithm - decision tree classifier) to allow a fast recognition of a corner.
 
-![Corner detector from \[11\] <span data-label="fig:spectral_hashing_comparison"></span>](sota-ressources/corner-detector.png)
+![Corner detector from \[12\] <span data-label="fig:spectral_hashing_comparison"></span>](sota-ressources/corner-detector.png)
 
 #### Pro
 
@@ -639,10 +751,23 @@ It seems that the selection of candidate pixel, and the selection of a threeshol
 
 5.  Keypoint Matching
 
+FRCNN - Faster RCNN
+-------------------
+
+From ... \[15\] Mainly for faces detection.
+
+#### Pro
+
+-   M
+
+#### Con
+
+#### Steps of the algorithm
+
 RBM - Restricted Boltzmann machine
 ----------------------------------
 
-From ... A word is given in \[20\]
+From ... A word is given in \[24\]
 
 To learn 32 bits, the middle layer of the autoencoder has 32 hidden units Neighborhood Components Analysis (NCA) objective function = refine the weights in the network to preserve the neighborhood structure of the input space.
 
@@ -668,7 +793,7 @@ From ... \[7\]
 Boosting SSC
 ------------
 
-From ... A word is given in \[20\]
+From ... A word is given in \[24\]
 
 #### Pro
 
@@ -713,32 +838,40 @@ Apply an automatic threeshold.
 
 7. Igor. 2011. Nuit Blanche: Are Perceptual Hashes an instance of Compressive Sensing ? *Nuit Blanche*.
 
-8. David G. Lowe. 2004. Distinctive Image Features from Scale-Invariant Keypoints. *International Journal of Computer Vision* 60, 2: 91–110. <https://doi.org/10.1023/B:VISI.0000029664.99615.94>
+8. Ahmet Iscen, Yannis Avrithis, Giorgos Tolias, Teddy Furon, and Ondrej Chum. 2018. Fast Spectral Ranking for Similarity Search. In *2018 IEEE/CVF Conference on Computer Vision and Pattern Recognition*, 7632–7641. <https://doi.org/10.1109/CVPR.2018.00796>
 
-9. Gurmeet Singh Manku, Arvind Jain, and Anish Das Sarma. 2007. Detecting near-duplicates for web crawling. In *Proceedings of the 16th international conference on World Wide Web - WWW ’07*, 141. <https://doi.org/10.1145/1242572.1242592>
+9. David G. Lowe. 2004. Distinctive Image Features from Scale-Invariant Keypoints. *International Journal of Computer Vision* 60, 2: 91–110. <https://doi.org/10.1023/B:VISI.0000029664.99615.94>
 
-10. Andrey Nikishaev. 2018. Feature extraction and similar image search with OpenCV for newbies. *Medium*.
+10. Gurmeet Singh Manku, Arvind Jain, and Anish Das Sarma. 2007. Detecting near-duplicates for web crawling. In *Proceedings of the 16th international conference on World Wide Web - WWW ’07*, 141. <https://doi.org/10.1145/1242572.1242592>
 
-11. Edward Rosten and Tom Drummond. 2006. Machine Learning for High-Speed Corner Detection. In *Computer Vision 2006*, Aleš Leonardis, Horst Bischof and Axel Pinz (eds.). Springer Berlin Heidelberg, Berlin, Heidelberg, 430–443. <https://doi.org/10.1007/11744023_34>
+11. Andrey Nikishaev. 2018. Feature extraction and similar image search with OpenCV for newbies. *Medium*.
 
-12. Ethan Rublee, Vincent Rabaud, Kurt Konolige, and Gary Bradski. 2011. ORB: An efficient alternative to SIFT or SURF. In *2011 International Conference on Computer Vision*, 2564–2571. <https://doi.org/10.1109/ICCV.2011.6126544>
+12. Edward Rosten and Tom Drummond. 2006. Machine Learning for High-Speed Corner Detection. In *Computer Vision 2006*, Aleš Leonardis, Horst Bischof and Axel Pinz (eds.). Springer Berlin Heidelberg, Berlin, Heidelberg, 430–443. <https://doi.org/10.1007/11744023_34>
 
-13. 2011. Looks Like It - The Hacker Factor Blog.
+13. Ethan Rublee, Vincent Rabaud, Kurt Konolige, and Gary Bradski. 2011. ORB: An efficient alternative to SIFT or SURF. In *2011 International Conference on Computer Vision*, 2564–2571. <https://doi.org/10.1109/ICCV.2011.6126544>
 
-14. 2011. pHash-like image hash for java. *Pastebin.com*.
+14. Nikolaos Sarantinos, Chafika Benzaid, Omar Arabiat, and Ameer Al-Nemrat. 2016. Forensic Malware Analysis: The Value of Fuzzy Hashing Algorithms in Identifying Similarities. In *2016 IEEE Trustcom/BigDataSE/ISPA*, 1782–1787. <https://doi.org/10.1109/TrustCom.2016.0274>
 
-15. 2013. pHash.Org: Home of pHash, the open source perceptual hash library.
+15. Xudong Sun, Pengcheng Wu, and Steven C.H. Hoi. 2018. Face detection using deep learning: An improved faster RCNN approach. *Neurocomputing* 299: 42–50. <https://doi.org/10.1016/j.neucom.2018.03.030>
 
-16. 2014. FAST Algorithm for Corner Detection 3.0.0-dev documentation.
+16. 2011. Looks Like It - The Hacker Factor Blog.
 
-17. 2014. Introduction to SIFT (Scale-Invariant Feature Transform) 3.0.0-dev documentation.
+17. 2011. pHash-like image hash for java. *Pastebin.com*.
 
-18. 2014. ORB (Oriented FAST and Rotated BRIEF) 3.0.0-dev documentation.
+18. 2013. pHash.Org: Home of pHash, the open source perceptual hash library.
 
-19. Feature Matching + Homography to find Objects 3.0.0-dev documentation.
+19. 2014. FAST Algorithm for Corner Detection 3.0.0-dev documentation.
 
-20. Spectralhashing.Pdf.
+20. 2014. Introduction to SIFT (Scale-Invariant Feature Transform) 3.0.0-dev documentation.
 
-21. OpenCV: Feature Matching.
+21. 2014. ORB (Oriented FAST and Rotated BRIEF) 3.0.0-dev documentation.
 
-22. BRIEF (Binary Robust Independent Elementary Features) 3.0.0-dev documentation.
+22. 2019. Fuzzy hashing API and fuzzy hashing tool. Contribute to ssdeep-project/ssdeep development by creating an account on GitHub.
+
+23. Feature Matching + Homography to find Objects 3.0.0-dev documentation.
+
+24. Spectralhashing.Pdf.
+
+25. OpenCV: Feature Matching.
+
+26. BRIEF (Binary Robust Independent Elementary Features) 3.0.0-dev documentation.
