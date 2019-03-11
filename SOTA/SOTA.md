@@ -1,5 +1,6 @@
 -   [Introduction](#introduction)
 -   [Classic Computer vision techniques - White box algorithms](#classic-computer-vision-techniques---white-box-algorithms)
+    -   [Structure of Classic vision techniques](#structure-of-classic-vision-techniques)
     -   [Step 1 - Key Point Detection](#step-1---key-point-detection)
     -   [Step 2 - Descriptor Extraction](#step-2---descriptor-extraction)
     -   [Step 3 - Matching](#step-3---matching)
@@ -14,8 +15,11 @@
     -   [CenSurE](#censure)
     -   [ORB – Oriented FAST and Rotated BRIEF](#orb-oriented-fast-and-rotated-brief)
     -   [KASE - ](#kase--)
+    -   [HOG - Histogram of Oriented Gradients](#hog)
     -   [Delaunay Graph Matching](#delaunay-graph-matching)
     -   [Fast Spectral Ranking](#fast-spectral-ranking)
+    -   [SPM - Spatial Pyramid Matching](#spm)
+    -   [L-SPM - Latent Spatial Pyramid Matching](#lspm)
     -   [GHM - Generalized Hierarchical Matching Framework](#ghm)
 -   [Hash algorithms](#hash-pictures)
     -   [A-HASH : Average Hash](#ahash)
@@ -41,7 +45,7 @@
 Introduction
 ============
 
-A general overview was made through standard web lookup. \[3\] A look was given to libraries, which also provide detailed and useful information. \[24\]
+A general overview was made through standard web lookup. \[3\] A look was given to libraries, which also provide detailed and useful information. \[26\]
 
 In the following, we expose :
 
@@ -54,24 +58,59 @@ Please, be sure to consider this document is under construction, and it can cont
 Classic Computer vision techniques - White box algorithms
 =========================================================
 
+#### Structure of Classic vision techniques
+
+From \[18\] :
+
+1.  Global features detection
+    Generally, weak against occlusion, clutter. Need fixed viewpoint, clear background,fixed pose.
+
+    1.  Full region
+        Examples : Holistic features (=“Spatial enveloppe” = naturalness, openness, roughness, ruggedness, expansion ..), colors histograms, “Global Self-Similarity” (=spatial arrangement)
+
+    2.  Per subregion
+        Example : Histogram of Oriented Gradients (HOG)
+
+2.  Local features detection
+    Detection should ne stable and repeatable. Corners, textured areas, etc. can be interest points.
+
+    1.  Dense sampling over regular grid
+
+    2.  Interest points detection
+
+        1.  Not robust to scale
+            Examples : Harris corner detector
+
+        2.  Robust to scale
+            Examples : Not robust + Increasing Gaussian blur many time, one for each scale ; Automatic scale selection ; ...
+
+    3.  Exotics
+
+        1.  Random points sampling
+
+        2.  Segmentation (?)
+
 Step 1 - Key Point Detection
 ----------------------------
 
 -   Corner detectors to find easily localizable points.
 
-#### Harris
+#### Harris Detector
 
-\[7\]
+From the original paper \[7\]. Based on the central principle: at a corner, the image intensity will change largely in multiple directions, with a windows shift.
+
+(invariance to rotation, scale, illumination, noise .. said \[18\])
 
 Distinctive features :
 
 -   Rotation-invariant
 
 -   NOT scaling invariant
+    One point could be a corner in a small scaled neighborhood, or as an edge in a large scaled neighborhood.
 
 #### FAST - Features from Accelerated Segment Test
 
-From the original paper \[13\] cited in \[20\]
+From the original paper \[14\] cited in \[22\]
 Is a corner detector, based on machine learning.
 
 Distinctive features :
@@ -117,7 +156,7 @@ Vector descriptors based on our keypoints, each descriptor has size 64 and we ha
 
 ##### Descriptor’s quality
 
-A good descriptor code would be, according to \[25\] :
+A good descriptor code would be, according to \[27\] :
 
 -   easily computed for a novel input
 
@@ -138,7 +177,7 @@ Linked to correspondence problem ?
 
 #### Hamming distance
 
-Partially solved by \[11\]
+Partially solved by \[12\]
 
 #### Bruteforce
 
@@ -162,7 +201,7 @@ Partially solved by \[11\]
 
 -   Returns the K (parameter) best matchs
 
--   \[26\]
+-   \[28\]
 
 ### Compression of descriptors before matching
 
@@ -172,7 +211,7 @@ Partially solved by \[11\]
 
 -   Returns the K (parameter) best matchs
 
--   \[26\]
+-   \[28\]
 
 -   Convert descriptor (floats) to binary strings. Binary strings matched with Hamming Distance, equivalent to a XOR and bit count (very fast with SSE instructions on CPU)
 
@@ -191,7 +230,7 @@ Step 4 - Model Fitting
 
 -   outliers : “bad” points matching
 
--   See \[24\]
+-   See \[26\]
 
 ### RANSAC – Random Sample Consensus
 
@@ -207,7 +246,7 @@ Goal is to transform visual information into vector space
 SIFT- Scale Invariant Feature Transform
 ---------------------------------------
 
-From the original paper \[10\] and a concise explanation from \[21\] 3x less fast than Harris Detector
+From the original paper \[11\] and a concise explanation from \[23\] 3x less fast than Harris Detector
 
 #### Pro
 
@@ -250,7 +289,7 @@ From the original paper \[10\] and a concise explanation from \[21\] 3x less fas
 SUSAN
 -----
 
-From ... a word in \[13\]
+From ... a word in \[14\]
 
 #### Pro
 
@@ -309,7 +348,7 @@ BRIEF – Binary Robust Independent Elementary Features
 
 Extract binary strings equivalent to a descriptor without having to create a descriptor
 
-See BRIEF \[27\]
+See BRIEF \[29\]
 
 #### Pro
 
@@ -354,7 +393,7 @@ CenSurE
 ORB – Oriented FAST and Rotated BRIEF
 -------------------------------------
 
-From \[14\] which is rougly a fusion of FAST and BRIEF. See also \[22\]
+From \[15\] which is rougly a fusion of FAST and BRIEF. See also \[24\]
 
 #### Pro
 
@@ -389,13 +428,11 @@ From \[14\] which is rougly a fusion of FAST and BRIEF. See also \[22\]
 KASE - 
 -------
 
-Shipped in OpenCV library. Example can be found at \[12\]
+Shipped in OpenCV library. Example can be found at \[13\]
 
 #### Pro
 
 #### Con
-
-#### Steps of the algorithm
 
 #### Steps of the algorithm
 
@@ -408,6 +445,17 @@ Shipped in OpenCV library. Example can be found at \[12\]
 4.  Keypoint descriptors
 
 5.  Keypoint Matching
+
+HOG - Histogram of Oriented Gradients
+-------------------------------------
+
+From ... A word in \[18\] The idea is to describe shape information by gradient orientation in localized sub-regions.
+
+#### Pro
+
+#### Con
+
+#### Steps of the algorithm
 
 Delaunay Graph Matching
 -----------------------
@@ -446,12 +494,36 @@ From \[9\] Seems to have quite fast result, ranking algorithm. Still dark areas 
 
 #### Steps of the algorithm
 
+SPM - Spatial Pyramid Matching
+------------------------------
+
+From \[18\]
+
+#### Pro
+
+#### Con
+
+#### Steps of the algorithm
+
+L-SPM - Latent Spatial Pyramid Matching
+---------------------------------------
+
+From ... a word in \[18\]
+
+#### Pro
+
+#### Con
+
+#### Steps of the algorithm
+
 GHM - Generalized Hierarchical Matching Framework
 -------------------------------------------------
 
 From \[4\] Roughly, the algorithm split the input picture into interest areas, and then do matching on these different areas.
 
 This tries to achieve a object-oriented recognition. It uses Saliency Map.
+
+This (TO CHECK) is a non-rectangle version of SPM.
 
 ![Hierarchical Hashing as showed in \[4\] <span data-label="fig:generalized-matching"></span>](sota-ressources/hierarchical-matching.png)
 
@@ -471,7 +543,7 @@ The following algorithms does not intend to match pictures with common part, but
 A-HASH : Average Hash
 ---------------------
 
-From ... \[17\]
+From ... \[19\]
 
 “the result is better than it has any right to be.”
 relationship between parts of the hash and areas of the input image = ability to apply “masks” (like "ignore the bottom 25 8 bits for a image vector.
@@ -522,10 +594,10 @@ The hash can be of length 128 or 512 bits. The delta between 2 “matches” is 
 P-HASH - Perceptual Hash
 ------------------------
 
-From ... \[17\] and \[8\] and \[19\]
+From ... \[19\] and \[8\] and \[21\]
 Exist in mean and median flavors
 8 bits for a image vector.
-Java implementation : \[18\]
+Java implementation : \[20\]
 
 #### Pro
 
@@ -560,7 +632,7 @@ Java implementation : \[18\]
 SimHash - Charikar’s simhash
 ----------------------------
 
-From ... \[11\]
+From ... \[12\]
 repository of 8B webpages, 64-bit simhash fingerprints and k = 3 are reasonable.
 C++ Implementation
 
@@ -573,7 +645,7 @@ C++ Implementation
 R-HASH
 ------
 
-From ... \[17\]
+From ... \[19\]
 
 Equivalent to A-Hash with more granularity of masks and transformation. Ability to apply “masks” (color channel, ignoring (f.ex. the lowest two) bits of some/all values) and “transformations” at comparison time. (color channel swaps)
 
@@ -602,13 +674,13 @@ Equivalent to A-Hash with more granularity of masks and transformation. Ability 
 Spectral-HASH
 -------------
 
-From \[25\]. A word is given in \[17\]
+From \[27\]. A word is given in \[19\]
 
 The bits are calculated by thresholding a subset of eigenvectors of the Laplacian of the similarity graph
 
 Similar performance to RBM
 
-![Spectral Hashing comparison from \[25\] <span data-label="fig:spectral_hashing_comparison"></span>](sota-ressources/spectral_hashing_comparison.png)
+![Spectral Hashing comparison from \[27\] <span data-label="fig:spectral_hashing_comparison"></span>](sota-ressources/spectral_hashing_comparison.png)
 
 #### Pro
 
@@ -619,7 +691,7 @@ Similar performance to RBM
 E2LSH - LSH - Locality Sensitve Hashing
 ---------------------------------------
 
-From ... A word is given in \[25\] The code is calculated by a random linear projection followed by a random threshold, then the Hamming distance between codewords will asymptotically approach the Euclidean distance between the items.
+From ... A word is given in \[27\] The code is calculated by a random linear projection followed by a random threshold, then the Hamming distance between codewords will asymptotically approach the Euclidean distance between the items.
 
 Not so far from Machine Learning Approaches, but outperformed by them.
 
@@ -636,7 +708,7 @@ Not so far from Machine Learning Approaches, but outperformed by them.
 FH or CTPH - Fuzzy Hashing Algorithms
 =====================================
 
-From \[15\] : Also called Context Triggered Piecewise Hashing (CTPH). It is a combination of Cryptographic Hashes (CH), Rolling Hashes (RH) and Piecewise Hashes (PH).
+From \[16\] : Also called Context Triggered Piecewise Hashing (CTPH). It is a combination of Cryptographic Hashes (CH), Rolling Hashes (RH) and Piecewise Hashes (PH).
 Fuzzy hashing has as a goal of identifying two files that may be near copies of one another.
 
 SDHash seesm the more accurate, but the slower. Cross-reference seems a good way to go.
@@ -644,11 +716,13 @@ SDHash seesm the more accurate, but the slower. Cross-reference seems a good way
 SSDeep - Similarity Digest 
 ---------------------------
 
-From ... few words on it in \[15\]
+From ... few words on it in \[16\]
 
-Implementation (C) at \[23\]
+Implementation (C) at \[25\]
 
 Historically the first fuzzing algorithm.
+
+![ Hashing time from \[10\] <span data-label="fig:ssdeep_timing"></span>](sota-ressources/ssdeep_time.png)
 
 #### Pro
 
@@ -669,7 +743,7 @@ Historically the first fuzzing algorithm.
 SDHash - Similarity Digest Hash
 -------------------------------
 
-From ... Roussev in 2010 few words on it in \[15\]
+From ... Roussev in 2010 few words on it in \[16\]
 
 Uses Bloom Filters to identify similarities between files on condition with common features. (Quite blurry)
 
@@ -677,7 +751,7 @@ Uses Bloom Filters to identify similarities between files on condition with comm
 
 -   More accurate than VHash, SSDeep, MRSHV2
 
--   Options available (TO CHECK) - See a particular implementation used in \[15\]
+-   Options available (TO CHECK) - See a particular implementation used in \[16\]
 
 #### Con
 
@@ -694,7 +768,7 @@ Uses Bloom Filters to identify similarities between files on condition with comm
 MVHash - Majority Vote Hash
 ---------------------------
 
-From ... few words on it in \[15\]
+From ... few words on it in \[16\]
 
 It is Similarity Preserving Digest (SPD) Uses Bloom Filters
 
@@ -715,7 +789,7 @@ It is Similarity Preserving Digest (SPD) Uses Bloom Filters
 MRSH V2 - MultiResolution Similarity Hashing
 --------------------------------------------
 
-From ... few words on it in \[15\] Variation of SSDeep, with polynomial hash instead of rolling hash (djb2)
+From ... few words on it in \[16\] Variation of SSDeep, with polynomial hash instead of rolling hash (djb2)
 
 #### Pro
 
@@ -733,11 +807,11 @@ Neural networks – Black box algorithms
 FAST – Features from Accelerated Segment Test
 ---------------------------------------------
 
-From \[20\] the algorithm is mainly Machine Learning, but as far as I can see, there is no direct need of machine learning in the algorithm, but for speed.
+From \[22\] the algorithm is mainly Machine Learning, but as far as I can see, there is no direct need of machine learning in the algorithm, but for speed.
 
 It seems that the selection of candidate pixel, and the selection of a threeshold is holded by Machine Learning. It also seems, that “mostly brighter”, “similar” and “mostly darker” pixels are used to feed a decision tree (ID3 algorithm - decision tree classifier) to allow a fast recognition of a corner.
 
-![Corner detector from \[13\] <span data-label="fig:spectral_hashing_comparison"></span>](sota-ressources/corner-detector.png)
+![Corner detector from \[14\] <span data-label="fig:spectral_hashing_comparison"></span>](sota-ressources/corner-detector.png)
 
 #### Pro
 
@@ -772,7 +846,7 @@ It seems that the selection of candidate pixel, and the selection of a threeshol
 FRCNN - Faster RCNN
 -------------------
 
-From ... \[16\] Mainly for faces detection.
+From ... \[17\] Mainly for faces detection.
 
 #### Pro
 
@@ -785,7 +859,7 @@ From ... \[16\] Mainly for faces detection.
 RBM - Restricted Boltzmann machine
 ----------------------------------
 
-From ... A word is given in \[25\]
+From ... A word is given in \[27\]
 
 To learn 32 bits, the middle layer of the autoencoder has 32 hidden units Neighborhood Components Analysis (NCA) objective function = refine the weights in the network to preserve the neighborhood structure of the input space.
 
@@ -811,7 +885,7 @@ From ... \[8\]
 Boosting SSC
 ------------
 
-From ... A word is given in \[25\]
+From ... A word is given in \[27\]
 
 #### Pro
 
@@ -860,38 +934,42 @@ Apply an automatic threeshold.
 
 9. Ahmet Iscen, Yannis Avrithis, Giorgos Tolias, Teddy Furon, and Ondrej Chum. 2018. Fast Spectral Ranking for Similarity Search. In *2018 IEEE/CVF Conference on Computer Vision and Pattern Recognition*, 7632–7641. <https://doi.org/10.1109/CVPR.2018.00796>
 
-10. David G. Lowe. 2004. Distinctive Image Features from Scale-Invariant Keypoints. *International Journal of Computer Vision* 60, 2: 91–110. <https://doi.org/10.1023/B:VISI.0000029664.99615.94>
+10. Jesse Kornblum. 2006. Identifying almost identical files using context triggered piecewise hashing. *Digital Investigation* 3: 91–97. <https://doi.org/10.1016/j.diin.2006.06.015>
 
-11. Gurmeet Singh Manku, Arvind Jain, and Anish Das Sarma. 2007. Detecting near-duplicates for web crawling. In *Proceedings of the 16th international conference on World Wide Web - WWW ’07*, 141. <https://doi.org/10.1145/1242572.1242592>
+11. David G. Lowe. 2004. Distinctive Image Features from Scale-Invariant Keypoints. *International Journal of Computer Vision* 60, 2: 91–110. <https://doi.org/10.1023/B:VISI.0000029664.99615.94>
 
-12. Andrey Nikishaev. 2018. Feature extraction and similar image search with OpenCV for newbies. *Medium*.
+12. Gurmeet Singh Manku, Arvind Jain, and Anish Das Sarma. 2007. Detecting near-duplicates for web crawling. In *Proceedings of the 16th international conference on World Wide Web - WWW ’07*, 141. <https://doi.org/10.1145/1242572.1242592>
 
-13. Edward Rosten and Tom Drummond. 2006. Machine Learning for High-Speed Corner Detection. In *Computer Vision 2006*, Aleš Leonardis, Horst Bischof and Axel Pinz (eds.). Springer Berlin Heidelberg, Berlin, Heidelberg, 430–443. <https://doi.org/10.1007/11744023_34>
+13. Andrey Nikishaev. 2018. Feature extraction and similar image search with OpenCV for newbies. *Medium*.
 
-14. Ethan Rublee, Vincent Rabaud, Kurt Konolige, and Gary Bradski. 2011. ORB: An efficient alternative to SIFT or SURF. In *2011 International Conference on Computer Vision*, 2564–2571. <https://doi.org/10.1109/ICCV.2011.6126544>
+14. Edward Rosten and Tom Drummond. 2006. Machine Learning for High-Speed Corner Detection. In *Computer Vision 2006*, Aleš Leonardis, Horst Bischof and Axel Pinz (eds.). Springer Berlin Heidelberg, Berlin, Heidelberg, 430–443. <https://doi.org/10.1007/11744023_34>
 
-15. Nikolaos Sarantinos, Chafika Benzaid, Omar Arabiat, and Ameer Al-Nemrat. 2016. Forensic Malware Analysis: The Value of Fuzzy Hashing Algorithms in Identifying Similarities. In *2016 IEEE Trustcom/BigDataSE/ISPA*, 1782–1787. <https://doi.org/10.1109/TrustCom.2016.0274>
+15. Ethan Rublee, Vincent Rabaud, Kurt Konolige, and Gary Bradski. 2011. ORB: An efficient alternative to SIFT or SURF. In *2011 International Conference on Computer Vision*, 2564–2571. <https://doi.org/10.1109/ICCV.2011.6126544>
 
-16. Xudong Sun, Pengcheng Wu, and Steven C.H. Hoi. 2018. Face detection using deep learning: An improved faster RCNN approach. *Neurocomputing* 299: 42–50. <https://doi.org/10.1016/j.neucom.2018.03.030>
+16. Nikolaos Sarantinos, Chafika Benzaid, Omar Arabiat, and Ameer Al-Nemrat. 2016. Forensic Malware Analysis: The Value of Fuzzy Hashing Algorithms in Identifying Similarities. In *2016 IEEE Trustcom/BigDataSE/ISPA*, 1782–1787. <https://doi.org/10.1109/TrustCom.2016.0274>
 
-17. 2011. Looks Like It - The Hacker Factor Blog.
+17. Xudong Sun, Pengcheng Wu, and Steven C.H. Hoi. 2018. Face detection using deep learning: An improved faster RCNN approach. *Neurocomputing* 299: 42–50. <https://doi.org/10.1016/j.neucom.2018.03.030>
 
-18. 2011. pHash-like image hash for java. *Pastebin.com*.
+18. Pengfei Yu. 2011. Image classification using latent spatial pyramid matching.
 
-19. 2013. pHash.Org: Home of pHash, the open source perceptual hash library.
+19. 2011. Looks Like It - The Hacker Factor Blog.
 
-20. 2014. FAST Algorithm for Corner Detection 3.0.0-dev documentation.
+20. 2011. pHash-like image hash for java. *Pastebin.com*.
 
-21. 2014. Introduction to SIFT (Scale-Invariant Feature Transform) 3.0.0-dev documentation.
+21. 2013. pHash.Org: Home of pHash, the open source perceptual hash library.
 
-22. 2014. ORB (Oriented FAST and Rotated BRIEF) 3.0.0-dev documentation.
+22. 2014. FAST Algorithm for Corner Detection 3.0.0-dev documentation.
 
-23. 2019. Fuzzy hashing API and fuzzy hashing tool. Contribute to ssdeep-project/ssdeep development by creating an account on GitHub.
+23. 2014. Introduction to SIFT (Scale-Invariant Feature Transform) 3.0.0-dev documentation.
 
-24. Feature Matching + Homography to find Objects 3.0.0-dev documentation.
+24. 2014. ORB (Oriented FAST and Rotated BRIEF) 3.0.0-dev documentation.
 
-25. Spectralhashing.Pdf.
+25. 2019. Fuzzy hashing API and fuzzy hashing tool. Contribute to ssdeep-project/ssdeep development by creating an account on GitHub.
 
-26. OpenCV: Feature Matching.
+26. Feature Matching + Homography to find Objects 3.0.0-dev documentation.
 
-27. BRIEF (Binary Robust Independent Elementary Features) 3.0.0-dev documentation.
+27. Spectralhashing.Pdf.
+
+28. OpenCV: Feature Matching.
+
+29. BRIEF (Binary Robust Independent Elementary Features) 3.0.0-dev documentation.
