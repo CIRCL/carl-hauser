@@ -1,10 +1,20 @@
 -   [Introduction](#introduction)
+-   [Global features detection](#global-detection)
+    -   [Full region](#full-region)
+    -   [Subregion division](#subregion-division)
+-   [Local features detection](#local-detection)
+    -   [Dense sampling](#dense-sampling)
+    -   [Interest point detection](#interest-point-detection)
+    -   [Exotics](#exotics)
+-   [Exotics detection systems](#exotics-detection)
+-   [Unsorted](#exotics-detection)
 -   [Classic Computer vision techniques - White box algorithms](#classic-computer-vision-techniques---white-box-algorithms)
     -   [Structure of Classic vision techniques](#structure-of-classic-vision-techniques)
     -   [Step 1 - Key Point Detection](#step-1---key-point-detection)
     -   [Step 2 - Descriptor Extraction](#step-2---descriptor-extraction)
-    -   [Step 3 - Matching](#step-3---matching)
-    -   [Step 4 - Model Fitting](#step-4---model-fitting)
+    -   [Step 3 - Feature representation](#feature-representation)
+    -   [Step 4 - Matching](#step-3---matching)
+    -   [Step 5 - Model Fitting](#step-4---model-fitting)
 -   [Standard algorithms](#standard-algorithms)
     -   [SIFT- Scale Invariant Feature Transform](#sift--scale-invariant-feature-transform)
     -   [SUSAN](#susan)
@@ -18,8 +28,6 @@
     -   [HOG - Histogram of Oriented Gradients](#hog)
     -   [Delaunay Graph Matching](#delaunay-graph-matching)
     -   [Fast Spectral Ranking](#fast-spectral-ranking)
-    -   [SPM - Spatial Pyramid Matching](#spm)
-    -   [L-SPM - Latent Spatial Pyramid Matching](#lspm)
     -   [GHM - Generalized Hierarchical Matching Framework](#ghm)
 -   [Hash algorithms](#hash-pictures)
     -   [A-HASH : Average Hash](#ahash)
@@ -41,6 +49,9 @@
     -   [RPA - Robust Projection Algorith](#rpa)
     -   [Boosting SSC](#bssc)
     -   [ConvNet - Convolutional Neural Networks](#convnet---convolutional-neural-networks)
+-   [Utility algorithms](#utilities-algorithms)
+    -   [SWS - Sliding Windows Search](#sws)
+    -   [ESS - Efficient Subwindow Search](#ess)
 
 Introduction
 ============
@@ -54,6 +65,33 @@ In the following, we expose :
 -   Few of the most popular Image Matching algorithms
 
 Please, be sure to consider this document is under construction, and it can contain mistakes, structural errors, missing areas .. feel free to ping me if you find such flaw. (Open a PR/Issue/...)
+
+Global features detection
+=========================
+
+Full region
+-----------
+
+Subregion division
+------------------
+
+Local features detection
+========================
+
+Dense sampling
+--------------
+
+Interest point detection
+------------------------
+
+Exotics
+-------
+
+Exotics detection systems
+=========================
+
+Unsorted
+========
 
 Classic Computer vision techniques - White box algorithms
 =========================================================
@@ -72,7 +110,7 @@ From \[18\] :
         Example : Histogram of Oriented Gradients (HOG)
 
 2.  Local features detection
-    Detection should ne stable and repeatable. Corners, textured areas, etc. can be interest points.
+    Detection should be stable and repeatable. Corners, textured areas, etc. can be interest points. Robust to occlusion and viewpoint changes.
 
     1.  Dense sampling over regular grid
 
@@ -89,6 +127,9 @@ From \[18\] :
         1.  Random points sampling
 
         2.  Segmentation (?)
+
+        3.  Pose estimation
+            Example : “pictorial structure” (poselet) More complex
 
 Step 1 - Key Point Detection
 ----------------------------
@@ -168,7 +209,80 @@ A good descriptor code would be, according to \[27\] :
 
 We should be aware that a smaller code leads to more collision in the hash.
 
-Step 3 - Matching
+Step 3 - Feature representation
+-------------------------------
+
+A local feature needs to be represented. From \[18\]
+
+### Bag-Of-Words or Bag-Of-Features
+
+From \[18\], representing an image as a set of feature descriptor.
+
+##### Pro
+
+-   Insensitivity of objects location in image
+
+##### Con
+
+-   Loss of spatial information
+
+### Codebook Generation
+
+From \[18\], K-Means clustering over all words describing all pictures. A representative word (=Codeword) of each cluster is chosen (the “mean word”). A list of all representative words is created. A representative vector for each image, is created, as a boolean\_list/histogram of representative words linked or not to this image.
+
+##### Pro
+
+-   Shorten the comparisons to do (TO CHECK)
+
+##### Con
+
+-   Representation ambiguity : Codeword may not be representative of a cluster of words (too large, too narrow, more than 1 meaning, ...)
+
+### Soft Vector Quantization
+
+From \[18\], codebook Generation with most and least frequent words removal. Each feature is then represented by a small group of codewords.
+
+##### Pro
+
+-   Mitigate the representation ambiguity problem of CodeBook
+
+##### Con
+
+-   Undo something that has been done ? TO CHECK !
+
+### Hierarchical CodeWords
+
+From \[18\], keep spatial information about the neighboorhood of a codeword.
+
+### Visual sentences
+
+Project codeword on a spatial axis. Relative spatial relation between words are kept.
+
+### SPM - Spatial Pyramid Matching
+
+From \[18\], divide a picture into equal partitions (/4, /8, ..), compute a Bag-Of-Word for each partition, its histogram, and concatenate them into one big “ordered” histogram.
+
+##### Pro
+
+-   Keep spatial information of features
+
+##### Con
+
+-   Some “bad translation” can occurs, and split features into different Bag-of-words.
+
+![3 levels spatial pyramid from \[18\] <span data-label="fig:spm_figure"></span>](sota-ressources/spm.png)
+
+### L-SPM - Latent Spatial Pyramid Matching
+
+From \[18\], based on SPM but does not split the picture in equal partition = the cell of the pyramid is not spatially fixed.
+
+##### Pro
+
+##### Con
+
+##### Steps of the algorithm
+
+Step 4 - Matching
 -----------------
 
 Linked to correspondence problem ?
@@ -221,7 +335,7 @@ Partially solved by \[12\]
 
 -   Example : SIFT – Scale Invariant Feature Tranform
 
-Step 4 - Model Fitting
+Step 5 - Model Fitting
 ----------------------
 
 -   Identify inliers and outliers ~ Fitting a homography matrix ~ Find the transformation of (picture one) to (picture two)
@@ -487,28 +601,6 @@ Fast Spectral Ranking
 ---------------------
 
 From \[9\] Seems to have quite fast result, ranking algorithm. Still dark areas over the explanations.
-
-#### Pro
-
-#### Con
-
-#### Steps of the algorithm
-
-SPM - Spatial Pyramid Matching
-------------------------------
-
-From \[18\]
-
-#### Pro
-
-#### Con
-
-#### Steps of the algorithm
-
-L-SPM - Latent Spatial Pyramid Matching
----------------------------------------
-
-From ... a word in \[18\]
 
 #### Pro
 
@@ -915,6 +1007,37 @@ Goal :
 Apply an automatic threeshold.
 
 ##### SVM - Support Vector Machine
+
+Utility algorithms
+==================
+
+SWS - Sliding Windows Search
+----------------------------
+
+From ... \[18\] A bounding box is sliding on the picture, and an objet-existence score in the bounding box is computed for each position, and each rectangle size.
+
+#### Pro
+
+-   B
+
+#### Con
+
+-   Too complex ! *O*(*N*<sup>4</sup>) windows to evaluate, with N = resolution on one axis of the picture
+
+Heuristics can be used to reduce the expected complexity of the algorithm. The picture is reduced in size, with a constant size bounding box, to find objects at different scales.
+
+ESS - Efficient Subwindow Search
+--------------------------------
+
+From ...
+
+#### Pro
+
+-   B
+
+#### Con
+
+-   W
 
 1. Valentino Aluigi. 2019. JavaScript implementation of the Average Hash using HTML5 Canvas.
 
