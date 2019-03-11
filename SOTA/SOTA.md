@@ -276,9 +276,13 @@ From \[18\], divide a picture into equal partitions (/4, /8, ..), compute a Bag-
 
 From \[18\], based on SPM but does not split the picture in equal partition = the cell of the pyramid is not spatially fixed.
 
+The cells of the pyramid to move within search regions instead of a predefined rigid partition. Use ESS (See utilities)
+
 ##### Pro
 
 ##### Con
+
+-   High computaitonal cost
 
 ##### Steps of the algorithm
 
@@ -1024,20 +1028,16 @@ From ... \[18\] A bounding box is sliding on the picture, and an objet-existence
 
 -   Too complex ! *O*(*N*<sup>4</sup>) windows to evaluate, with N = resolution on one axis of the picture
 
-Heuristics can be used to reduce the expected complexity of the algorithm. The picture is reduced in size, with a constant size bounding box, to find objects at different scales.
+Heuristics can be used to reduce the expected complexity of the algorithm. The picture is reduced in size, with a constant size bounding box, to find objects at different scales. These heuristics may miss objects.
 
 ESS - Efficient Subwindow Search
 --------------------------------
 
-From ...
+From \[18\] Based on a branch-and-bound algorithm. The algorithm does not evaluate all subrectangle of rectangle with a low evaluation of the best chance they have to contain an object.
 
 #### Pro
 
--   B
-
-#### Con
-
--   W
+-   Sublinear to number of pixels. ( below *O*(*N*) )
 
 1. Valentino Aluigi. 2019. JavaScript implementation of the Average Hash using HTML5 Canvas.
 
