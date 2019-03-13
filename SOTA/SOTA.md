@@ -406,9 +406,22 @@ More than one vector could be transformation of the initial image (rotations, mi
 
 ##### Implementation
 
+ImageHash 4.0 <https://pypi.org/project/ImageHash/>
+
+##### Implementation
+
 Javascript Implementation : \[1\]
 
-### D-HASH
+##### Results
+
+![Top to bottom : structural matching leading to missmatch, structural matching leading to match, structural matching seeing “a form”, missing logo in the match<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/a-hash/false_structural_2.png "fig:") ![Top to bottom : structural matching leading to missmatch, structural matching leading to match, structural matching seeing “a form”, missing logo in the match<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/a-hash/good_structural.png "fig:") ![Top to bottom : structural matching leading to missmatch, structural matching leading to match, structural matching seeing “a form”, missing logo in the match<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/a-hash/false_structural.png "fig:") ![Top to bottom : structural matching leading to missmatch, structural matching leading to match, structural matching seeing “a form”, missing logo in the match<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/a-hash/no_logo_match.png "fig:")
+
+###### Time
+
+Hashing time : 16.796968936920166 sec for 207 items (0.081s per item)
+Matching time : nobs=207, minmax=(0.023s, 1.58s), mean=0.08s, variance=0.025s, skewness=6.62s, kurtosis=50.37s
+
+### D-HASH - Difference Hashing
 
 From \[13\], DHash is a very basic algorithm to find nearly duplicate pictures.
 The hash can be of length 128 or 512 bits. The delta between 2 “matches” is a Hamming distance (\# of different bits.)
@@ -434,6 +447,10 @@ The hash can be of length 128 or 512 bits. The delta between 2 “matches” is 
 4.  Do the same to produce a 64-bit “column hash” in the y direction
 
 5.  Combine the two values to produce the final 128-bit hash value
+
+##### Implementation
+
+ImageHash 4.0 <https://pypi.org/project/ImageHash/>
 
 ### P-HASH - Perceptual Hash
 
@@ -469,6 +486,18 @@ Java implementation : \[35\]
 7.  Construct the hash : create a 64 bits integer from the hash
 
 8.  Comparing with Hamming Distance (threeshold = 21)
+
+##### Implementation
+
+ImageHash 4.0 <https://pypi.org/project/ImageHash/>
+
+### W-HASH - Wavelet Hash
+
+From ... Uses DWT instead of DCT. \[TO LOOK\]
+
+##### Implementation
+
+ImageHash 4.0 <https://pypi.org/project/ImageHash/>
 
 ### SimHash - Charikar’s simhash
 
