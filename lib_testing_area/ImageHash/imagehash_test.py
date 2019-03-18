@@ -11,7 +11,7 @@ from typing import List
 import json
 
 choices_list = ["a","p","p-simple", "d", "d-vertical", "w"]
-HASH_CHOICE = "w"
+HASH_CHOICE = "p"
 
 json_to_export = {}
 hash_list = []
@@ -294,11 +294,11 @@ def full_test(target_dir):
     print("Export json ... ")
     json_export(json_to_export, "test.json")
 
-    stats_result = stats.describe(list_time)
+    print_stats(stats.describe(list_time))
 
 ROUND_DECIMAL = 5
 
-def print_stats(stats):
+def print_stats(stats_result):
     tmp_str = ""
     tmp_str += "nobs : " + str( getattr(stats_result, "nobs")) + "s "
     tmp_str += "min time : " + str(round(getattr(stats_result, "minmax")[0],ROUND_DECIMAL)) + "s "
