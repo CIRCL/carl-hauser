@@ -407,14 +407,15 @@ More than one vector could be transformation of the initial image (rotations, mi
 ##### Implementation
 
 ImageHash 4.0 <https://pypi.org/project/ImageHash/>
-
-##### Implementation
-
 Javascript Implementation : \[1\]
 
 ##### Results
 
+Results given by the ImageHash implementation of A-hash algorithm does not provides reliable results.
+
 ![Top to bottom : structural matching leading to missmatch, structural matching leading to match, structural matching seeing “a form”, missing logo in the match<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/a-hash/false_structural_2.png "fig:") ![Top to bottom : structural matching leading to missmatch, structural matching leading to match, structural matching seeing “a form”, missing logo in the match<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/a-hash/good_structural.png "fig:") ![Top to bottom : structural matching leading to missmatch, structural matching leading to match, structural matching seeing “a form”, missing logo in the match<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/a-hash/false_structural.png "fig:") ![Top to bottom : structural matching leading to missmatch, structural matching leading to match, structural matching seeing “a form”, missing logo in the match<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/a-hash/no_logo_match.png "fig:")
+
+<img src="sota-ressources/outputs-evaluation/a-hash/true_structure.png" title="fig:" alt="Left to right : good structural matching, strange matching (black/white), bad matching" width="226" height="188" /> <img src="sota-ressources/outputs-evaluation/a-hash/bad_matching.png" title="fig:" alt="Left to right : good structural matching, strange matching (black/white), bad matching" width="226" height="188" /> <img src="sota-ressources/outputs-evaluation/a-hash/bad_matching_2.png" title="fig:" alt="Left to right : good structural matching, strange matching (black/white), bad matching" width="226" height="188" />
 
 ###### Time
 
@@ -451,6 +452,18 @@ The hash can be of length 128 or 512 bits. The delta between 2 “matches” is 
 ##### Implementation
 
 ImageHash 4.0 <https://pypi.org/project/ImageHash/>
+
+##### Results
+
+Results given by the ImageHash implementation of D-hash algorithm does not provides reliable results, but better than a-hash results.
+
+![Two good results better than A-hash results<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/d-hash/bestthana.png "fig:") ![Two good results better than A-hash results<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/d-hash/bestthana_2.png "fig:")
+
+![Two wrong results<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/d-hash/echec.png "fig:") ![Two wrong results<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/d-hash/echec_2.png "fig:")
+
+###### Time
+
+nobs : 207s min time : 0.00211s max time : 0.00379s mean :0.0024236169990134123s variance : 1.3200716728248016e-07s skewness : 2.412448208288436s kurtosis : 5.039791588290182
 
 ### P-HASH - Perceptual Hash
 
@@ -491,6 +504,16 @@ Java implementation : \[35\]
 
 ImageHash 4.0 <https://pypi.org/project/ImageHash/>
 
+##### Results
+
+Still some strange results
+
+![Two wrong results<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/p-hash/strange_0.png "fig:") ![Two wrong results<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/p-hash/strange_1.png "fig:")
+
+###### Time
+
+nobs : 207 min time : 0.00253s max time : 0.63245s mean :0.009314882582512455s variance : 0.0020187846451833486s skewness : 13.117889676404076s kurtosis : 177.8720654998952
+
 ### W-HASH - Wavelet Hash
 
 From ... Uses DWT instead of DCT. \[TO LOOK\]
@@ -498,6 +521,18 @@ From ... Uses DWT instead of DCT. \[TO LOOK\]
 ##### Implementation
 
 ImageHash 4.0 <https://pypi.org/project/ImageHash/>
+
+##### Results
+
+Better than others, but still some strange/wrong results.
+
+![One strange result<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/w-hash/strange_0.png)
+
+![Two wrong results<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/w-hash/error_0.png "fig:") ![Two wrong results<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/w-hash/error_1.png "fig:")
+
+###### Time
+
+nobs : 207 min time : 0.00214s max time : 0.53841s mean :0.00532086229554697s variance : 0.0013867749582104625s skewness : 14.274196161282449s kurtosis : 201.83699346303464
 
 ### SimHash - Charikar’s simhash
 
