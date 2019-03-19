@@ -384,6 +384,8 @@ SDHash seesm the more accurate, but the slower. Cross-reference seems a good way
 
 Examples : Holistic features (=“Spatial enveloppe” = naturalness, openness, roughness, ruggedness, expansion ..), colors histograms, “Global Self-Similarity” (=spatial arrangement)
 
+![Results from \[47\] - Lower score is better<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/results_0.png)
+
 ### A-HASH : Average Hash
 
 From ... \[34\] : “the result is better than it has any right to be.”
@@ -422,6 +424,10 @@ Results given by the ImageHash implementation of A-hash algorithm does not provi
 Hashing time : 16.796968936920166 sec for 207 items (0.081s per item)
 Matching time : nobs=207, minmax=(0.023s, 1.58s), mean=0.08s, variance=0.025s, skewness=6.62s, kurtosis=50.37s
 
+### B-HASH : Block Hash
+
+Seems worst than A-hash.
+
 ### D-HASH - Difference Hashing
 
 From \[13\], DHash is a very basic algorithm to find nearly duplicate pictures.
@@ -457,13 +463,19 @@ ImageHash 4.0 <https://pypi.org/project/ImageHash/>
 
 Results given by the ImageHash implementation of D-hash algorithm does not provides reliable results, but better than a-hash results.
 
-![Two good results better than A-hash results<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/d-hash/bestthana.png "fig:") ![Two good results better than A-hash results<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/d-hash/bestthana_2.png "fig:")
+![Two good results better than A-hash results - d-hash<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/d-hash/bestthana.png "fig:") ![Two good results better than A-hash results - d-hash<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/d-hash/bestthana_2.png "fig:")
 
-![Two wrong results<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/d-hash/echec.png "fig:") ![Two wrong results<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/d-hash/echec_2.png "fig:")
+![Two wrong results - d-hash<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/d-hash/echec.png "fig:") ![Two wrong results - d-hash<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/d-hash/echec_2.png "fig:")
 
 ###### Time
 
 nobs : 207s min time : 0.00211s max time : 0.00379s mean :0.0024236169990134123s variance : 1.3200716728248016e-07s skewness : 2.412448208288436s kurtosis : 5.039791588290182
+
+###### “Vertical” variation
+
+A variation of the d-hash algorithm is available, as d-hash vertical.
+
+![Two interesting mismatch - Vertical d-hash<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/d-hash-vertical/interesting_mismatch.png "fig:") ![Two interesting mismatch - Vertical d-hash<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/d-hash-vertical/interesting_mismatch_2.png "fig:")
 
 ### P-HASH - Perceptual Hash
 
@@ -514,6 +526,12 @@ Still some strange results
 
 nobs : 207 min time : 0.00253s max time : 0.63245s mean :0.009314882582512455s variance : 0.0020187846451833486s skewness : 13.117889676404076s kurtosis : 177.8720654998952
 
+###### “Simple” variation
+
+A variation of the p-hash algorithm is available, as p-hash simple.
+
+![A wrong result and a somwhat good one - p-hash simple<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/p-hash-simple/error_0.png "fig:") ![A wrong result and a somwhat good one - p-hash simple<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/p-hash-simple/good_black.png "fig:")
+
 ### W-HASH - Wavelet Hash
 
 From ... Uses DWT instead of DCT. \[TO LOOK\]
@@ -526,9 +544,9 @@ ImageHash 4.0 <https://pypi.org/project/ImageHash/>
 
 Better than others, but still some strange/wrong results.
 
-![One strange result<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/w-hash/strange_0.png)
+![One strange result - p-hash<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/w-hash/strange_0.png)
 
-![Two wrong results<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/w-hash/error_0.png "fig:") ![Two wrong results<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/w-hash/error_1.png "fig:")
+![Two wrong results - p-hash<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/w-hash/error_0.png "fig:") ![Two wrong results - p-hash<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/w-hash/error_1.png "fig:")
 
 ###### Time
 
@@ -597,16 +615,6 @@ Not so far from Machine Learning Approaches, but outperformed by them.
 
 -   Very inefficient codes (512 bits for a picture (TO CHECK))
 
-### TLSH - Locality Sensitve Hashing
-
-From \[24\]
-
-##### Pro
-
--   Parametered threeshold (below 30 in original paper)
-
--   Open Source
-
 ### Nilsimsa hash - Locality sensitive hash
 
 A word in \[24\]
@@ -614,6 +622,24 @@ A word in \[24\]
 ##### Pro
 
 -   Open Source
+
+### TLSH - Trend Micro Locality Sensitive Hashing
+
+From \[24\] directly performed on file, not only pictures.
+
+##### Pro
+
+-   Parametered threeshold (below 30 in original paper)
+
+-   Open Source
+
+###### Time
+
+Normal version : nobs : 207s min time : 0.00083s max time : 0.00165s mean :0.00095s variance : 0.0s skewness : 2.7512s kurtosis : 7.24537 No-length version : nobs : 207s min time : 0.00095s max time : 0.00455s mean :0.00115s variance : 0.0s skewness : 7.60762s kurtosis : 67.0044
+
+![High distance for close pictures, perfect match for colors, strange mismatches, diverses matches - TLSH (normal)<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/tlsh/example_0.png "fig:") ![High distance for close pictures, perfect match for colors, strange mismatches, diverses matches - TLSH (normal)<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/tlsh/clean_match.png "fig:") ![High distance for close pictures, perfect match for colors, strange mismatches, diverses matches - TLSH (normal)<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/tlsh/mismatch_0.png "fig:") ![High distance for close pictures, perfect match for colors, strange mismatches, diverses matches - TLSH (normal)<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/tlsh/strange_results.png "fig:")
+
+![Strange matching, with values incosistent regarding pictures - TLSH (no length)<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/tlsh_nolength/strange_distance.png "fig:") ![Strange matching, with values incosistent regarding pictures - TLSH (no length)<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/tlsh_nolength/strange_distance_2.png "fig:")
 
 ### SSDeep - Similarity Digest 
 
@@ -812,7 +838,7 @@ From \[11\], realize in motion prediction from a single image, motion synthesis 
 
 ##### Implementation
 
-SIFT Flow (modified version of SIFT) C++ \[47\] at <http://people.csail.mit.edu/celiu/SIFTflow/>
+SIFT Flow (modified version of SIFT) C++ \[48\] at <http://people.csail.mit.edu/celiu/SIFTflow/>
 
 ### Root-SIFT
 
@@ -940,7 +966,7 @@ From ... Few words in \[32\] Unidirectional matching approach. Does not “check
 
 Extract binary strings equivalent to a descriptor without having to create a descriptor
 
-See BRIEF \[48\]
+See BRIEF \[49\]
 
 #### Pro
 
@@ -1277,6 +1303,8 @@ From ... A word in \[9\]
 
 46. OpenCV: Feature Matching.
 
-47. SIFT Flow: Dense Correspondence across Scenes and its Applications.
+47. Testing different image hash functions.
 
-48. BRIEF (Binary Robust Independent Elementary Features) 3.0.0-dev documentation.
+48. SIFT Flow: Dense Correspondence across Scenes and its Applications.
+
+49. BRIEF (Binary Robust Independent Elementary Features) 3.0.0-dev documentation.
