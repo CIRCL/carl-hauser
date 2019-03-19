@@ -415,9 +415,19 @@ Javascript Implementation : \[1\]
 
 Results given by the ImageHash implementation of A-hash algorithm does not provides reliable results.
 
-![Top to bottom : structural matching leading to missmatch, structural matching leading to match, structural matching seeing “a form”, missing logo in the match<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/a-hash/false_structural_2.png "fig:") ![Top to bottom : structural matching leading to missmatch, structural matching leading to match, structural matching seeing “a form”, missing logo in the match<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/a-hash/good_structural.png "fig:") ![Top to bottom : structural matching leading to missmatch, structural matching leading to match, structural matching seeing “a form”, missing logo in the match<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/a-hash/false_structural.png "fig:") ![Top to bottom : structural matching leading to missmatch, structural matching leading to match, structural matching seeing “a form”, missing logo in the match<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/a-hash/no_logo_match.png "fig:")
+<span>0.99</span> <img src="sota-ressources/outputs-evaluation/a-hash/false_structural_2.png" title="fig:" alt="A-hash" />
 
-<img src="sota-ressources/outputs-evaluation/a-hash/true_structure.png" title="fig:" alt="Left to right : good structural matching, strange matching (black/white), bad matching" width="226" height="188" /> <img src="sota-ressources/outputs-evaluation/a-hash/bad_matching.png" title="fig:" alt="Left to right : good structural matching, strange matching (black/white), bad matching" width="226" height="188" /> <img src="sota-ressources/outputs-evaluation/a-hash/bad_matching_2.png" title="fig:" alt="Left to right : good structural matching, strange matching (black/white), bad matching" width="226" height="188" />
+<span>0.99</span> <img src="sota-ressources/outputs-evaluation/a-hash/good_structural.png" title="fig:" alt="A-hash" />
+
+<span>0.99</span> <img src="sota-ressources/outputs-evaluation/a-hash/false_structural.png" title="fig:" alt="A-hash" />
+
+<span>0.99</span> <img src="sota-ressources/outputs-evaluation/a-hash/no_logo_match.png" title="fig:" alt="A-hash" />
+
+<span>0.49</span> <img src="sota-ressources/outputs-evaluation/a-hash/true_structure.png" title="fig:" alt="A-hash" />
+
+<span>0.45</span> <img src="sota-ressources/outputs-evaluation/a-hash/bad_matching.png" title="fig:" alt="A-hash" />
+
+<span>0.7</span> <img src="sota-ressources/outputs-evaluation/a-hash/bad_matching_2.png" title="fig:" alt="A-hash" />
 
 ###### Time
 
@@ -427,6 +437,10 @@ Matching time : nobs=207, minmax=(0.023s, 1.58s), mean=0.08s, variance=0.025s, s
 ### B-HASH : Block Hash
 
 Seems worst than A-hash.
+
+##### Implementation
+
+\[48\] <http://blockhash.io> and <https://github.com/commonsmachinery/blockhash-python>
 
 ### D-HASH - Difference Hashing
 
@@ -463,9 +477,13 @@ ImageHash 4.0 <https://pypi.org/project/ImageHash/>
 
 Results given by the ImageHash implementation of D-hash algorithm does not provides reliable results, but better than a-hash results.
 
-![Two good results better than A-hash results - d-hash<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/d-hash/bestthana.png "fig:") ![Two good results better than A-hash results - d-hash<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/d-hash/bestthana_2.png "fig:")
+<span>0.39</span> <img src="sota-ressources/outputs-evaluation/d-hash/bestthana.png" title="fig:" alt="d-hash" />
 
-![Two wrong results - d-hash<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/d-hash/echec.png "fig:") ![Two wrong results - d-hash<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/d-hash/echec_2.png "fig:")
+<span>0.60</span> <img src="sota-ressources/outputs-evaluation/d-hash/bestthana_2.png" title="fig:" alt="d-hash" />
+
+<span>0.3</span> <img src="sota-ressources/outputs-evaluation/d-hash/echec.png" title="fig:" alt="d-hash" />
+
+<span>0.66</span> <img src="sota-ressources/outputs-evaluation/d-hash/echec_2.png" title="fig:" alt="d-hash" />
 
 ###### Time
 
@@ -475,7 +493,9 @@ nobs : 207s min time : 0.00211s max time : 0.00379s mean :0.0024236169990134123s
 
 A variation of the d-hash algorithm is available, as d-hash vertical.
 
-![Two interesting mismatch - Vertical d-hash<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/d-hash-vertical/interesting_mismatch.png "fig:") ![Two interesting mismatch - Vertical d-hash<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/d-hash-vertical/interesting_mismatch_2.png "fig:")
+<span>0.42</span> <img src="sota-ressources/outputs-evaluation/d-hash-vertical/interesting_mismatch.png" title="fig:" alt="Vertical d-hash" />
+
+<span>0.56</span> <img src="sota-ressources/outputs-evaluation/d-hash-vertical/interesting_mismatch_2.png" title="fig:" alt="Vertical d-hash" />
 
 ### P-HASH - Perceptual Hash
 
@@ -520,7 +540,9 @@ ImageHash 4.0 <https://pypi.org/project/ImageHash/>
 
 Still some strange results
 
-![Two wrong results<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/p-hash/strange_0.png "fig:") ![Two wrong results<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/p-hash/strange_1.png "fig:")
+<span>0.52</span> <img src="sota-ressources/outputs-evaluation/p-hash/strange_0.png" title="fig:" alt="P-hash" />
+
+<span>0.47</span> <img src="sota-ressources/outputs-evaluation/p-hash/strange_1.png" title="fig:" alt="P-hash" />
 
 ###### Time
 
@@ -530,7 +552,9 @@ nobs : 207 min time : 0.00253s max time : 0.63245s mean :0.009314882582512455s v
 
 A variation of the p-hash algorithm is available, as p-hash simple.
 
-![A wrong result and a somwhat good one - p-hash simple<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/p-hash-simple/error_0.png "fig:") ![A wrong result and a somwhat good one - p-hash simple<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/p-hash-simple/good_black.png "fig:")
+<span>0.55</span> <img src="sota-ressources/outputs-evaluation/p-hash-simple/error_0.png" title="fig:" alt="P-hash - Simple" />
+
+<span>0.44</span> <img src="sota-ressources/outputs-evaluation/p-hash-simple/good_black.png" title="fig:" alt="P-hash - Simple" />
 
 ### W-HASH - Wavelet Hash
 
@@ -544,9 +568,11 @@ ImageHash 4.0 <https://pypi.org/project/ImageHash/>
 
 Better than others, but still some strange/wrong results.
 
-![One strange result - p-hash<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/w-hash/strange_0.png)
+<span>0.55</span> <img src="sota-ressources/outputs-evaluation/w-hash/strange_0.png" title="fig:" alt="W-hash" />
 
-![Two wrong results - p-hash<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/w-hash/error_0.png "fig:") ![Two wrong results - p-hash<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/w-hash/error_1.png "fig:")
+<span>0.44</span> <img src="sota-ressources/outputs-evaluation/w-hash/error_0.png" title="fig:" alt="W-hash" />
+
+<span>0.8</span> <img src="sota-ressources/outputs-evaluation/w-hash/error_1.png" title="fig:" alt="W-hash" />
 
 ###### Time
 
@@ -637,9 +663,17 @@ From \[24\] directly performed on file, not only pictures.
 
 Normal version : nobs : 207s min time : 0.00083s max time : 0.00165s mean :0.00095s variance : 0.0s skewness : 2.7512s kurtosis : 7.24537 No-length version : nobs : 207s min time : 0.00095s max time : 0.00455s mean :0.00115s variance : 0.0s skewness : 7.60762s kurtosis : 67.0044
 
-![High distance for close pictures, perfect match for colors, strange mismatches, diverses matches - TLSH (normal)<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/tlsh/example_0.png "fig:") ![High distance for close pictures, perfect match for colors, strange mismatches, diverses matches - TLSH (normal)<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/tlsh/clean_match.png "fig:") ![High distance for close pictures, perfect match for colors, strange mismatches, diverses matches - TLSH (normal)<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/tlsh/mismatch_0.png "fig:") ![High distance for close pictures, perfect match for colors, strange mismatches, diverses matches - TLSH (normal)<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/tlsh/strange_results.png "fig:")
+<span>0.59</span> <img src="sota-ressources/outputs-evaluation/tlsh/example_0.png" title="fig:" alt="TLSH (normal)" />
 
-![Strange matching, with values incosistent regarding pictures - TLSH (no length)<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/tlsh_nolength/strange_distance.png "fig:") ![Strange matching, with values incosistent regarding pictures - TLSH (no length)<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/tlsh_nolength/strange_distance_2.png "fig:")
+<span>0.40</span> <img src="sota-ressources/outputs-evaluation/tlsh/clean_match.png" title="fig:" alt="TLSH (normal)" />
+
+<span>0.51</span> <img src="sota-ressources/outputs-evaluation/tlsh/mismatch_0.png" title="fig:" alt="TLSH (normal)" />
+
+<span>0.48</span> <img src="sota-ressources/outputs-evaluation/tlsh/strange_results.png" title="fig:" alt="TLSH (normal)" />
+
+<span>0.49</span> <img src="sota-ressources/outputs-evaluation/tlsh_nolength/strange_distance.png" title="fig:" alt="Inconsistent distance regarding pictures - TLSH (no length)" />
+
+<span>0.50</span> <img src="sota-ressources/outputs-evaluation/tlsh_nolength/strange_distance_2.png" title="fig:" alt="Inconsistent distance regarding pictures - TLSH (no length)" />
 
 ### SSDeep - Similarity Digest 
 
@@ -838,7 +872,7 @@ From \[11\], realize in motion prediction from a single image, motion synthesis 
 
 ##### Implementation
 
-SIFT Flow (modified version of SIFT) C++ \[48\] at <http://people.csail.mit.edu/celiu/SIFTflow/>
+SIFT Flow (modified version of SIFT) C++ \[49\] at <http://people.csail.mit.edu/celiu/SIFTflow/>
 
 ### Root-SIFT
 
@@ -966,7 +1000,7 @@ From ... Few words in \[32\] Unidirectional matching approach. Does not “check
 
 Extract binary strings equivalent to a descriptor without having to create a descriptor
 
-See BRIEF \[49\]
+See BRIEF \[50\]
 
 #### Pro
 
@@ -1305,6 +1339,8 @@ From ... A word in \[9\]
 
 47. Testing different image hash functions.
 
-48. SIFT Flow: Dense Correspondence across Scenes and its Applications.
+48. Blockhash.
 
-49. BRIEF (Binary Robust Independent Elementary Features) 3.0.0-dev documentation.
+49. SIFT Flow: Dense Correspondence across Scenes and its Applications.
+
+50. BRIEF (Binary Robust Independent Elementary Features) 3.0.0-dev documentation.
