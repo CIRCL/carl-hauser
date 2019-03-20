@@ -115,10 +115,20 @@ Distinctive features :
 -   NOT scaling invariant
     One point could be a corner in a small scaled neighborhood, or as an edge in a large scaled neighborhood.
 
+#### CSS - Curvature Space Scale
+
+#### Hit and Miss filter
+
+#### Shi/Tomasi
+
+#### SUSAN
+
+From ... a word in \[26\] Less accuracy, more speed.
+
 #### FAST - Features from Accelerated Segment Test
 
 From the original paper \[26\] cited in \[37\]
-Is a corner detector, based on machine learning.
+Is a corner detector, based on machine learning. More accuracy, kept with high speed. Based on SUSAN
 
 Distinctive features :
 
@@ -137,6 +147,8 @@ Distinctive features :
 -   can respond to 1 pixel wide lines
 
 -   dependent on a threshold
+
+-   no scale/rotation invariance (? TO CHECK)
 
 Step 2 - Descriptor Extraction
 ------------------------------
@@ -255,13 +267,27 @@ Step 4 - Matching
 
 Linked to correspondence problem ?
 
-### Distance
+### Datastructure
 
-#### Best match
+Compression of descriptors before matching
 
--   Returns only the best match
+#### LSH - Locally Sensitive Hashing
+
+-   O(~N)
 
 -   Returns the K (parameter) best matchs
+
+-   \[46\]
+
+-   Convert descriptor (floats) to binary strings. Binary strings matched with Hamming Distance, equivalent to a XOR and bit count (very fast with SSE instructions on CPU)
+
+#### BBF - Best bin first Kd-tree
+
+-   O(~N)
+
+-   Example : SIFT – Scale Invariant Feature Tranform
+
+### Distance
 
 #### Hamming distance / Bruteforce
 
@@ -276,7 +302,7 @@ Works with binary features. Can be accelerated with GPU \[4\].
 
 -   CrossCheck test : list of “perfect match” (TO CHECK)
 
-#### FLANN – Fast Library for Approximate Nearest Neighboors
+#### FLANN - Fast Library for Approximate Nearest Neighboors
 
 From \[4\], is an approximation for matching in Euclidian space, with KD-Tree techniques.
 Work with non-binary features.
@@ -291,53 +317,42 @@ Work with non-binary features.
 
 Apache 2 From \[5\], available at : <https://github.com/nmslib/nmslib> \[42\] Does not benchmark memory usage.
 
-### QBH - Quantization Based Hashing
-
-From \[29\] Incorporates quantization error into the conventional property preserving hashing models to improve the effectiveness of the hash codes
-
-#### IMI - Inverted Multi-Index
-
-#### NGS - Neighboorhood Graph Search
-
-#### HNSW - Hierarchical Navigable Small Worlds
-
-Graph based approach. Precise approximate nearest neighbor search in billion-sized datasets.
-**Highly scalable** : “Indexing 1 billion vectors takes about 26 hours with L&C: we can add more than 10,000 vectors per second to the index. We refine at most 10 vectors.”
-
-##### Implementation
-
-BSD <https://github.com/facebookresearch/faiss> \[43\]
-
 ### Selection
 
 Higly noisy correspondences need to be filtered.
 
+#### Best match
+
+-   Returns only the best match
+
+-   Returns the K (parameter) best matchs
+
 #### RATIO - 
 
 From \[4\] recognizes the distinctiveness of features by comparing the distance of their two nearest neighbors.
+This test rejects poor matches by computing the ratio between the best and second-best match. If the ratio is below some threshold, the match is discarded as being low-quality.
 
 #### GMS - Gird-based Motion Statistics
 
 Uses the motion smoothness constraint. Equivalent to RATIO.
 Robustness, accuracy, sufficiency, and efficiency of GMS all depend on the number of interest points detected.
 
-### Compression of descriptors before matching
+#### QBH - Quantization Based Hashing
 
-#### LSH – Locally Sensitive Hashing
+From \[29\] Incorporates quantization error into the conventional property preserving hashing models to improve the effectiveness of the hash codes
 
--   O(~N)
+##### IMI - Inverted Multi-Index
 
--   Returns the K (parameter) best matchs
+##### NGS - Neighboorhood Graph Search
 
--   \[46\]
+##### HNSW - Hierarchical Navigable Small Worlds
 
--   Convert descriptor (floats) to binary strings. Binary strings matched with Hamming Distance, equivalent to a XOR and bit count (very fast with SSE instructions on CPU)
+Graph based approach. Precise approximate nearest neighbor search in billion-sized datasets.
+**Highly scalable** : “Indexing 1 billion vectors takes about 26 hours with L&C: we can add more than 10,000 vectors per second to the index. We refine at most 10 vectors.”
 
-#### BBF – Best bin first Kd-tree
+###### Implementation
 
--   O(~N)
-
--   Example : SIFT – Scale Invariant Feature Tranform
+BSD <https://github.com/facebookresearch/faiss> \[43\]
 
 Step 5 - Model Fitting
 ----------------------
@@ -971,16 +986,23 @@ From \[27\] which is rougly a fusion of FAST and BRIEF. See also \[39\]
 
     Multi-probe LSH (improved version of LSH)
 
+###### Time
+
+MIN-version : nobs : 207 min time : 0.00022s max time : 1.22806s mean :0.78938s variance : 0.06399s skewness : -2.6371s kurtosis : 5.44295
+MAX-version : nobs : 207 min time : 0.00022s max time : 1.89294s mean :0.81612s variance : 0.0911s skewness : -1.02273s kurtosis : 3.77603
+
+<span>0.58</span> <img src="sota-ressources/outputs-evaluation/orb_min/microsoft_match.png" title="fig:" alt="Results - ORB - min version" />
+
+<span>0.43</span> <img src="sota-ressources/outputs-evaluation/orb_min/attractor_problem_min.png" title="fig:" alt="Results - ORB - min version" />
+
+<span>0.6</span> <img src="sota-ressources/outputs-evaluation/orb_min/how_handle_no_descriptors.png" title="fig:" alt="Results - ORB - min version" />
+
 ### BRISK - 
 
 ### AKASE - 
 
 Unsorted
 --------
-
-### SUSAN
-
-From ... a word in \[26\]
 
 ### PSO
 
