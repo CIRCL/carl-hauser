@@ -1,5 +1,4 @@
 
-import imagehash
 import pathlib
 import random
 import time
@@ -7,11 +6,12 @@ import operator
 from PIL import Image, ImageFont, ImageDraw
 from scipy import stats
 from typing import List
-
 import json
 
-choices_list = ["a","p","p-simple", "d", "d-vertical", "w"]
-HASH_CHOICE = "p"
+import tlsh
+
+choices_list = ["normal","no-length"]
+HASH_CHOICE = "no-length"
 
 json_to_export = {}
 hash_list = []
@@ -36,10 +36,18 @@ class Picture() :
         tmp_obj["image"] = self.path.name
         return tmp_obj
 
-    def compute_distance(self, target_hash):
-        self.distance = abs(self.hash - target_hash)
+    def compute_distance(self, target_picture):
+        self.distance = compute_distance_ext(self, target_picture)
+
         return self.distance
 
+
+def compute_distance_ext(pic1, pic2):
+    if HASH_CHOICE == choices_list[0]:
+        dist = tlsh.diff(pic1.hash, pic2.hash)
+    elif HASH_CHOICE == choices_list[1]:
+        dist = tlsh.diffxlen(pic1.hash, pic2.hash)
+    return dist
 
 # ==== Disk access ====
 def fixed_choice():
@@ -76,25 +84,16 @@ def hash_pictures(picture_list : List[Picture]):
 
 def hash_picture(curr_picture: Picture):
     try:
-        if HASH_CHOICE == choices_list[0] : # Average
-            target_hash = imagehash.average_hash(Image.open(curr_picture.path))
-        elif HASH_CHOICE == choices_list [1] : # Perception
-            target_hash = imagehash.phash(Image.open(curr_picture.path))
-        elif HASH_CHOICE == choices_list [2] : # Perception - simple
-            target_hash = imagehash.phash_simple(Image.open(curr_picture.path))
-        elif HASH_CHOICE == choices_list [3] : # D
-            target_hash = imagehash.dhash(Image.open(curr_picture.path))
-        elif HASH_CHOICE == choices_list [4] : # D-vertical
-            target_hash = imagehash.dhash_vertical(Image.open(curr_picture.path))
-        elif HASH_CHOICE == choices_list [5] : # Wavelet
-            target_hash = imagehash.whash(Image.open(curr_picture.path))
+        # target_hash = tlsh.hash(Image.open(curr_picture.path))
+        target_hash = tlsh.hash(open(curr_picture.path, 'rb').read())
+        # tlsh.hash(open(file, 'rb').read()) ? # From https://github.com/trendmicro/tlsh
 
-        # TO NORMALIZE : https://fullstackml.com/wavelet-image-hash-in-python-3504fdd282b5
         curr_picture.hash = target_hash
     except Exception as e:
         print("Error during hashing : " + str(e))
 
     return curr_picture
+
 
 # ==== Checking ====
 def find_closest(picture_list : List[Picture], target_picture : Picture):
@@ -102,8 +101,8 @@ def find_closest(picture_list : List[Picture], target_picture : Picture):
     min_object = None
 
     for curr_picture in picture_list :
-        if not are_same_picture(target_picture,curr_picture) and (min is None or min > abs(curr_picture.hash-target_picture.hash)):
-            min = abs(curr_picture.hash-target_picture.hash) # TODO : Hamming .. ?
+        if not are_same_picture(target_picture,curr_picture) and (min is None or min > compute_distance_ext(curr_picture, target_picture)):
+            min = compute_distance_ext(curr_picture, target_picture) # TODO : Hamming .. ?
             min_object = curr_picture
 
     print("original picture : \t" + str(target_picture.path))
@@ -112,7 +111,7 @@ def find_closest(picture_list : List[Picture], target_picture : Picture):
 
 def get_top(picture_list : List[Picture], target_picture : Picture):
     for curr_picture in picture_list :
-        curr_picture.compute_distance(target_picture.hash)
+        curr_picture.compute_distance(target_picture)
 
     sorted_picture_list = sorted(picture_list, key=operator.attrgetter('distance'))
     print(sorted_picture_list)
@@ -304,11 +303,12 @@ def print_stats(stats_result):
     tmp_str += "nobs : " + str( getattr(stats_result, "nobs")) + "s "
     tmp_str += "min time : " + str(round(getattr(stats_result, "minmax")[0],ROUND_DECIMAL)) + "s "
     tmp_str += "max time : " + str(round(getattr(stats_result, "minmax")[1],ROUND_DECIMAL)) + "s "
-    tmp_str += "mean :" + str(getattr(stats_result, "mean")) + "s "
-    tmp_str += "variance : " + str(getattr(stats_result, "variance")) + "s "
-    tmp_str += "skewness : " + str(getattr(stats_result, "skewness") ) + "s "
-    tmp_str += "kurtosis : " + str(getattr(stats_result, "kurtosis") )
+    tmp_str += "mean :" + str(round(getattr(stats_result, "mean"),ROUND_DECIMAL)) + "s "
+    tmp_str += "variance : " + str(round(getattr(stats_result, "variance"),ROUND_DECIMAL)) + "s "
+    tmp_str += "skewness : " + str(round(getattr(stats_result, "skewness"),ROUND_DECIMAL) ) + "s "
+    tmp_str += "kurtosis : " + str(round(getattr(stats_result, "kurtosis") ,ROUND_DECIMAL))
     print(tmp_str)
+
 def clean_folder(target_dir):
     '''
     Remove 0-bytes size files
