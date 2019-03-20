@@ -19,6 +19,9 @@ save_picture = False
 orb = None
 bfmatcher = None
 
+DISTANCE_CHOSEN = 2
+DISTANCE_TYPE = ["LEN + MIN","LEN + MAX","RATIO + LEN"]
+
 
 class Picture():
     def __init__(self, id, shape="image", path=None):
@@ -61,20 +64,34 @@ def compute_distance_ext(pic1, pic2):
     matches = sorted(matches, key=lambda x: x.distance)  # Sort matches by distance.  Best come first.
 
     # print("Matches " + str(pic1.path) + " to " + str(pic2.path))
+
     # THREESHOLD ? TODO
+    # TODO : Previously MIN, test with MEAN ?
+    # TODO : Test with Mean of matches.distance .. verify what are matches distance .. 
 
-    dist = 1 - len(matches)/(min(len(pic1.description), len(pic2.description)))
-    # print(dist)
-
-    # Apply ratio test
-    '''
+    if DISTANCE_CHOSEN == 0 : # MIN
+        dist = 1 - len(matches)/(min(len(pic1.description), len(pic2.description)))
+    elif DISTANCE_CHOSEN == 1 : #MAX
+        dist = 1 - len(matches)/(max(len(pic1.description), len(pic2.description)))
+    elif DISTANCE_CHOSEN == 2 : #RATIO + LEN
+        # Apply ratio test
         good = []
-    for m, n in matches:
-        if m.distance < 0.75 * n.distance:
-            good.append([m])
-    print("Good :")
-    print(good)
-    '''
+        ratio = 0.75 # 0.8 in original paper.
+        # print(matches)
+        ''' ## Problem with can't iterate
+        for m, n in matches:
+            if m.distance < ratio * n.distance:
+                good.append([m])
+        '''
+        for i, m in enumerate(matches):
+            if i < len(matches) - 1 and m.distance < ratio * matches[i+1].distance:
+                good.append(m)
+
+        # print("Good :")
+        # print(good)
+        dist = 1 - len(good)/(max(len(pic1.description), len(pic2.description)))
+
+    # print(dist)
 
     return dist
 
