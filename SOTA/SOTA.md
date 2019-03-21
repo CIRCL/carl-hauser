@@ -35,7 +35,7 @@
 Introduction
 ============
 
-A general overview was made through standard web lookup. \[6\] A look was given to libraries, which also provide detailed and useful information. \[44\]
+A general overview was made through standard web lookup. \[6\] A look was given to libraries, which also provide detailed and useful information. \[45\]
 
 In the following, we expose :
 
@@ -115,10 +115,20 @@ Distinctive features :
 -   NOT scaling invariant
     One point could be a corner in a small scaled neighborhood, or as an edge in a large scaled neighborhood.
 
+#### CSS - Curvature Space Scale
+
+#### Hit and Miss filter
+
+#### Shi/Tomasi
+
+#### SUSAN
+
+From ... a word in \[26\] Less accuracy, more speed.
+
 #### FAST - Features from Accelerated Segment Test
 
 From the original paper \[26\] cited in \[37\]
-Is a corner detector, based on machine learning.
+Is a corner detector, based on machine learning. More accuracy, kept with high speed. Based on SUSAN
 
 Distinctive features :
 
@@ -137,6 +147,8 @@ Distinctive features :
 -   can respond to 1 pixel wide lines
 
 -   dependent on a threshold
+
+-   no scale/rotation invariance (? TO CHECK)
 
 Step 2 - Descriptor Extraction
 ------------------------------
@@ -163,7 +175,7 @@ Vector descriptors based on our keypoints, each descriptor has size 64 and we ha
 
 ##### Descriptor’s quality
 
-A good descriptor code would be, according to \[45\] :
+A good descriptor code would be, according to \[46\] :
 
 -   easily computed for a novel input
 
@@ -255,13 +267,27 @@ Step 4 - Matching
 
 Linked to correspondence problem ?
 
-### Distance
+### Datastructure
 
-#### Best match
+Compression of descriptors before matching
 
--   Returns only the best match
+#### LSH - Locally Sensitive Hashing
+
+-   O(~N)
 
 -   Returns the K (parameter) best matchs
+
+-   \[47\]
+
+-   Convert descriptor (floats) to binary strings. Binary strings matched with Hamming Distance, equivalent to a XOR and bit count (very fast with SSE instructions on CPU)
+
+#### BBF - Best bin first Kd-tree
+
+-   O(~N)
+
+-   Example : SIFT – Scale Invariant Feature Tranform
+
+### Distance
 
 #### Hamming distance / Bruteforce
 
@@ -276,7 +302,7 @@ Works with binary features. Can be accelerated with GPU \[4\].
 
 -   CrossCheck test : list of “perfect match” (TO CHECK)
 
-#### FLANN – Fast Library for Approximate Nearest Neighboors
+#### FLANN - Fast Library for Approximate Nearest Neighboors
 
 From \[4\], is an approximation for matching in Euclidian space, with KD-Tree techniques.
 Work with non-binary features.
@@ -285,64 +311,53 @@ Work with non-binary features.
 
 -   Returns the K (parameter) best matchs
 
--   \[46\]
+-   \[47\]
 
 ##### Implementation
 
-Apache 2 From \[5\], available at : <https://github.com/nmslib/nmslib> \[42\] Does not benchmark memory usage.
-
-### QBH - Quantization Based Hashing
-
-From \[29\] Incorporates quantization error into the conventional property preserving hashing models to improve the effectiveness of the hash codes
-
-#### IMI - Inverted Multi-Index
-
-#### NGS - Neighboorhood Graph Search
-
-#### HNSW - Hierarchical Navigable Small Worlds
-
-Graph based approach. Precise approximate nearest neighbor search in billion-sized datasets.
-**Highly scalable** : “Indexing 1 billion vectors takes about 26 hours with L&C: we can add more than 10,000 vectors per second to the index. We refine at most 10 vectors.”
-
-##### Implementation
-
-BSD <https://github.com/facebookresearch/faiss> \[43\]
+Apache 2 From \[5\], available at : <https://github.com/nmslib/nmslib> \[43\] Does not benchmark memory usage.
 
 ### Selection
 
 Higly noisy correspondences need to be filtered.
 
+#### Best match
+
+-   Returns only the best match
+
+-   Returns the K (parameter) best matchs
+
 #### RATIO - 
 
 From \[4\] recognizes the distinctiveness of features by comparing the distance of their two nearest neighbors.
+This test rejects poor matches by computing the ratio between the best and second-best match. If the ratio is below some threshold, the match is discarded as being low-quality.
 
 #### GMS - Gird-based Motion Statistics
 
 Uses the motion smoothness constraint. Equivalent to RATIO.
 Robustness, accuracy, sufficiency, and efficiency of GMS all depend on the number of interest points detected.
 
-### Compression of descriptors before matching
+#### QBH - Quantization Based Hashing
 
-#### LSH – Locally Sensitive Hashing
+From \[29\] Incorporates quantization error into the conventional property preserving hashing models to improve the effectiveness of the hash codes
 
--   O(~N)
+##### IMI - Inverted Multi-Index
 
--   Returns the K (parameter) best matchs
+##### NGS - Neighboorhood Graph Search
 
--   \[46\]
+##### HNSW - Hierarchical Navigable Small Worlds
 
--   Convert descriptor (floats) to binary strings. Binary strings matched with Hamming Distance, equivalent to a XOR and bit count (very fast with SSE instructions on CPU)
+Graph based approach. Precise approximate nearest neighbor search in billion-sized datasets.
+**Highly scalable** : “Indexing 1 billion vectors takes about 26 hours with L&C: we can add more than 10,000 vectors per second to the index. We refine at most 10 vectors.”
 
-#### BBF – Best bin first Kd-tree
+###### Implementation
 
--   O(~N)
-
--   Example : SIFT – Scale Invariant Feature Tranform
+BSD <https://github.com/facebookresearch/faiss> \[44\]
 
 Step 5 - Model Fitting
 ----------------------
 
-From \[4\] and \[44\], is a step where the geometry of the scene is verified and/or estimated. Given correspondances, the pose of the object is estimated.
+From \[4\] and \[45\], is a step where the geometry of the scene is verified and/or estimated. Given correspondances, the pose of the object is estimated.
 
 -   Identify inliers and outliers ~ Fitting a homography matrix ~ Find the transformation of (picture one) to (picture two)
 
@@ -384,6 +399,8 @@ SDHash seesm the more accurate, but the slower. Cross-reference seems a good way
 
 Examples : Holistic features (=“Spatial enveloppe” = naturalness, openness, roughness, ruggedness, expansion ..), colors histograms, “Global Self-Similarity” (=spatial arrangement)
 
+![Results from \[48\] - Lower score is better<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/results_0.png)
+
 ### A-HASH : Average Hash
 
 From ... \[34\] : “the result is better than it has any right to be.”
@@ -413,14 +430,32 @@ Javascript Implementation : \[1\]
 
 Results given by the ImageHash implementation of A-hash algorithm does not provides reliable results.
 
-![Top to bottom : structural matching leading to missmatch, structural matching leading to match, structural matching seeing “a form”, missing logo in the match<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/a-hash/false_structural_2.png "fig:") ![Top to bottom : structural matching leading to missmatch, structural matching leading to match, structural matching seeing “a form”, missing logo in the match<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/a-hash/good_structural.png "fig:") ![Top to bottom : structural matching leading to missmatch, structural matching leading to match, structural matching seeing “a form”, missing logo in the match<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/a-hash/false_structural.png "fig:") ![Top to bottom : structural matching leading to missmatch, structural matching leading to match, structural matching seeing “a form”, missing logo in the match<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/a-hash/no_logo_match.png "fig:")
+<span>0.99</span> <img src="sota-ressources/outputs-evaluation/a-hash/false_structural_2.png" title="fig:" alt="A-hash" />
 
-<img src="sota-ressources/outputs-evaluation/a-hash/true_structure.png" title="fig:" alt="Left to right : good structural matching, strange matching (black/white), bad matching" width="226" height="188" /> <img src="sota-ressources/outputs-evaluation/a-hash/bad_matching.png" title="fig:" alt="Left to right : good structural matching, strange matching (black/white), bad matching" width="226" height="188" /> <img src="sota-ressources/outputs-evaluation/a-hash/bad_matching_2.png" title="fig:" alt="Left to right : good structural matching, strange matching (black/white), bad matching" width="226" height="188" />
+<span>0.99</span> <img src="sota-ressources/outputs-evaluation/a-hash/good_structural.png" title="fig:" alt="A-hash" />
+
+<span>0.99</span> <img src="sota-ressources/outputs-evaluation/a-hash/false_structural.png" title="fig:" alt="A-hash" />
+
+<span>0.99</span> <img src="sota-ressources/outputs-evaluation/a-hash/no_logo_match.png" title="fig:" alt="A-hash" />
+
+<span>0.49</span> <img src="sota-ressources/outputs-evaluation/a-hash/true_structure.png" title="fig:" alt="A-hash" />
+
+<span>0.45</span> <img src="sota-ressources/outputs-evaluation/a-hash/bad_matching.png" title="fig:" alt="A-hash" />
+
+<span>0.7</span> <img src="sota-ressources/outputs-evaluation/a-hash/bad_matching_2.png" title="fig:" alt="A-hash" />
 
 ###### Time
 
 Hashing time : 16.796968936920166 sec for 207 items (0.081s per item)
 Matching time : nobs=207, minmax=(0.023s, 1.58s), mean=0.08s, variance=0.025s, skewness=6.62s, kurtosis=50.37s
+
+### B-HASH : Block Hash
+
+Seems worst than A-hash.
+
+##### Implementation
+
+\[49\] <http://blockhash.io> and <https://github.com/commonsmachinery/blockhash-python>
 
 ### D-HASH - Difference Hashing
 
@@ -457,13 +492,25 @@ ImageHash 4.0 <https://pypi.org/project/ImageHash/>
 
 Results given by the ImageHash implementation of D-hash algorithm does not provides reliable results, but better than a-hash results.
 
-![Two good results better than A-hash results<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/d-hash/bestthana.png "fig:") ![Two good results better than A-hash results<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/d-hash/bestthana_2.png "fig:")
+<span>0.39</span> <img src="sota-ressources/outputs-evaluation/d-hash/bestthana.png" title="fig:" alt="d-hash" />
 
-![Two wrong results<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/d-hash/echec.png "fig:") ![Two wrong results<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/d-hash/echec_2.png "fig:")
+<span>0.60</span> <img src="sota-ressources/outputs-evaluation/d-hash/bestthana_2.png" title="fig:" alt="d-hash" />
+
+<span>0.3</span> <img src="sota-ressources/outputs-evaluation/d-hash/echec.png" title="fig:" alt="d-hash" />
+
+<span>0.66</span> <img src="sota-ressources/outputs-evaluation/d-hash/echec_2.png" title="fig:" alt="d-hash" />
 
 ###### Time
 
 nobs : 207s min time : 0.00211s max time : 0.00379s mean :0.0024236169990134123s variance : 1.3200716728248016e-07s skewness : 2.412448208288436s kurtosis : 5.039791588290182
+
+###### “Vertical” variation
+
+A variation of the d-hash algorithm is available, as d-hash vertical.
+
+<span>0.42</span> <img src="sota-ressources/outputs-evaluation/d-hash-vertical/interesting_mismatch.png" title="fig:" alt="Vertical d-hash" />
+
+<span>0.56</span> <img src="sota-ressources/outputs-evaluation/d-hash-vertical/interesting_mismatch_2.png" title="fig:" alt="Vertical d-hash" />
 
 ### P-HASH - Perceptual Hash
 
@@ -508,11 +555,21 @@ ImageHash 4.0 <https://pypi.org/project/ImageHash/>
 
 Still some strange results
 
-![Two wrong results<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/p-hash/strange_0.png "fig:") ![Two wrong results<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/p-hash/strange_1.png "fig:")
+<span>0.52</span> <img src="sota-ressources/outputs-evaluation/p-hash/strange_0.png" title="fig:" alt="P-hash" />
+
+<span>0.47</span> <img src="sota-ressources/outputs-evaluation/p-hash/strange_1.png" title="fig:" alt="P-hash" />
 
 ###### Time
 
 nobs : 207 min time : 0.00253s max time : 0.63245s mean :0.009314882582512455s variance : 0.0020187846451833486s skewness : 13.117889676404076s kurtosis : 177.8720654998952
+
+###### “Simple” variation
+
+A variation of the p-hash algorithm is available, as p-hash simple.
+
+<span>0.55</span> <img src="sota-ressources/outputs-evaluation/p-hash-simple/error_0.png" title="fig:" alt="P-hash - Simple" />
+
+<span>0.44</span> <img src="sota-ressources/outputs-evaluation/p-hash-simple/good_black.png" title="fig:" alt="P-hash - Simple" />
 
 ### W-HASH - Wavelet Hash
 
@@ -526,9 +583,11 @@ ImageHash 4.0 <https://pypi.org/project/ImageHash/>
 
 Better than others, but still some strange/wrong results.
 
-![One strange result<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/w-hash/strange_0.png)
+<span>0.55</span> <img src="sota-ressources/outputs-evaluation/w-hash/strange_0.png" title="fig:" alt="W-hash" />
 
-![Two wrong results<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/w-hash/error_0.png "fig:") ![Two wrong results<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/w-hash/error_1.png "fig:")
+<span>0.44</span> <img src="sota-ressources/outputs-evaluation/w-hash/error_0.png" title="fig:" alt="W-hash" />
+
+<span>0.8</span> <img src="sota-ressources/outputs-evaluation/w-hash/error_1.png" title="fig:" alt="W-hash" />
 
 ###### Time
 
@@ -570,13 +629,13 @@ Equivalent to A-Hash with more granularity of masks and transformation. Ability 
 
 ### Spectral-HASH
 
-From \[45\]. A word is given in \[34\]
+From \[46\]. A word is given in \[34\]
 
 The bits are calculated by thresholding a subset of eigenvectors of the Laplacian of the similarity graph
 
 Similar performance to RBM
 
-![Spectral Hashing comparison from \[45\] <span data-label="fig:spectral_hashing_comparison"></span>](sota-ressources/spectral_hashing_comparison.png)
+![Spectral Hashing comparison from \[46\] <span data-label="fig:spectral_hashing_comparison"></span>](sota-ressources/spectral_hashing_comparison.png)
 
 ### LSH - Locality Sensitve Hashing
 
@@ -584,7 +643,7 @@ Same as E2LSH ? Chooses random projections so that two closest image samples in 
 
 ### E2LSH - LSH - Locality Sensitve Hashing
 
-From \[12\] a word is given in \[45\] and \[7\].
+From \[12\] a word is given in \[46\] and \[7\].
 The code is calculated by a random linear projection followed by a random threshold, then the Hamming distance between codewords will asymptotically approach the Euclidean distance between the items.
 
 Not so far from Machine Learning Approaches, but outperformed by them.
@@ -597,16 +656,6 @@ Not so far from Machine Learning Approaches, but outperformed by them.
 
 -   Very inefficient codes (512 bits for a picture (TO CHECK))
 
-### TLSH - Locality Sensitve Hashing
-
-From \[24\]
-
-##### Pro
-
--   Parametered threeshold (below 30 in original paper)
-
--   Open Source
-
 ### Nilsimsa hash - Locality sensitive hash
 
 A word in \[24\]
@@ -615,11 +664,37 @@ A word in \[24\]
 
 -   Open Source
 
+### TLSH - Trend Micro Locality Sensitive Hashing
+
+From \[24\] directly performed on file, not only pictures.
+
+##### Pro
+
+-   Parametered threeshold (below 30 in original paper)
+
+-   Open Source
+
+###### Time
+
+Normal version : nobs : 207s min time : 0.00083s max time : 0.00165s mean :0.00095s variance : 0.0s skewness : 2.7512s kurtosis : 7.24537 No-length version : nobs : 207s min time : 0.00095s max time : 0.00455s mean :0.00115s variance : 0.0s skewness : 7.60762s kurtosis : 67.0044
+
+<span>0.59</span> <img src="sota-ressources/outputs-evaluation/tlsh/example_0.png" title="fig:" alt="TLSH (normal)" />
+
+<span>0.40</span> <img src="sota-ressources/outputs-evaluation/tlsh/clean_match.png" title="fig:" alt="TLSH (normal)" />
+
+<span>0.51</span> <img src="sota-ressources/outputs-evaluation/tlsh/mismatch_0.png" title="fig:" alt="TLSH (normal)" />
+
+<span>0.48</span> <img src="sota-ressources/outputs-evaluation/tlsh/strange_results.png" title="fig:" alt="TLSH (normal)" />
+
+<span>0.49</span> <img src="sota-ressources/outputs-evaluation/tlsh_nolength/strange_distance.png" title="fig:" alt="Inconsistent distance regarding pictures - TLSH (no length)" />
+
+<span>0.50</span> <img src="sota-ressources/outputs-evaluation/tlsh_nolength/strange_distance_2.png" title="fig:" alt="Inconsistent distance regarding pictures - TLSH (no length)" />
+
 ### SSDeep - Similarity Digest 
 
 From ... few words on it in \[28\]
 
-Implementation (C) at \[41\]
+Implementation (C) at \[42\]
 
 Historically the first fuzzing algorithm. CTPH type.
 
@@ -812,7 +887,7 @@ From \[11\], realize in motion prediction from a single image, motion synthesis 
 
 ##### Implementation
 
-SIFT Flow (modified version of SIFT) C++ \[47\] at <http://people.csail.mit.edu/celiu/SIFTflow/>
+SIFT Flow (modified version of SIFT) C++ \[50\] at <http://people.csail.mit.edu/celiu/SIFTflow/>
 
 ### Root-SIFT
 
@@ -911,16 +986,50 @@ From \[27\] which is rougly a fusion of FAST and BRIEF. See also \[39\]
 
     Multi-probe LSH (improved version of LSH)
 
+###### Option explanation
+
+Mostly from \[41\], \[51\], you can.
+
+knnMatch returns the n-best matches in descriptor2 for each descriptor in descriptor1. Which means, instead of a list of matches you get a list of a list of matches.knnMatch is that you can perform a ratio test.
+
+So if the distances from one descriptor in descriptor1 to the two best descriptors in descriptor2 are similar it suggests that there are repetitive patterns in your images. I am not sure why you search for the five best matches - you pass 5 to knnMatch - for each descriptor. Rather search for two.
+
+match filtering with RANSAC
+
+cv2.drawKeypoints() to draw keypoints cv2.drawMatches() helps us to draw the matches. It stacks two images horizontally and draw lines from first image to second image showing best matches. There is also cv2.drawMatchesKnn which draws all the k best matches. If k=2, it will draw two match-lines for each keypoint.
+
+Remove outliers and bad matches :
+
+-   Use crossCheck=True and use bf.match(). Cross-check does matching of two sets of descriptors D1 and D2 in both directions (D1 -&gt; D2 and D2 &lt;- D1) retaining matches that exists in both. First one returns the best match.
+
+-   Use crossCheck=False and then do the ratio test, and use bf.knnMatch(). crossCheck is an alternative to the ratio test. It breaks knnMatch. Knn-match searches for N-best candidate for each descriptor. But it’s impossible to make Cross-check between D1 and D2\[N\]. Therefore you have exception. Second method returns k best matches where k is specified by the user
+
+-   Brute-Force matcher is simple. It takes the descriptor of one feature in first set and is matched with all other features in second set using some distance calculation. And the closest one is returned.
+
+###### Time
+
+MIN-version : nobs : 207 min time : 0.00022s max time : 1.22806s mean :0.78938s variance : 0.06399s skewness : -2.6371s kurtosis : 5.44295
+MAX-version : nobs : 207 min time : 0.00022s max time : 1.89294s mean :0.81612s variance : 0.0911s skewness : -1.02273s kurtosis : 3.77603
+RATIO-version : nobs : 207 min time : 0.00022s max time : 2.25978s mean :0.92306s variance : 0.14716s skewness : -0.13801s kurtosis : 2.98186
+
+<span>0.58</span> <img src="sota-ressources/outputs-evaluation/orb_min/microsoft_match.png" title="fig:" alt="Results - ORB - min version" />
+
+<span>0.43</span> <img src="sota-ressources/outputs-evaluation/orb_min/attractor_problem_min.png" title="fig:" alt="Results - ORB - min version" />
+
+<span>0.6</span> <img src="sota-ressources/outputs-evaluation/orb_min/how_handle_no_descriptors.png" title="fig:" alt="Results - ORB - min version" />
+
+<span>0.51</span> <img src="sota-ressources/outputs-evaluation/orb_max/KBC_perfect_match.png" title="fig:" alt="Results - ORB - max version" />
+
+<span>0.48</span> <img src="sota-ressources/outputs-evaluation/orb_max/Microsoft_good_match_threeshold.png" title="fig:" alt="Results - ORB - max version" />
+
+<span>0.8</span> <img src="sota-ressources/outputs-evaluation/orb_max/swedish_bank_good_match.png" title="fig:" alt="Results - ORB - max version" />
+
 ### BRISK - 
 
 ### AKASE - 
 
 Unsorted
 --------
-
-### SUSAN
-
-From ... a word in \[26\]
 
 ### PSO
 
@@ -940,7 +1049,7 @@ From ... Few words in \[32\] Unidirectional matching approach. Does not “check
 
 Extract binary strings equivalent to a descriptor without having to create a descriptor
 
-See BRIEF \[48\]
+See BRIEF \[52\]
 
 #### Pro
 
@@ -1103,7 +1212,7 @@ Uses a hashing method, binary hierarchical trees and TSVM classifier.
 RBM - Restricted Boltzmann machine
 ----------------------------------
 
-From ... A word is given in \[45\]
+From ... A word is given in \[46\]
 
 To learn 32 bits, the middle layer of the autoencoder has 32 hidden units Neighborhood Components Analysis (NCA) objective function = refine the weights in the network to preserve the neighborhood structure of the input space.
 
@@ -1119,7 +1228,7 @@ From ... \[15\]
 Boosting SSC
 ------------
 
-From ... A word is given in \[45\]
+From ... A word is given in \[46\]
 
 #### Pro
 
@@ -1265,18 +1374,26 @@ From ... A word in \[9\]
 
 40. 2015. Image Matching Using Generalized Scale-Space Interest Points.
 
-41. 2019. Fuzzy hashing API and fuzzy hashing tool. Contribute to ssdeep-project/ssdeep development by creating an account on GitHub.
+41. 2015. BFMatcher raises error for Python interface when crossCheck option is enabled ⋅ Issue \#46 ⋅ MasteringOpenCV/code. *GitHub*.
 
-42. 2019. Non-Metric Space Library (NMSLIB): An efficient similarity search library and a toolkit for evaluation of k-NN methods for generic non-metric spaces.: nmslib/nmslib.
+42. 2019. Fuzzy hashing API and fuzzy hashing tool. Contribute to ssdeep-project/ssdeep development by creating an account on GitHub.
 
-43. 2019. A library for efficient similarity search and clustering of dense vectors.: facebookresearch/faiss.
+43. 2019. Non-Metric Space Library (NMSLIB): An efficient similarity search library and a toolkit for evaluation of k-NN methods for generic non-metric spaces.: nmslib/nmslib.
 
-44. Feature Matching + Homography to find Objects 3.0.0-dev documentation.
+44. 2019. A library for efficient similarity search and clustering of dense vectors.: facebookresearch/faiss.
 
-45. Spectralhashing.Pdf.
+45. Feature Matching + Homography to find Objects 3.0.0-dev documentation.
 
-46. OpenCV: Feature Matching.
+46. Spectralhashing.Pdf.
 
-47. SIFT Flow: Dense Correspondence across Scenes and its Applications.
+47. OpenCV: Feature Matching.
 
-48. BRIEF (Binary Robust Independent Elementary Features) 3.0.0-dev documentation.
+48. Testing different image hash functions.
+
+49. Blockhash.
+
+50. SIFT Flow: Dense Correspondence across Scenes and its Applications.
+
+51. Java OpenCV - extracting good matches from knnMatch. *Stack Overflow*.
+
+52. BRIEF (Binary Robust Independent Elementary Features) 3.0.0-dev documentation.
