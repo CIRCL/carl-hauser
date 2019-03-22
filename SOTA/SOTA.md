@@ -1046,35 +1046,42 @@ RATIO-version : nobs : 207 min time : 0.00022s max time : 2.25978s mean :0.92306
 
 <span>0.8</span> <img src="sota-ressources/outputs-evaluation/orb_max/swedish_bank_good_match.png" title="fig:" alt="Results - ORB - max version" />
 
+<span>0.51</span> <img src="sota-ressources/outputs-evaluation/orb_max/KBC_perfect_match.png" title="fig:" alt="Results - ORB - max version" />
+
+<span>0.48</span> <img src="sota-ressources/outputs-evaluation/orb_max/Microsoft_good_match_threeshold.png" title="fig:" alt="Results - ORB - max version" />
+
+<span>0.8</span> <img src="sota-ressources/outputs-evaluation/orb_max/swedish_bank_good_match.png" title="fig:" alt="Results - ORB - max version" />
+
+Following pictures are showing drawbacks of ORB algorithm. As a first “general overview” of some matching results, few examples with commentary are given below. Tests were performed in “ratio” configuration, however, drawbacks are generalized to other submethods.
 Few tips to analyze following pictures :
 
 -   **Parrallel lines** (if there is not rotation) are a indicator of quality matching. It keeps the spatial consistency between source and candidate pictures.
 
 -   **Text** seems to be a problem. Letters are matched to letters, generating false positive. It also “uses” descriptor space (number of descriptors is artificially limited), and so, hinders true logo (for example) to be described and used.
 
-<span>0.58</span> <img src="sota-ressources/outputs-evaluation/orb_matches/batchtextmatching.png" title="fig:" alt="Results - ORB - ratio" />
+<span>0.58</span> <img src="sota-ressources/outputs-evaluation/orb_matches/batchtextmatching.png" title="fig:" alt="Results - ORB - drawbacks examples 1/3" />
 
-<span>0.37</span> <img src="sota-ressources/outputs-evaluation/orb_matches/cleargoodfirstmatch.png" title="fig:" alt="Results - ORB - ratio" />
+<span>0.37</span> <img src="sota-ressources/outputs-evaluation/orb_matches/cleargoodfirstmatch.png" title="fig:" alt="Results - ORB - drawbacks examples 1/3" />
 
-<span>0.4</span> <img src="sota-ressources/outputs-evaluation/orb_matches/EdgeCase_shoulditmatch.png" title="fig:" alt="Results - ORB - ratio" />
+<span>0.4</span> <img src="sota-ressources/outputs-evaluation/orb_matches/EdgeCase_shoulditmatch.png" title="fig:" alt="Results - ORB - drawbacks examples 1/3" />
 
-<span>0.59</span> <img src="sota-ressources/outputs-evaluation/orb_matches/good_match_text.png" title="fig:" alt="Results - ORB - ratio" />
+<span>0.59</span> <img src="sota-ressources/outputs-evaluation/orb_matches/good_match_text.png" title="fig:" alt="Results - ORB - drawbacks examples 1/3" />
 
-<span>0.49</span> <img src="sota-ressources/outputs-evaluation/orb_matches/good_microsoft_parrallel.png" title="fig:" alt="Results - ORB - ratio" />
+<span>0.49</span> <img src="sota-ressources/outputs-evaluation/orb_matches/good_microsoft_parrallel.png" title="fig:" alt="Results - ORB - drawbacks examples 2/3" />
 
-<span>0.50</span> <img src="sota-ressources/outputs-evaluation/orb_matches/not_best_matching_due_to_text.png" title="fig:" alt="Results - ORB - ratio" />
+<span>0.50</span> <img src="sota-ressources/outputs-evaluation/orb_matches/not_best_matching_due_to_text.png" title="fig:" alt="Results - ORB - drawbacks examples 2/3" />
 
-<span>1</span> <img src="sota-ressources/outputs-evaluation/orb_matches/GoodTypoSpecificImage.png" title="fig:" alt="Results - ORB - ratio" />
+<span>1</span> <img src="sota-ressources/outputs-evaluation/orb_matches/GoodTypoSpecificImage.png" title="fig:" alt="Results - ORB - drawbacks examples 2/3" />
 
-<span>1</span> <img src="sota-ressources/outputs-evaluation/orb_matches/perfect_microsoft_match.png" title="fig:" alt="Results - ORB - ratio" />
+<span>1</span> <img src="sota-ressources/outputs-evaluation/orb_matches/perfect_microsoft_match.png" title="fig:" alt="Results - ORB - drawbacks examples 2/3" />
 
-<span>1</span> <img src="sota-ressources/outputs-evaluation/orb_matches/text_problem.png" title="fig:" alt="Results - ORB - ratio" />
+<span>1</span> <img src="sota-ressources/outputs-evaluation/orb_matches/text_problem.png" title="fig:" alt="Results - ORB - drawbacks examples 3/3" />
 
-<span>1</span> <img src="sota-ressources/outputs-evaluation/orb_matches/text_problem_2.png" title="fig:" alt="Results - ORB - ratio" />
+<span>1</span> <img src="sota-ressources/outputs-evaluation/orb_matches/text_problem_2.png" title="fig:" alt="Results - ORB - drawbacks examples 3/3" />
 
-<span>0.5</span> <img src="sota-ressources/outputs-evaluation/orb_matches/text_problem_long_3.png" title="fig:" alt="Results - ORB - ratio" />
+<span>0.5</span> <img src="sota-ressources/outputs-evaluation/orb_matches/text_problem_long_3.png" title="fig:" alt="Results - ORB - drawbacks examples 3/3" />
 
-<span>0.48</span> <img src="sota-ressources/outputs-evaluation/orb_matches/whitepagetextproblem.png" title="fig:" alt="Results - ORB - ratio" />
+<span>0.48</span> <img src="sota-ressources/outputs-evaluation/orb_matches/whitepagetextproblem.png" title="fig:" alt="Results - ORB - drawbacks examples 3/3" />
 
 ### BRISK - 
 
