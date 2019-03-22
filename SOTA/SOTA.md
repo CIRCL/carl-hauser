@@ -901,7 +901,8 @@ SIFT Flow (modified version of SIFT) C++ \[51\] at <http://people.csail.mit.edu/
 
 ### Root-SIFT
 
-From \[2\] Better performances as SIFT, but no direct implementation found.
+From \[2\]
+Better performances as SIFT, but no implementation found.
 
 ### SURF – Speeded-Up Robust Features
 
@@ -1013,7 +1014,7 @@ Perform a feature matching :
 
 Remove outliers and bad matches :
 
--   **CrossCheck** is an alternative to the ratio test. Cross-check does matching of two sets of descriptors D1 and D2 in both directions (D1 -&gt; D2 and D2 &lt;- D1) retaining matches that exists in both.
+-   **CrossCheck** is an alternative to the ratio test. Cross-check does matching of two sets of descriptors D1 and D2 in both directions (D1 to D2 and D2 to D1) retaining matches that exists in both.
 
 -   A **ratio test** can be performed on each k-uplets. Repetitive patterns are detected if the distance between one descriptor of the target picture is the same with the two best descriptors of the candidate picture. 2 points on the candidate picture matched 1 point on the target picture.
 
@@ -1044,6 +1045,36 @@ RATIO-version : nobs : 207 min time : 0.00022s max time : 2.25978s mean :0.92306
 <span>0.48</span> <img src="sota-ressources/outputs-evaluation/orb_max/Microsoft_good_match_threeshold.png" title="fig:" alt="Results - ORB - max version" />
 
 <span>0.8</span> <img src="sota-ressources/outputs-evaluation/orb_max/swedish_bank_good_match.png" title="fig:" alt="Results - ORB - max version" />
+
+Few tips to analyze following pictures :
+
+-   **Parrallel lines** (if there is not rotation) are a indicator of quality matching. It keeps the spatial consistency between source and candidate pictures.
+
+-   **Text** seems to be a problem. Letters are matched to letters, generating false positive. It also “uses” descriptor space (number of descriptors is artificially limited), and so, hinders true logo (for example) to be described and used.
+
+<span>0.58</span> <img src="sota-ressources/outputs-evaluation/orb_matches/batchtextmatching.png" title="fig:" alt="Results - ORB - ratio" />
+
+<span>0.37</span> <img src="sota-ressources/outputs-evaluation/orb_matches/cleargoodfirstmatch.png" title="fig:" alt="Results - ORB - ratio" />
+
+<span>0.4</span> <img src="sota-ressources/outputs-evaluation/orb_matches/EdgeCase_shoulditmatch.png" title="fig:" alt="Results - ORB - ratio" />
+
+<span>0.59</span> <img src="sota-ressources/outputs-evaluation/orb_matches/good_match_text.png" title="fig:" alt="Results - ORB - ratio" />
+
+<span>0.49</span> <img src="sota-ressources/outputs-evaluation/orb_matches/good_microsoft_parrallel.png" title="fig:" alt="Results - ORB - ratio" />
+
+<span>0.50</span> <img src="sota-ressources/outputs-evaluation/orb_matches/not_best_matching_due_to_text.png" title="fig:" alt="Results - ORB - ratio" />
+
+<span>1</span> <img src="sota-ressources/outputs-evaluation/orb_matches/GoodTypoSpecificImage.png" title="fig:" alt="Results - ORB - ratio" />
+
+<span>1</span> <img src="sota-ressources/outputs-evaluation/orb_matches/perfect_microsoft_match.png" title="fig:" alt="Results - ORB - ratio" />
+
+<span>1</span> <img src="sota-ressources/outputs-evaluation/orb_matches/text_problem.png" title="fig:" alt="Results - ORB - ratio" />
+
+<span>1</span> <img src="sota-ressources/outputs-evaluation/orb_matches/text_problem_2.png" title="fig:" alt="Results - ORB - ratio" />
+
+<span>0.5</span> <img src="sota-ressources/outputs-evaluation/orb_matches/text_problem_long_3.png" title="fig:" alt="Results - ORB - ratio" />
+
+<span>0.48</span> <img src="sota-ressources/outputs-evaluation/orb_matches/whitepagetextproblem.png" title="fig:" alt="Results - ORB - ratio" />
 
 ### BRISK - 
 
