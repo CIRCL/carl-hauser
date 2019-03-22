@@ -35,7 +35,7 @@
 Introduction
 ============
 
-A general overview was made through standard web lookup. \[6\] A look was given to libraries, which also provide detailed and useful information. \[45\]
+A general overview was made through standard web lookup. \[6\] A look was given to libraries, which also provide detailed and useful information. \[46\]
 
 In the following, we expose :
 
@@ -175,7 +175,7 @@ Vector descriptors based on our keypoints, each descriptor has size 64 and we ha
 
 ##### Descriptor’s quality
 
-A good descriptor code would be, according to \[46\] :
+A good descriptor code would be, according to \[47\] :
 
 -   easily computed for a novel input
 
@@ -277,7 +277,7 @@ Compression of descriptors before matching
 
 -   Returns the K (parameter) best matchs
 
--   \[47\]
+-   \[48\]
 
 -   Convert descriptor (floats) to binary strings. Binary strings matched with Hamming Distance, equivalent to a XOR and bit count (very fast with SSE instructions on CPU)
 
@@ -311,11 +311,11 @@ Work with non-binary features.
 
 -   Returns the K (parameter) best matchs
 
--   \[47\]
+-   \[48\]
 
 ##### Implementation
 
-Apache 2 From \[5\], available at : <https://github.com/nmslib/nmslib> \[43\] Does not benchmark memory usage.
+Apache 2 From \[5\], available at : <https://github.com/nmslib/nmslib> \[44\] Does not benchmark memory usage.
 
 ### Selection
 
@@ -352,12 +352,12 @@ Graph based approach. Precise approximate nearest neighbor search in billion-siz
 
 ###### Implementation
 
-BSD <https://github.com/facebookresearch/faiss> \[44\]
+BSD <https://github.com/facebookresearch/faiss> \[45\]
 
 Step 5 - Model Fitting
 ----------------------
 
-From \[4\] and \[45\], is a step where the geometry of the scene is verified and/or estimated. Given correspondances, the pose of the object is estimated.
+From \[4\] and \[46\], is a step where the geometry of the scene is verified and/or estimated. Given correspondances, the pose of the object is estimated.
 
 -   Identify inliers and outliers ~ Fitting a homography matrix ~ Find the transformation of (picture one) to (picture two)
 
@@ -399,7 +399,7 @@ SDHash seesm the more accurate, but the slower. Cross-reference seems a good way
 
 Examples : Holistic features (=“Spatial enveloppe” = naturalness, openness, roughness, ruggedness, expansion ..), colors histograms, “Global Self-Similarity” (=spatial arrangement)
 
-![Results from \[48\] - Lower score is better<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/results_0.png)
+![Results from \[49\] - Lower score is better<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/results_0.png)
 
 ### A-HASH : Average Hash
 
@@ -455,7 +455,7 @@ Seems worst than A-hash.
 
 ##### Implementation
 
-\[49\] <http://blockhash.io> and <https://github.com/commonsmachinery/blockhash-python>
+\[50\] <http://blockhash.io> and <https://github.com/commonsmachinery/blockhash-python>
 
 ### D-HASH - Difference Hashing
 
@@ -629,13 +629,13 @@ Equivalent to A-Hash with more granularity of masks and transformation. Ability 
 
 ### Spectral-HASH
 
-From \[46\]. A word is given in \[34\]
+From \[47\]. A word is given in \[34\]
 
 The bits are calculated by thresholding a subset of eigenvectors of the Laplacian of the similarity graph
 
 Similar performance to RBM
 
-![Spectral Hashing comparison from \[46\] <span data-label="fig:spectral_hashing_comparison"></span>](sota-ressources/spectral_hashing_comparison.png)
+![Spectral Hashing comparison from \[47\] <span data-label="fig:spectral_hashing_comparison"></span>](sota-ressources/spectral_hashing_comparison.png)
 
 ### LSH - Locality Sensitve Hashing
 
@@ -643,7 +643,7 @@ Same as E2LSH ? Chooses random projections so that two closest image samples in 
 
 ### E2LSH - LSH - Locality Sensitve Hashing
 
-From \[12\] a word is given in \[46\] and \[7\].
+From \[12\] a word is given in \[47\] and \[7\].
 The code is calculated by a random linear projection followed by a random threshold, then the Hamming distance between codewords will asymptotically approach the Euclidean distance between the items.
 
 Not so far from Machine Learning Approaches, but outperformed by them.
@@ -694,7 +694,7 @@ Normal version : nobs : 207s min time : 0.00083s max time : 0.00165s mean :0.000
 
 From ... few words on it in \[28\]
 
-Implementation (C) at \[42\]
+Implementation (C) at \[43\]
 
 Historically the first fuzzing algorithm. CTPH type.
 
@@ -833,12 +833,22 @@ In few words :
     Feature detection time + Feature matching time.
     ORB and BRISK are the fastest, KASE the slowest.
 
+Some more comparisons are performed in \[38\] about robustness of different algorithms.
+
+<span>0.49</span> <img src="sota-ressources/repetability_blurring.png" title="fig:" alt="Robustness (nb of matches/nb points in original image in %) comparison from [38]" />
+
+<span>0.49</span> <img src="sota-ressources/repetability_brightness.png" title="fig:" alt="Robustness (nb of matches/nb points in original image in %) comparison from [38]" />
+
+<span>0.49</span> <img src="sota-ressources/repetability_rotation.png" title="fig:" alt="Robustness (nb of matches/nb points in original image in %) comparison from [38]" />
+
+<span>0.49</span> <img src="sota-ressources/repetability_scaling.png" title="fig:" alt="Robustness (nb of matches/nb points in original image in %) comparison from [38]" />
+
 Non-binary features
 -------------------
 
 ### SIFT- Scale Invariant Feature Transform
 
-From the original paper \[19\] and a concise explanation from \[38\] 3x less fast than Harris Detector
+From the original paper \[19\] and a concise explanation from \[39\] 3x less fast than Harris Detector
 
 SIFT detects scale-invariant key points by finding local extrema in the difference-of-Gaussian (DoG) space. \[18\]
 Each key point is described by a 128-dimensional gradient orientation histogram. Subsequently, all SIFT descriptors are modeled/quantized using a bag-of-words (BoW). The feature vector of each image is computed by counting the frequency of the generated visual words in the image.
@@ -887,7 +897,7 @@ From \[11\], realize in motion prediction from a single image, motion synthesis 
 
 ##### Implementation
 
-SIFT Flow (modified version of SIFT) C++ \[50\] at <http://people.csail.mit.edu/celiu/SIFTflow/>
+SIFT Flow (modified version of SIFT) C++ \[51\] at <http://people.csail.mit.edu/celiu/SIFTflow/>
 
 ### Root-SIFT
 
@@ -939,7 +949,7 @@ Rotation invariance can be “desactivated” for faster results, by bypassing t
 
 ### GSSIS - Generalized Scale-Space Interest Points
 
-From \[40\], generalized interest point, with colors exension, of SIFT and SURF.
+From \[41\], generalized interest point, with colors exension, of SIFT and SURF.
 
 Roughly : uses more complicated way of generating local interest points.
 
@@ -956,7 +966,7 @@ Binary features
 
 ### ORB – Oriented FAST and Rotated BRIEF
 
-From \[27\] which is rougly a fusion of FAST and BRIEF. See also \[39\]
+From \[27\] which is rougly a fusion of FAST and BRIEF. See also \[40\]
 
 #### Pro
 
@@ -988,23 +998,34 @@ From \[27\] which is rougly a fusion of FAST and BRIEF. See also \[39\]
 
 ###### Option explanation
 
-Mostly from \[41\], \[51\], you can.
+Mostly from \[42\], \[52\] :
+To be clear :
 
-knnMatch returns the n-best matches in descriptor2 for each descriptor in descriptor1. Which means, instead of a list of matches you get a list of a list of matches.knnMatch is that you can perform a ratio test.
+-   **Target picture** = request picture = new picture = picture we want to find correlation on
 
-So if the distances from one descriptor in descriptor1 to the two best descriptors in descriptor2 are similar it suggests that there are repetitive patterns in your images. I am not sure why you search for the five best matches - you pass 5 to knnMatch - for each descriptor. Rather search for two.
+-   **Candidate picture** = stored picture = old pictures = pictures already parsed, prepared and stored, to find correlation on.
 
-match filtering with RANSAC
+Perform a feature matching :
 
-cv2.drawKeypoints() to draw keypoints cv2.drawMatches() helps us to draw the matches. It stacks two images horizontally and draw lines from first image to second image showing best matches. There is also cv2.drawMatchesKnn which draws all the k best matches. If k=2, it will draw two match-lines for each keypoint.
+-   **Brute-Force matcher**, with bf.match(), is simple. It takes the descriptor of one feature of the target picture and is evaluated with all other features of all candidate pictures, using some distance calculation. The closest one is returned. It returns a list of matches. Use crossCheck=True.
+
+-   **KnnMatch**, with bf.knnMatch(), returns for each descriptor of the target picture, the n-best matches with descriptors of a candidate picture. It searches for N-best candidate for each descriptor. It returns list of a list of matches. Use crossCheck=False and then do the ratio test.
 
 Remove outliers and bad matches :
 
--   Use crossCheck=True and use bf.match(). Cross-check does matching of two sets of descriptors D1 and D2 in both directions (D1 -&gt; D2 and D2 &lt;- D1) retaining matches that exists in both. First one returns the best match.
+-   **CrossCheck** is an alternative to the ratio test. Cross-check does matching of two sets of descriptors D1 and D2 in both directions (D1 -&gt; D2 and D2 &lt;- D1) retaining matches that exists in both.
 
--   Use crossCheck=False and then do the ratio test, and use bf.knnMatch(). crossCheck is an alternative to the ratio test. It breaks knnMatch. Knn-match searches for N-best candidate for each descriptor. But it’s impossible to make Cross-check between D1 and D2\[N\]. Therefore you have exception. Second method returns k best matches where k is specified by the user
+-   A **ratio test** can be performed on each k-uplets. Repetitive patterns are detected if the distance between one descriptor of the target picture is the same with the two best descriptors of the candidate picture. 2 points on the candidate picture matched 1 point on the target picture.
 
--   Brute-Force matcher is simple. It takes the descriptor of one feature in first set and is matched with all other features in second set using some distance calculation. And the closest one is returned.
+**RANSAC** filter matches. (TO CHECK)
+
+Print nice graphs :
+
+-   **cv2.drawKeypoints()** to draw keypoints
+
+-   **cv2.drawMatches()** helps us to draw the matches. It stacks two images horizontally and draw lines from first image to second image showing best matches.
+
+-   **cv2.drawMatchesKnn** draws all the k best matches. If k=2, it will draw two match-lines for each keypoint.
 
 ###### Time
 
@@ -1049,7 +1070,7 @@ From ... Few words in \[32\] Unidirectional matching approach. Does not “check
 
 Extract binary strings equivalent to a descriptor without having to create a descriptor
 
-See BRIEF \[52\]
+See BRIEF \[53\]
 
 #### Pro
 
@@ -1212,7 +1233,7 @@ Uses a hashing method, binary hierarchical trees and TSVM classifier.
 RBM - Restricted Boltzmann machine
 ----------------------------------
 
-From ... A word is given in \[46\]
+From ... A word is given in \[47\]
 
 To learn 32 bits, the middle layer of the autoencoder has 32 hidden units Neighborhood Components Analysis (NCA) objective function = refine the weights in the network to preserve the neighborhood structure of the input space.
 
@@ -1228,7 +1249,7 @@ From ... \[15\]
 Boosting SSC
 ------------
 
-From ... A word is given in \[46\]
+From ... A word is given in \[47\]
 
 #### Pro
 
@@ -1368,32 +1389,34 @@ From ... A word in \[9\]
 
 37. 2014. FAST Algorithm for Corner Detection 3.0.0-dev documentation.
 
-38. 2014. Introduction to SIFT (Scale-Invariant Feature Transform) 3.0.0-dev documentation.
+38. 2014. Keypoints and Descriptors 1.
 
-39. 2014. ORB (Oriented FAST and Rotated BRIEF) 3.0.0-dev documentation.
+39. 2014. Introduction to SIFT (Scale-Invariant Feature Transform) 3.0.0-dev documentation.
 
-40. 2015. Image Matching Using Generalized Scale-Space Interest Points.
+40. 2014. ORB (Oriented FAST and Rotated BRIEF) 3.0.0-dev documentation.
 
-41. 2015. BFMatcher raises error for Python interface when crossCheck option is enabled ⋅ Issue \#46 ⋅ MasteringOpenCV/code. *GitHub*.
+41. 2015. Image Matching Using Generalized Scale-Space Interest Points.
 
-42. 2019. Fuzzy hashing API and fuzzy hashing tool. Contribute to ssdeep-project/ssdeep development by creating an account on GitHub.
+42. 2015. BFMatcher raises error for Python interface when crossCheck option is enabled ⋅ Issue \#46 ⋅ MasteringOpenCV/code. *GitHub*.
 
-43. 2019. Non-Metric Space Library (NMSLIB): An efficient similarity search library and a toolkit for evaluation of k-NN methods for generic non-metric spaces.: nmslib/nmslib.
+43. 2019. Fuzzy hashing API and fuzzy hashing tool. Contribute to ssdeep-project/ssdeep development by creating an account on GitHub.
 
-44. 2019. A library for efficient similarity search and clustering of dense vectors.: facebookresearch/faiss.
+44. 2019. Non-Metric Space Library (NMSLIB): An efficient similarity search library and a toolkit for evaluation of k-NN methods for generic non-metric spaces.: nmslib/nmslib.
 
-45. Feature Matching + Homography to find Objects 3.0.0-dev documentation.
+45. 2019. A library for efficient similarity search and clustering of dense vectors.: facebookresearch/faiss.
 
-46. Spectralhashing.Pdf.
+46. Feature Matching + Homography to find Objects 3.0.0-dev documentation.
 
-47. OpenCV: Feature Matching.
+47. Spectralhashing.Pdf.
 
-48. Testing different image hash functions.
+48. OpenCV: Feature Matching.
 
-49. Blockhash.
+49. Testing different image hash functions.
 
-50. SIFT Flow: Dense Correspondence across Scenes and its Applications.
+50. Blockhash.
 
-51. Java OpenCV - extracting good matches from knnMatch. *Stack Overflow*.
+51. SIFT Flow: Dense Correspondence across Scenes and its Applications.
 
-52. BRIEF (Binary Robust Independent Elementary Features) 3.0.0-dev documentation.
+52. Java OpenCV - extracting good matches from knnMatch. *Stack Overflow*.
+
+53. BRIEF (Binary Robust Independent Elementary Features) 3.0.0-dev documentation.
