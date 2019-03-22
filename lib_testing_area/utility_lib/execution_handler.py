@@ -30,6 +30,9 @@ class Execution_handler() :
         # For statistics only
         self.list_time = []
 
+        # Actions handlers
+        self.printer = printing_lib.Printer()
+
     def do_random_test(self):
         print("=============== RANDOM TEST SELECTED ===============")
         self.pick_random_picture_handler()
@@ -89,10 +92,13 @@ class Execution_handler() :
             start_time = time.time()
 
             self.target_picture = curr_target_picture
-            self.find_closest_picture()
-            self.find_top_k_closest_pictures()
-            self.save_pictures()
-            self.add_top_matches_to_JSON()
+            try :
+                self.find_closest_picture()
+                self.find_top_k_closest_pictures()
+                self.save_pictures()
+                self.add_top_matches_to_JSON()
+            except Exception as e :
+                print(f"An Exception has occured during the tentative to find a match to {curr_target_picture.path.name}")
 
             elapsed = time.time() - start_time
             self.print_elapsed_time(elapsed, 1, to_add="current ")
@@ -106,11 +112,13 @@ class Execution_handler() :
 
     def find_top_k_closest_pictures(self):
         print("Extract top K images ... ")
+        self.picture_list = [i for i in self.picture_list if i.distance is not None]
+        # TODO : Remove None values : TO CHECK WHAT WE CAN DO !
         self.sorted_picture_list = picture_class.get_top(self.picture_list, self.target_picture)
 
     def save_pictures(self):
         if self.save_picture:
-            printing_lib.save_picture_top_matches(self.sorted_picture_list, self.target_picture)
+            self.printer.save_picture_top_matches(self.sorted_picture_list, self.target_picture, DEFAULT_OUTPUT_DIR + self.target_picture.path.name)
 
     # ====================== JSON HANDLING ======================
 

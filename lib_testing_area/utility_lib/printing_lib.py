@@ -4,55 +4,71 @@ import pathlib
 from typing import List
 from .json_class import remove_target_picture_from_matches
 
-def text_and_outline(draw, x, y, text, font_size):
-    fillcolor = "red"
-    shadowcolor = "black"
-    outline_size = 1
+OFFSETS = 10
 
-    fontPath = "./fonts/OpenSans-Bold.ttf"
-    sans16 = ImageFont.truetype(fontPath, font_size)
+class Printer() :
+    def __init__(self, offsets=OFFSETS):
+        self.offsets = offsets
 
-    draw.text((x - outline_size, y - outline_size), text, font=sans16, fill=shadowcolor)
-    draw.text((x + outline_size, y - outline_size), text, font=sans16,fill=shadowcolor)
-    draw.text((x - outline_size, y + outline_size), text, font=sans16,fill=shadowcolor)
-    draw.text((x + outline_size, y + outline_size), text, font=sans16,fill=shadowcolor)
-    draw.text((x, y), text, fillcolor, font=sans16 )
+    # @staticmethod
+    def text_and_outline(self, draw, x, y, text, font_size):
+        fillcolor = "red"
+        shadowcolor = "black"
+        outline_size = 1
 
+        fontPath = "./../utility_lib/fonts/OpenSans-Bold.ttf"
+        sans16 = ImageFont.truetype(fontPath, font_size)
 
-def save_picture_top_matches(sorted_picture_list : List[Picture], target_picture : Picture, file_name='test.png') :
-    image_path_list = []
-    image_name_list = []
+        draw.text((x - outline_size, y - outline_size), text, font=sans16, fill=shadowcolor)
+        draw.text((x + outline_size, y - outline_size), text, font=sans16,fill=shadowcolor)
+        draw.text((x - outline_size, y + outline_size), text, font=sans16,fill=shadowcolor)
+        draw.text((x + outline_size, y + outline_size), text, font=sans16,fill=shadowcolor)
+        draw.text((x, y), text, fillcolor, font=sans16 )
 
-    # Preprocess to remove target picture from matches
-    offset = remove_target_picture_from_matches(sorted_picture_list,target_picture)
+    # @staticmethod
+    def save_picture_top_matches(self, sorted_picture_list : List[Picture], target_picture : Picture, file_name='test.png') :
+        image_path_list = []
+        image_name_list = []
 
-    image_path_list.append(str(target_picture.path))
-    image_name_list.append("ORIGINAL IMAGE")
+        # Preprocess to remove target picture from matches
+        offset = remove_target_picture_from_matches(sorted_picture_list,target_picture)
 
-    for i in range(0,3):
-        image_path_list.append(str(sorted_picture_list[i+offset].path))
-        image_name_list.append("BEST MATCH #" + str(i+offset) + " d=" + str(sorted_picture_list[i+offset].distance))
+        image_path_list.append(str(target_picture.path))
+        image_name_list.append("ORIGINAL IMAGE")
 
-    images = map(Image.open, image_path_list)
-    widths, heights = zip(*(i.size for i in images))
+        for i in range(0,3):
+            image_path_list.append(str(sorted_picture_list[i+offset].path))
+            image_name_list.append("BEST MATCH #" + str(i+offset) + " d=" + str(sorted_picture_list[i+offset].distance))
 
-    total_width = sum(widths)
-    max_height = max(heights)
+        images = map(Image.open, image_path_list)
+        widths, heights = zip(*(i.size for i in images))
 
-    new_im = Image.new('RGB', (total_width, max_height))
+        total_width = sum(widths)
+        max_height = max(heights)
 
-    images = map(Image.open, image_path_list) # Droped between now on the previous assignement for unknown reason
+        new_im = Image.new('RGB', (total_width, max_height))
 
-    draw = ImageDraw.Draw(new_im)
+        images = map(Image.open, image_path_list) # Flushed between now on the first variable assignement for unknown reason
 
-    x_offset = 0
-    for i, im in enumerate(images):
-        new_im.paste(im, (x_offset,0))
-        tmp_title = image_name_list[i] + " " + str(pathlib.Path(image_path_list[i]).name)
+        draw = ImageDraw.Draw(new_im)
 
-        print(f"ADDING picture : {tmp_title}")
+        x_offset = 0
+        for i, im in enumerate(images):
+            new_im.paste(im, (x_offset,0))
+            tmp_title = image_name_list[i] + " " + str(pathlib.Path(image_path_list[i]).name)
 
-        text_and_outline(draw,x_offset,10,tmp_title, total_width//120)
-        x_offset += im.size[0]
+            print(f"ADDING picture : {tmp_title}")
 
-    new_im.save(file_name)
+            self.text_and_outline(draw,x_offset,10,tmp_title, total_width//120)
+            x_offset += im.size[0]
+
+        new_im.save(file_name)
+
+    # @staticmethod
+    def print_title(self, img, title) :
+        width, height, _ = img.shape
+
+        draw = ImageDraw.Draw(img)
+        self.text_and_outline(draw,  self.offsets, self.offsets, title, width // 120)
+
+        return img

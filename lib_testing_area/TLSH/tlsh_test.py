@@ -14,11 +14,7 @@ from scipy import stats
 
 # PERSONAL LIBRARIES
 sys.path.append(os.path.abspath(os.path.pardir))
-from utility_lib import filesystem_lib
-from utility_lib import stats_lib
-from utility_lib import picture_class
-from utility_lib import printing_lib
-from utility_lib import execution_handler
+from utility_lib import filesystem_lib, printing_lib, picture_class, execution_handler
 
 # ENUMERATION
 class HASH_TYPE(Enum):
