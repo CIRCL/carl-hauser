@@ -1,20 +1,14 @@
 # STD LIBRARIES
-import operator
 import os
-import pathlib
 
 import sys
-import time
 import tlsh
 from enum import Enum, auto
 from typing import List
 
-from PIL import Image, ImageFont, ImageDraw
-from scipy import stats
-
 # PERSONAL LIBRARIES
 sys.path.append(os.path.abspath(os.path.pardir))
-from utility_lib import filesystem_lib, printing_lib, picture_class, execution_handler
+from utility_lib import filesystem_lib, picture_class, execution_handler
 
 # ENUMERATION
 class HASH_TYPE(Enum):
@@ -63,12 +57,14 @@ def hash_picture(curr_picture: Local_Picture):
 
 # ==== Action definition ====
 class TLSH_execution_handler(execution_handler.Execution_handler) :
-    def TO_OVERWRITE_prepare_dataset(self):
+    def TO_OVERWRITE_prepare_dataset(self, picture_list):
         print("Hash pictures ... ")
-        self.picture_list = hash_pictures(self.picture_list)
+        picture_list = hash_pictures(picture_list)
+        return picture_list
 
-    def TO_OVERWRITE_prepare_target_picture(self):
-        self.target_picture = hash_picture(self.target_picture)
+    def TO_OVERWRITE_prepare_target_picture(self, target_picture):
+        target_picture = hash_picture(target_picture)
+        return target_picture
 
 if __name__ == '__main__':
     target_dir = "../../datasets/raw_phishing/"

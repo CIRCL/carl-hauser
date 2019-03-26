@@ -72,12 +72,14 @@ def hash_picture(curr_picture: Local_Picture):
 # ==== Action definition ====
 
 class Image_hash_execution_handler(execution_handler.Execution_handler) :
-    def TO_OVERWRITE_prepare_dataset(self):
+    def TO_OVERWRITE_prepare_dataset(self, picture_list):
         print("Hash pictures ... ")
-        self.picture_list = hash_pictures(self.picture_list)
+        picture_list = hash_pictures(picture_list)
+        return picture_list
 
-    def TO_OVERWRITE_prepare_target_picture(self):
-        self.target_picture = hash_picture(self.target_picture)
+    def TO_OVERWRITE_prepare_target_picture(self, target_picture):
+        target_picture = hash_picture(target_picture)
+        return target_picture
 
 if __name__ == '__main__':
     target_dir = "../../datasets/raw_phishing/"
