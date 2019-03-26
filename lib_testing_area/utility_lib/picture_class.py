@@ -19,6 +19,7 @@ class Picture() :
         self.image = None
         # Multipurpose storage, e.g. store some useful class for processing.
         self.storage = None
+        self.matches = None
 
     def is_same_picture_as(self, pic1):
         # TODO : Except on SHA1 hash ?
@@ -45,25 +46,28 @@ class Picture() :
     '''
 
 def find_closest(picture_list: List[Picture], target_picture: Picture):
-
     if picture_list == None or picture_list == [] :
         raise Exception("PICTURE_CLASS : Provided picture list is empty.")
     if target_picture == None :
         raise Exception("PICTURE_CLASS : Provided target picture is empty.")
 
-
     min = None
     min_object = None
 
     for curr_picture in picture_list:
-        curr_dist = curr_picture.compute_distance(target_picture)
+        curr_picture.compute_distance(target_picture)
+        curr_dist = target_picture.distance
 
         if not target_picture.is_same_picture_as(curr_picture) and curr_dist is not None and (min is None or min > curr_dist):
             min = curr_dist
             min_object = curr_picture
 
-    print("original picture : \t" + str(target_picture.path))
-    print("min found : \t" + str(min_object.path) + " with " + str(min))
+    if min is None or min_object is None :
+        print("No best match found. No picture seems to have even a big distance from the target.")
+        raise Exception("PICTURE_CLASS : No object found at a minimal distance. Most likely a library error or a too narrow dataset.")
+    else :
+        print("original picture : \t" + str(target_picture.path))
+        print("min found : \t" + str(min_object.path) + " with " + str(min))
 
 def get_top(picture_list: List[Picture], target_picture: Picture):
     for curr_picture in picture_list:
