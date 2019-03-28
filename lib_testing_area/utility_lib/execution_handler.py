@@ -104,21 +104,26 @@ class Execution_handler() :
 
             curr_sorted_picture_list = []
 
+            if curr_target_picture.path.name == "hosterfalr.ga.png":
+                print("found")
+
             try :
                 # self.find_closest_picture(picture_list, curr_target_picture)
                 curr_sorted_picture_list = self.find_top_k_closest_pictures(picture_list, curr_target_picture)
             except Exception as e :
                 print(f"An Exception has occured during the tentative to find a (k-top) match to {curr_target_picture.path.name} : " + str(e))
-
+                raise e
             try :
                 self.save_pictures(curr_sorted_picture_list, curr_target_picture)
             except Exception as e :
                 print(f"An Exception has occured during the tentative save the result picture of {curr_target_picture.path.name} : " + str(e))
+                raise e
 
             try :
                 JSON_file_object = self.add_top_matches_to_JSON(curr_sorted_picture_list, curr_target_picture, JSON_file_object)
             except Exception as e :
                 print(f"An Exception has occured during the tentative to add result to json for {curr_target_picture.path.name} : " + str(e))
+                raise e
 
             elapsed = time.time() - start_time
             self.print_elapsed_time(elapsed, 1, to_add="current ")
@@ -140,6 +145,7 @@ class Execution_handler() :
         print("Extract top K images ... ")
         picture_list = [i for i in picture_list if i.distance is not None]
         print(f"Candidate picture list length : {len(picture_list)}")
+
         sorted_picture_list = picture_class.get_top(picture_list, target_picture)
         return sorted_picture_list
 
@@ -152,9 +158,10 @@ class Execution_handler() :
     def prepare_initial_JSON(self, picture_list, JSON_file_object):
         return JSON_file_object.json_add_nodes(picture_list)
 
-    def add_top_matches_to_JSON(self, sorted_picture_list, target_picture, JSON_file_object):
+    def add_top_matches_to_JSON(self, sorted_picture_list, target_picture, tmp_json_object):
         print("Save result for final Json ... ")
-        return JSON_file_object.json_add_top_matches(sorted_picture_list, target_picture)
+        tmp_json_object.json_to_export = tmp_json_object.json_add_top_matches(tmp_json_object.json_to_export, sorted_picture_list, target_picture)
+        return tmp_json_object
 
     def export_final_JSON(self, JSON_file_object):
         print("Export json ... ")

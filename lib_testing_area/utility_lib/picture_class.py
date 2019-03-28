@@ -1,5 +1,6 @@
 from typing import List
 import operator
+from PIL import Image
 
 THREESHOLD = 5
 
@@ -16,10 +17,16 @@ class Picture() :
         # Descriptors related attributes
         self.key_points = None
         self.description = None
-        self.image = None
+        self.image = self.load_image(self.path)
         # Multipurpose storage, e.g. store some useful class for processing.
         self.storage = None
         self.matches = None
+
+    def load_image(self, path):
+        if path is None or path == "" :
+            return None
+
+        return Image.open(str(path))
 
     def is_same_picture_as(self, pic1):
         # TODO : Except on SHA1 hash ?
@@ -37,7 +44,7 @@ class Picture() :
         return self.distance
 
     def compute_distance_ext(self, pic1, pic2):
-        print("COMPUTE_DISTANCE_EXT HASN'T BEEN OVERWRITE. PLEASE DO OVERWRITE PARENT FUNCTION BEFORE LAUNCH")
+        raise Exception("COMPUTE_DISTANCE_EXT HASN'T BEEN OVERWRITE. PLEASE DO OVERWRITE PARENT FUNCTION BEFORE LAUNCH")
         return None
 
     ''' OVERWRITE EXAMPLE :
