@@ -4,6 +4,7 @@ import pathlib
 import random
 from PIL import Image, ImageDraw
 from .picture_class import Picture
+import cv2
 
 # PERSONAL LIBRARIES
 TOP_K_EDGE = 1
@@ -43,5 +44,12 @@ def clean_folder(target_dir):
 
     pathlist = pathlib.Path(target_dir).glob('**/*.png')
     for i, path in enumerate(pathlist):
+
         if path.stat().st_size == 0 :
             path.unlink()
+        curr_pic = cv2.imread(str(path))
+
+        if curr_pic is None or curr_pic.shape == [] or curr_pic.shape[0] == 0 or curr_pic.shape[1] == 0 :
+            print("Void picture (to delete ?) : " + str(path))
+            # path.unlink()
+

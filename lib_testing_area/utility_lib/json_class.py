@@ -20,12 +20,12 @@ class JSON_VISUALISATION() :
 
         return self
 
-    def json_add_top_matches(self, sorted_picture_list : List[Picture], target_picture : Picture, k_edge=TOP_K_EDGE) :
+    def json_add_top_matches(self, json_tmp, sorted_picture_list : List[Picture], target_picture : Picture, k_edge=TOP_K_EDGE) :
         # Preprocess to remove target picture from matches
         offset = remove_target_picture_from_matches(sorted_picture_list,target_picture)
 
         # Get current list of matches
-        edges_list = self.json_to_export.get("edges", [])
+        edges_list = json_tmp.get("edges", [])
 
         # Add all edges with labels
         for i in range(0,min(len(sorted_picture_list),k_edge)) :
@@ -36,9 +36,9 @@ class JSON_VISUALISATION() :
             edges_list.append(tmp_obj)
 
         # Store in JSON variable
-        self.json_to_export["edges"] = edges_list
+        json_tmp["edges"] = edges_list
 
-        return self
+        return json_tmp
 
     def json_export(self, file_name='test.json'):
         with open(pathlib.Path(file_name), 'w') as outfile:
@@ -50,5 +50,7 @@ def remove_target_picture_from_matches(sorted_picture_list : List[Picture], targ
         # If first picture is the original picture we skip.
         print("Removed first choice : " + sorted_picture_list[0].path.name)
         offset += 1
+
+    print(f"Offset after target picture removal from matches : {offset}")
 
     return offset
