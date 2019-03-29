@@ -9,6 +9,7 @@ from utility_lib import picture_class
 from utility_lib import json_class
 
 DEFAULT_TARGET_DIR = "../../datasets/raw_phishing/"
+DEFAULT_BASELINE_PATH = "../../datasets/raw_phishing.json"
 DEFAULT_OUTPUT_DIR = "./RESULTS/"
 
 class Execution_handler() :
@@ -49,6 +50,7 @@ class Execution_handler() :
         self.JSON_file_object = self.prepare_initial_JSON(self.picture_list, self.JSON_file_object)
         self.picture_list = self.prepare_dataset(self.picture_list)
         self.JSON_file_object, self.list_time = self.iterate_over_dataset(self.picture_list, self.JSON_file_object)
+        self.JSON_file_object = self.evaluate_JSON(self.JSON_file_object)
         self.export_final_JSON(self.JSON_file_object)
         self.describe_stats(self.list_time)
 
@@ -168,6 +170,10 @@ class Execution_handler() :
         JSON_file_object.json_export("test.json")
 
     # ====================== STATISTICS AND PRINTING ======================
+    def evaluate_JSON(self, JSON_file_object, baseline_path =DEFAULT_BASELINE_PATH):
+        JSON_file_object, quality = JSON_file_object.evaluate_json(pathlib.Path(baseline_path))
+        print(f"Quality of guess : {str(quality)}")
+        return JSON_file_object
 
     def describe_stats(self, list_time):
         print("Describing timer statistics... ")

@@ -1,0 +1,33 @@
+{
+  "nodes": [
+    {
+      "id": 0,
+      "shape": "image",
+      "image": "www.miamipooltech.com.png"
+    },
+    {
+      "id": 1,
+      "shape": "image",
+      "image": "www.haustechnik-saar.de.png"
+    },
+    {
+      "id": 2,
+      "shape": "image",
+      "image": "www.force-xloot.ml.png"
+    }
+  ],
+  "edges": [
+    {
+      "to": 0,
+      "from": 1
+    },
+    {
+      "to": 1,
+      "from": 2
+    },
+    {
+      "to": 2,
+      "from": 0
+    }
+  ]
+}

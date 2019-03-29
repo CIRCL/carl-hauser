@@ -12,6 +12,15 @@ from PIL import Image, ImageDraw
 sys.path.append(os.path.abspath(os.path.pardir))
 from utility_lib import filesystem_lib, printing_lib, picture_class, execution_handler, json_class
 
+
+# POSSIBLE CONFIGURATION :
+# ALL DIST with NO FILTER with STD with BF
+# ALL DIST with RATIO BAD with STD with BF
+
+# ALL DIST with NO FILTER with KNN with FLANN_LSH : CRASH
+# ALL DIST with RATIO CORRECT with KNN with FLANN_LSH : OK
+# ALL DIST with FAR_THREESHOLD with KNN with FLANN_LSH : OK
+
 # ENUMERATION
 class DISTANCE_TYPE(Enum):
     LEN_MIN = auto()
@@ -36,12 +45,12 @@ class DATASTRUCT_TYPE(Enum):
 # CONFIGURATION
 DISTANCE_CHOSEN = DISTANCE_TYPE.LEN_MAX
 
-MATCH_CHOSEN = MATCH_TYPE.KNN
+MATCH_CHOSEN = MATCH_TYPE.STD
 MATCH_K_FOR_KNN = 2
 
-DATASTRUCT_CHOSEN = DATASTRUCT_TYPE.FLANN_LSH
+DATASTRUCT_CHOSEN = DATASTRUCT_TYPE.BF
 
-FILTER_CHOSEN = FILTER_TYPE.FAR_THREESHOLD
+FILTER_CHOSEN = FILTER_TYPE.NO_FILTER
 
 FLANN_KDTREE_INDEX = 0
 FLANN_KDTREE_INDEX_params = dict(algorithm=FLANN_KDTREE_INDEX, trees=5)
@@ -221,13 +230,7 @@ class Matcher():
         clean_picture_list = []
 
         for i, curr_picture in enumerate(picture_list):
-            if curr_picture.path.name == "hosterfalr.ga.png":
-                print("found")
-                # WTF ??? IT'S IN THE FIRST ITERATOR AND NOT IN THE SECOND.
 
-        for i, curr_picture in enumerate(picture_list):
-            if curr_picture.path.name == "hosterfalr.ga.png":
-                print("found")
             # Load and Hash picture
             self.describe_picture(curr_picture)
             if i % 40 == 0:
@@ -353,7 +356,7 @@ if __name__ == '__main__':
     target_dir = "../../datasets/raw_phishing/"
     filesystem_lib.clean_folder(target_dir)
 
-    eh = OpenCV_execution_handler(target_dir=target_dir, Local_Picture=Local_Picture, save_picture=True)
+    eh = OpenCV_execution_handler(target_dir=target_dir, Local_Picture=Local_Picture, save_picture=False)
     eh.storage = Matcher()
     eh.printer = Custom_printer()
     # eh.do_random_test()
