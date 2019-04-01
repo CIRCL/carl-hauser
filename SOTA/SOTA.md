@@ -32,6 +32,7 @@
     -   [ESS - Efficient Subwindow Search](#ess)
     -   [SLICO - Simple Linear Iterative Clustering](#slico)
     -   [HSNW - ... indexing](#hsnw---...-indexing)
+    -   [Raw results](#raw-results)
 
 Introduction
 ============
@@ -1093,13 +1094,25 @@ Print nice graphs :
 
 -   **cv2.drawMatchesKnn** draws all the k best matches. If k=2, it will draw two match-lines for each keypoint.
 
+###### Analysis
+
+Distance can be computed in many ways. Here is an analysis of each of the used distances.
+
+-   Min length : the number of matches divided by the minimal number of descriptors of both pictures.
+    This doesn’t work well, because if one of both pictures has a low number of descriptors, it will act as an “attractor” : this picture will be the closest one of many other one. It does not use the “internal distance of a match” : the distance of one descriptor to the other.
+
+-   Max length : the number of matches divided by the minimal number of descriptors of both pictures.
+    This works pretty well, removing the issue encountered by the min length. However it does not use the “internal distance of a match” : the distance of one descriptor to the other.
+
+-   Mean of matches : it makes use of the “internal distance of a match” : the distance of one descriptor to the other. The distance between two pictures is computed as the mean of the matches distance. This doesn’t work well, for the same reason as min-length : if one of both pictures has a low number of descriptors, it will act as an “attractor” : this picture will have very few matches with others, but this small set of matches will have very “good distances”. .
+
 ###### Time
 
 MIN-version : nobs : 207 min time : 0.00022s max time : 1.22806s mean :0.78938s variance : 0.06399s skewness : -2.6371s kurtosis : 5.44295
 MAX-version : nobs : 207 min time : 0.00022s max time : 1.89294s mean :0.81612s variance : 0.0911s skewness : -1.02273s kurtosis : 3.77603
 RATIO-version : nobs : 207 min time : 0.00022s max time : 2.25978s mean :0.92306s variance : 0.14716s skewness : -0.13801s kurtosis : 2.98186
 BF + STD + LENMAX (with picture saving): nobs : 191 min time : 0.00018s max time : 18.99671s mean :2.99756s variance : 5.26731s skewness : 3.88639s kurtosis : 23.2982
-CONFIGURATION : RATIO TEST KNN 2 False FLANN LSH nobs : 191 min time : 0.51244s max time : 17.48676s mean :2.42647s variance : 4.23831s skewness : 4.51153s kurtosis : 24.8294 Regarder planielsa.ga.png
+CONFIGURATION : RATIO TEST KNN 2 False FLANN LSH nobs : 191 min time : 0.51244s max time : 17.48676s mean :2.42647s variance : 4.23831s skewness : 4.51153s kurtosis : 24.8294
 
 <span>0.58</span> <img src="sota-ressources/outputs-evaluation/orb_min/microsoft_match.png" title="fig:" alt="Results - ORB - min version" />
 
@@ -1419,6 +1432,91 @@ HSNW - ... indexing
 -------------------
 
 From ... A word in \[11\]
+
+Raw results
+-----------
+
+### Phishing dataset / Hashing based
+
+| Conf               | nobs | min time | max time | mean    | variance | skewness | kurtosis | Quality |
+|:-------------------|:-----|:---------|:---------|:--------|:---------|:---------|:---------|:--------|
+| TLSH PNG           | 207  | 0.00079  | 0.00121  | 0.0009  | 0.0      | 3.65389  | 18.2277  | 0.42512 |
+| TLSH BMP           | 207  | 0.00076  | 0.00128  | 0.00082 | 0.0      | 5.54139  | 37.84432 | 0.58937 |
+| AHASH PNG          | 207  | 0.00196  | 0.00438  | 0.00217 | 0.0      | 2.91552  | 8.59409  | 0.57971 |
+| AHASH BMP          | 207  | 0.002    | 0.00422  | 0.00225 | 0.0      | 2.71252  | 8.48601  | 0.57971 |
+| PHASH PNG          | 207  | 0.00193  | 0.00372  | 0.00213 | 0.0      | 2.99038  | 8.84388  | 0.56039 |
+| PHASH BMP          | 207  | 0.00197  | 0.00439  | 0.00233 | 0.0      | 1.89519  | 3.85316  | 0.55072 |
+| PHASH SIMPLE PNG   | 207  | 0.00195  | 0.00383  | 0.00212 | 0.0      | 3.91599  | 16.23136 | 0.52657 |
+| PHASH SIMPLE BMP   | 207  | 0.00197  | 0.00432  | 0.00228 | 0.0      | 2.41582  | 6.46488  | 0.52174 |
+| DHASH PNG          | 207  | 0.002    | 0.00351  | 0.0022  | 0.0      | 2.63954  | 6.74112  | 0.60386 |
+| DHASH BMP          | 207  | 0.00199  | 0.00391  | 0.00216 | 0.0      | 5.05627  | 27.72867 | 0.60386 |
+| DHASH VERTICAL PNG | 207  | 0.00195  | 0.00392  | 0.00227 | 0.0      | 2.27337  | 4.40377  | 0.57488 |
+| DHASH VERTICAL BMP | 207  | 0.00201  | 0.00346  | 0.00211 | 0.0      | 5.95159  | 44.91675 | 0.56522 |
+| WHASH PNG          | 207  | 0.002    | 0.00565  | 0.00231 | 0.0      | 3.74684  | 12.5523  | 0.53623 |
+| WHASH BMP          | 207  | 0.0019   | 0.00339  | 0.002   | 0.0      | 6.61575  | 51.99721 | 0.54106 |
+
+### Phishing dataset / Feature based
+
+Note : nobs is lower than hash base algorithm, due to removal of None-feature pictures.
+
+| Conf                    | nobs | min time | max time | mean     | variance | skewness  | kurtosis | True Positive |
+|:------------------------|:-----|:---------|:---------|:---------|:---------|:----------|:---------|:--------------|
+| ORB                     |      |          |          |          |          |           |          |               |
+| LEN MAX - KNN 2         |      |          |          |          |          |           |          |               |
+| Crosscheck : False      |      |          |          |          |          |           |          |               |
+| FLANN LSH               |      |          |          |          |          |           |          |               |
+| FAR THREESHOLD          | 190  | 0.26489s | 1.57223s | 1.11384s | 0.04294s | -0.97579s | 1.09073  | 0.63158       |
+| ORB                     |      |          |          |          |          |           |          |               |
+| LEN MAX - KNN 2         |      |          |          |          |          |           |          |               |
+| Crosscheck : False      |      |          |          |          |          |           |          |               |
+| FLANN LSH               |      |          |          |          |          |           |          |               |
+| RATIO CORRECT           | 190  | 0.37287s | 2.18801s | 1.19707s | 0.08682s | 0.4874s   | 0.84502  | 0.62105       |
+| ORB                     |      |          |          |          |          |           |          |               |
+| LEN MAX - STD           |      |          |          |          |          |           |          |               |
+| Crosscheck : True       |      |          |          |          |          |           |          |               |
+| BF                      |      |          |          |          |          |           |          |               |
+| NO FILTER               | 190  | 0.14815s | 2.71545s | 1.76562s | 0.05727s | -1.95637s | 18.60976 | 0.65263       |
+| ORB (1000) PNG          |      |          |          |          |          |           |          |               |
+| LEN MAX - STD           |      |          |          |          |          |           |          |               |
+| Crosscheck : True       |      |          |          |          |          |           |          |               |
+| BF                      |      |          |          |          |          |           |          |               |
+| NO FILTER               | 190  | 0.39845  | 27.05392 | 7.55308  | 5.26437  | 3.50726   | 27.80995 | 0.63684       |
+| ORB(100) PNG            |      |          |          |          |          |           |          |               |
+| LEN MAX - STD           |      |          |          |          |          |           |          |               |
+| Crosscheck : True       |      |          |          |          |          |           |          |               |
+| BF                      |      |          |          |          |          |           |          |               |
+| NO FILTER               | 190  | 0.05959  | 0.70835  | 0.20155  | 0.01367  | 1.01663   | 1.39958  | 0.59474       |
+| ORB(300) PNG            |      |          |          |          |          |           |          |               |
+| LEN MAX - STD           |      |          |          |          |          |           |          |               |
+| Crosscheck : True       |      |          |          |          |          |           |          |               |
+| BF                      |      |          |          |          |          |           |          |               |
+| NO FILTER               | 190  | 0.08     | 1.20131  | 0.68654  | 0.01096  | -0.37938  | 10.68281 | 0.61579       |
+| ORB BMP (read problem?) |      |          |          |          |          |           |          |               |
+| MEAN DIST PER PAIR      |      |          |          |          |          |           |          |               |
+| STD                     |      |          |          |          |          |           |          |               |
+| Crosscheck : True       |      |          |          |          |          |           |          |               |
+| BF                      |      |          |          |          |          |           |          |               |
+| NO FILTER               | 190  | 0.13807  | 1.97816  | 1.6771   | 0.02955  | -6.69731  | 53.39513 | 0.56842       |
+| ORB BMP (read problem?) |      |          |          |          |          |           |          |               |
+| MEAN DIST PER PAIR      |      |          |          |          |          |           |          |               |
+| KNN 2                   |      |          |          |          |          |           |          |               |
+| Crosscheck: False       |      |          |          |          |          |           |          |               |
+| FLANN LSH               |      |          |          |          |          |           |          |               |
+| RATIO CORRECT           | 190  | 0.30946  | 2.64872  | 1.21666  | 0.08734  | 0.73779   | 3.23452  | 0.39474       |
+| ORB BMP (read problem?) |      |          |          |          |          |           |          |               |
+| MEAN DIST PER PAIR      |      |          |          |          |          |           |          |               |
+| KNN 2                   |      |          |          |          |          |           |          |               |
+| Crosscheck: False       |      |          |          |          |          |           |          |               |
+| FLANN LSH               |      |          |          |          |          |           |          |               |
+| FAR THREESHOLD          | 190  | 0.27585  | 1.53042  | 1.09527  | 0.0407   | -1.11117  | 1.12641  | 0.34211       |
+| ORB PNG                 |      |          |          |          |          |           |          |               |
+| MEAN DIST PER PAIR      |      |          |          |          |          |           |          |               |
+| KNN 2                   |      |          |          |          |          |           |          |               |
+| Crosscheck : False      |      |          |          |          |          |           |          |               |
+| FLANN LSH               |      |          |          |          |          |           |          |               |
+| RATIO CORRECT           | 190  | 0.3026   | 2.18593  | 1.14796  | 0.05415  | 0.15196   | 2.96968  | 0.57895       |
+
+TODO : MEMORY USAGE
 
 1. Sadia Afroz and Rachel Greenstadt. *PhishZoo: An Automated Web Phishing Detection Approach Based on Profiling and Fuzzy Matching*.
 
