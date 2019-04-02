@@ -1,14 +1,17 @@
 from PIL import Image, ImageFont, ImageDraw
 from .picture_class import Picture
-import pathlib
 from typing import List
 from .json_class import remove_target_picture_from_matches
+
+import pathlib
+import configuration
 
 OFFSETS = 10
 
 class Printer() :
-    def __init__(self, offsets=OFFSETS):
+    def __init__(self, conf: configuration.Default_configuration, offsets=OFFSETS):
         self.offsets = offsets
+        # self.conf = conf
 
     # @staticmethod
     def text_and_outline(self, draw, x, y, text, font_size):

@@ -5,7 +5,7 @@ import pathlib
 
 TOP_K_EDGE = 1
 
-class JSON_VISUALISATION() :
+class JSON_GRAPHE() :
     def __init__(self, json_value={}):
         self.json_to_export = json_value
         self.quality = None
