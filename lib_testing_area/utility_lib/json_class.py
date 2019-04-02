@@ -66,6 +66,15 @@ class JSON_VISUALISATION() :
 
         return self, self.quality
 
+    def replace_type(selfs, json, target_type='.bmp'):
+        nodes = json["nodes"]
+
+        # Convert the extension of images in a graphe json file
+        for curr_node in nodes :
+            curr_node["image"] = str(pathlib.Path(curr_node["image"]).with_suffix(target_type))
+
+        json["nodes"] = nodes
+        return json
 
 # =========================== -------------------------- ===========================
  #                                MISC TOOLS
@@ -130,6 +139,7 @@ def is_graphe_included(candidate_graphe, mapping_dict, ground_truth_graphe):
                 found = True
                 continue
         if not found :
+            print(f"Edge : {str(curr_candidate_edge)} not found in baseline graph.")
             wrong += 1
 
     return wrong

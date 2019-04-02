@@ -1,6 +1,8 @@
 import time
 import pathlib
 from scipy import stats
+from PIL import Image
+from enum import Enum, auto
 
 from utility_lib import filesystem_lib
 from utility_lib import printing_lib
@@ -8,9 +10,24 @@ from utility_lib import stats_lib
 from utility_lib import picture_class
 from utility_lib import json_class
 
-DEFAULT_TARGET_DIR = "../../datasets/raw_phishing/"
-DEFAULT_BASELINE_PATH = "../../datasets/raw_phishing.json"
+
+class SOURCE(Enum):
+    raw_phishing_png = auto()
+    raw_phishing_bmp = auto()
+SOURCE_CHOSEN = SOURCE.raw_phishing_png
+
+if SOURCE_CHOSEN == SOURCE.raw_phishing_bmp :
+    DEFAULT_TARGET_DIR = "../../datasets/raw_phishing_bmp/"
+    DEFAULT_BASELINE_PATH = "../../datasets/raw_phishing_bmp.json"
+    FILE_TYPE = ".bmp"
+elif SOURCE_CHOSEN == SOURCE.raw_phishing_png :
+    DEFAULT_TARGET_DIR = "../../datasets/raw_phishing/"
+    DEFAULT_BASELINE_PATH = "../../datasets/raw_phishing.json"
+    FILE_TYPE = ".png"
+
 DEFAULT_OUTPUT_DIR = "./RESULTS/"
+
+THREESHOLD = 0.7
 
 class Execution_handler() :
     def __init__(self, target_dir=DEFAULT_TARGET_DIR, Local_Picture=picture_class.Picture, save_picture=False, output_dir=DEFAULT_OUTPUT_DIR):
@@ -33,6 +50,7 @@ class Execution_handler() :
 
         # Actions handlers
         self.printer = printing_lib.Printer()
+        self.file_system = filesystem_lib.File_System(type=FILE_TYPE)
 
     def do_random_test(self):
         print("=============== RANDOM TEST SELECTED ===============")
@@ -58,7 +76,7 @@ class Execution_handler() :
 
     def pick_random_picture_handler(self, target_dir):
         print("Pick a random picture ... ")
-        target_picture_path = filesystem_lib.random_choice(target_dir)
+        target_picture_path = self.file_system.random_choice(target_dir)
         print("Target picture : " + str(target_picture_path))
 
         target_picture = self.Local_Picture_class_ref(id=None, path=target_picture_path)
@@ -66,7 +84,7 @@ class Execution_handler() :
 
     def load_pictures(self, target_dir, Local_Picture_class_ref):
         print("Load pictures ... ")
-        picture_list = filesystem_lib.get_Pictures_from_directory(target_dir, class_name=Local_Picture_class_ref)
+        picture_list = self.file_system.get_Pictures_from_directory(target_dir, class_name=Local_Picture_class_ref)
         return picture_list
 
     def prepare_dataset(self, picture_list):
@@ -122,6 +140,7 @@ class Execution_handler() :
                 raise e
 
             try :
+                # if curr_sorted_picture_list[0].distance < THREESHOLD :
                 JSON_file_object = self.add_top_matches_to_JSON(curr_sorted_picture_list, curr_target_picture, JSON_file_object)
             except Exception as e :
                 print(f"An Exception has occured during the tentative to add result to json for {curr_target_picture.path.name} : " + str(e))
@@ -172,7 +191,7 @@ class Execution_handler() :
     # ====================== STATISTICS AND PRINTING ======================
     def evaluate_JSON(self, JSON_file_object, baseline_path =DEFAULT_BASELINE_PATH):
         JSON_file_object, quality = JSON_file_object.evaluate_json(pathlib.Path(baseline_path))
-        print(f"Quality of guess : {str(quality)}")
+        print(f"Quality of guess : {str(round(quality,stats_lib.ROUND_DECIMAL))}")
         return JSON_file_object
 
     def describe_stats(self, list_time):
@@ -189,3 +208,43 @@ class Execution_handler() :
         E2 = round(elapsed_time/nb_item,stats_lib.ROUND_DECIMAL)
 
         print(f"Elapsed computation {to_add}time : {E1}s for {nb_item} items ({E2}s per item)")
+
+
+
+# ============================================= ------------------------------------ =============================================
+#                                                           MANUAL LABOR
+
+DEFAULT_BASELINE_PATH = "../../datasets/raw_phishing.json"
+BMP_TARGET_DIR = "../../datasets/raw_phishing_bmp/"
+BMP_BASELINE_PATH = "../../datasets/raw_phishing_bmp.json"
+
+# Handle trucated image too
+from PIL import ImageFile
+ImageFile.LOAD_TRUNCATED_IMAGES = True
+
+def create_bmp_from_png():
+
+    p = pathlib.Path(DEFAULT_TARGET_DIR).glob('**/*')
+    files = [x for x in p if x.is_file()]
+
+    print(f"files list : {files}")
+
+    # Convert pictures
+    for file in files :
+        name_img_source = pathlib.Path(DEFAULT_TARGET_DIR) / file.name
+        name_img_target = pathlib.Path(BMP_TARGET_DIR) / pathlib.Path(file.name).with_suffix('.bmp')
+
+        print(name_img_source, name_img_target)
+
+        img = Image.open(name_img_source)
+        img.save(name_img_target)
+
+    # Convert baseline file
+    json_handler = json_class.JSON_VISUALISATION()
+    png_json = json_handler.import_json(pathlib.Path(DEFAULT_BASELINE_PATH)) # PNG one
+    bmp_json = json_handler.replace_type(png_json, ".bmp")
+    json_handler.json_to_export = bmp_json
+    json_handler.json_export(str(BMP_BASELINE_PATH))
+
+if __name__ == '__main__':
+    create_bmp_from_png()

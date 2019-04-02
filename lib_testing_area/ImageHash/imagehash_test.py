@@ -21,7 +21,7 @@ class HASH_TYPE(Enum):
     W_HASH = auto()
 
 # CONFIGURATION
-HASH_CHOICE = HASH_TYPE.P_HASH
+HASH_CHOICE = HASH_TYPE.D_HASH
 save_picture = False
 
 class Local_Picture(picture_class.Picture):
@@ -82,9 +82,10 @@ class Image_hash_execution_handler(execution_handler.Execution_handler) :
         return target_picture
 
 if __name__ == '__main__':
-    target_dir = "../../datasets/raw_phishing/"
-    filesystem_lib.clean_folder(target_dir)
+    # target_dir = "../../datasets/raw_phishing/"
+    # filesystem_lib.clean_folder(target_dir)
 
-    eh = Image_hash_execution_handler(target_dir=target_dir, Local_Picture=Local_Picture)
+    # eh = Image_hash_execution_handler(target_dir=target_dir, Local_Picture=Local_Picture)
+    eh = Image_hash_execution_handler(Local_Picture=Local_Picture)
     # eh.do_random_test()
     eh.do_full_test()

@@ -80,6 +80,9 @@ def get_top(picture_list: List[Picture], target_picture: Picture):
     for curr_picture in picture_list:
         curr_picture.compute_distance(target_picture)
 
+    # Remove None distance
+    picture_list = [item for item in picture_list if item.distance != None]
+
     sorted_picture_list = sorted(picture_list, key=operator.attrgetter('distance'))
     # print(sorted_picture_list)
 

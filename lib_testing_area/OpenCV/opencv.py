@@ -26,11 +26,13 @@ class DISTANCE_TYPE(Enum):
     LEN_MIN = auto()
     LEN_MAX = auto()
     LEN_MEAN = auto()
+    MEAN_DIST_PER_PAIR = auto()
+    MEAN_AND_MAX = auto()
 
 class FILTER_TYPE(Enum):
     RATIO_BAD = auto() # NOT with KNN
     RATIO_CORRECT = auto() # ONLY with KNN
-    FAR_THREESHOLD = auto() # NOT with KNN
+    FAR_THREESHOLD = auto() # NOT with KNN = THREESHOLD DISTANCE
     NO_FILTER = auto()
 
 class MATCH_TYPE(Enum):
@@ -105,7 +107,7 @@ class Local_Picture(picture_class.Picture):
             good = self.ratio_good(matches)
         elif FILTER_CHOSEN == FILTER_TYPE.FAR_THREESHOLD :
             good = self.ratio_good(matches)
-            good = self.far_filter(good)
+            good = self.threeshold_distance_filter(good)
         else :
             raise Exception('OPENCV WRAPPER : FILTER_CHOSEN NOT CORRECT')
 
@@ -113,6 +115,18 @@ class Local_Picture(picture_class.Picture):
             dist = 1 - len(good) / (min(len(pic1.description), len(pic2.description)))
         elif DISTANCE_CHOSEN == DISTANCE_TYPE.LEN_MAX:  # MAX
             dist = 1 - len(good) / (max(len(pic1.description), len(pic2.description)))
+        elif DISTANCE_CHOSEN == DISTANCE_TYPE.MEAN_DIST_PER_PAIR:
+            if len(good) == 0:
+                dist = None
+            else:
+                dist = self.mean_matches_dist(good)
+        elif DISTANCE_CHOSEN == DISTANCE_TYPE.MEAN_AND_MAX :
+            if len(good) == 0:
+                dist = None
+            else:
+                dist1 = self.mean_matches_dist(good)
+                dist2 = 1 - len(good) / (max(len(pic1.description), len(pic2.description)))
+                dist = dist1 + dist2
         else :
             raise Exception('OPENCV WRAPPER : DISTANCE_CHOSEN NOT CORRECT')
 
@@ -120,6 +134,16 @@ class Local_Picture(picture_class.Picture):
         self.matches = sorted(good, key=lambda x: x.distance)  # Sort matches by distance.  Best come first.
 
         return dist
+
+    @staticmethod
+    def mean_matches_dist(matches):
+        mean_dist = 0
+        for curr_match in matches:
+            mean_dist += curr_match.distance
+        mean_dist /= len(matches)
+
+        print(f"Current mean dist : {mean_dist}")
+        return mean_dist
 
     @staticmethod
     def ratio_bad(matches):
@@ -148,7 +172,7 @@ class Local_Picture(picture_class.Picture):
         return good
 
     @staticmethod
-    def far_filter(matches):
+    def threeshold_distance_filter(matches):
         dist_th = 64
         good = []
 
@@ -162,7 +186,6 @@ class Local_Picture(picture_class.Picture):
         if path is None or path == "" :
             raise Exception("Path specified void")
             return None
-
         image = cv2.imread(str(path))
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)  # Convert from cv's BRG default color order to RGB
 
@@ -202,7 +225,7 @@ def print_points(img_building, key_points):
 
 class Matcher():
     def __init__(self):
-        self.algo = cv2.ORB_create() # nfeatures=5000)  # SIFT, BRISK, SURF, .. # Available to change nFeatures=1000 ? Limited to 500 by default
+        self.algo = cv2.ORB_create() #nfeatures=1000)  # SIFT, BRISK, SURF, .. # Available to change nFeatures=1000 ? Limited to 500 by default
 
         if DATASTRUCT_CHOSEN == DATASTRUCT_TYPE.BF :
             self.matcher = cv2.BFMatcher(cv2.NORM_HAMMING,crossCheck=CROSSCHECK_WORKING)
@@ -353,10 +376,13 @@ class Custom_printer(printing_lib.Printer):
 
 
 if __name__ == '__main__':
-    target_dir = "../../datasets/raw_phishing/"
-    filesystem_lib.clean_folder(target_dir)
 
-    eh = OpenCV_execution_handler(target_dir=target_dir, Local_Picture=Local_Picture, save_picture=False)
+    # file_system = filesystem_lib.File_System(type=".png")
+    # target_dir = "../../datasets/raw_phishing/"
+    # filesystem_lib.clean_folder(target_dir)
+
+    # eh = OpenCV_execution_handler(target_dir=target_dir, Local_Picture=Local_Picture, save_picture=False)
+    eh = OpenCV_execution_handler(Local_Picture=Local_Picture, save_picture=False)
     eh.storage = Matcher()
     eh.printer = Custom_printer()
     # eh.do_random_test()
