@@ -3,6 +3,7 @@
 # STD imports
 import logging
 import pathlib
+import json
 
 # Own imports
 import utility_lib.filesystem_lib as filesystem_lib
@@ -21,6 +22,7 @@ class Configuration_launcher():
                  img_type: configuration.SUPPORTED_IMAGE_TYPE):
         logging.basicConfig(format='%(name)s - %(levelname)s - %(message)s', level=logging.INFO)
         self.logger = logging.getLogger(__name__)
+
         self.source_pictures_dir = source_pictures_dir
         self.output_folder = output_folder
         self.ground_truth_json = ground_truth_json
@@ -125,11 +127,52 @@ class Configuration_launcher():
                             except Exception as e:
                                 logging.error(f"Aborting this configuration. Current configuration thrown an error : {e} ")
 
+    @staticmethod
+    def create_tldr(folder : pathlib.Path, output_file : pathlib.Path):
+
+        f = open(str(output_file.resolve()), "a+")  # Append and create if does not exist
+
+        global_list = []
+        for x in folder.resolve().iterdir():
+
+            global_txt = ""
+
+            if x.is_dir():
+                global_txt += x.name + " \t"
+                stat_file = x/"stats.txt"
+                if stat_file.exists():
+
+                    with open(str(stat_file.resolve())) as json_file:
+                        json_file = str(json_file.read()).replace("'", '"')
+                        data = json.loads(json_file)
+                        global_txt += "TRUE_POSITIVE = "  + str(data["TRUE_POSITIVE_RATE"]) + " \t"
+                        global_txt += "PRE_COMPUTING = "  + str(data["TIME_PER_PICTURE_PRE_COMPUTING"]) + " \t"
+                        global_txt += "MATCHING = "  + str(data["TIME_PER_PICTURE_MATCHING"]) + " \t"
+
+                        global_list.append([global_txt, data["TRUE_POSITIVE_RATE"]])
+
+                else :
+                    global_txt += "NO RESULT / ERROR"
+
+                    global_list.append([global_txt, -1])
+
+        global_list = sorted(global_list, key=lambda l: l[1], reverse=True)
+
+        for x in global_list:
+            f.write(x[0] + "\r\n")
+
+        print("Overview written")
+
+
 
 if __name__ == '__main__':
+
+    # =============================
     source_pictures_dir = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing/")
     output_folder = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_output/")
     ground_truth_json = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing.json")
+    output_file = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_output.overview")
+    '''
     img_type = configuration.SUPPORTED_IMAGE_TYPE.PNG
 
     config_launcher = Configuration_launcher(source_pictures_dir=source_pictures_dir.resolve(),
@@ -137,10 +180,15 @@ if __name__ == '__main__':
                                              ground_truth_json=ground_truth_json.resolve(),
                                              img_type=img_type)
     config_launcher.auto_launch()
+    '''
+    Configuration_launcher.create_tldr(folder=output_folder, output_file=output_file)
 
-    target_dir = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_bmp/")
+    # =============================
+    source_pictures_dir = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_bmp/")
     output_folder = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_bmp_output/")
     ground_truth_json = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_bmp.json")
+    output_file = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_bmp_output.overview")
+    '''
     img_type = configuration.SUPPORTED_IMAGE_TYPE.BMP
 
     config_launcher = Configuration_launcher(source_pictures_dir=source_pictures_dir.resolve(),
@@ -148,3 +196,23 @@ if __name__ == '__main__':
                                              ground_truth_json=ground_truth_json.resolve(),
                                              img_type=img_type)
     config_launcher.auto_launch()
+    '''
+    Configuration_launcher.create_tldr(folder=output_folder, output_file=output_file)
+
+    # =============================
+    source_pictures_dir = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_COLORED/")
+    output_folder = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_COLORED_output/")
+    ground_truth_json = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing.json")
+    output_file = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_COLORED_output.overview")
+
+    '''
+    img_type = configuration.SUPPORTED_IMAGE_TYPE.PNG
+
+    config_launcher = Configuration_launcher(source_pictures_dir=source_pictures_dir.resolve(),
+                                             output_folder=output_folder.resolve(),
+                                             ground_truth_json=ground_truth_json.resolve(),
+                                             img_type=img_type)
+    config_launcher.auto_launch()
+    '''
+
+    Configuration_launcher.create_tldr(folder=output_folder, output_file=output_file)

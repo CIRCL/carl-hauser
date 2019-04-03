@@ -7,7 +7,7 @@ import unittest
 DEBUG = False
 
 
-class BasicTestSuite(unittest.TestCase):
+class test_json_handler(unittest.TestCase):
     """Basic test cases."""
 
     def setUp(self):

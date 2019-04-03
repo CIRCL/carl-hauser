@@ -21,6 +21,7 @@ class Execution_handler():
 
         logging.basicConfig(filename=str(conf.OUTPUT_DIR/"execution.log"), filemode='w', format='%(name)s - %(levelname)s - %(message)s', level=logging.INFO)
         self.logger = logging.getLogger(__name__)
+
         self.logger.info("Initialisation of Execution handler ...")
 
         # Load primary configuration parameters
@@ -28,7 +29,7 @@ class Execution_handler():
         self.file_system = filesystem_lib.File_System(conf=self.conf)
         self.conf.SOURCE_DIR = self.file_system.safe_path(conf.SOURCE_DIR)
         self.conf.OUTPUT_DIR = self.file_system.safe_path(conf.OUTPUT_DIR)
-        self.file_system.conf = self.conf
+        # Passed by reference ? No need ? # self.file_system.conf = self.conf
 
         self.logger.debug("Actual configuration : ")
         self.logger.debug(pprint.pformat(vars(conf)))

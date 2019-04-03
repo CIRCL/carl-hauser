@@ -3,15 +3,17 @@
 from .context import *
 
 import unittest
+import cv2
 
 DEBUG = False
 
 
-class test_json_handler(unittest.TestCase):
+class test_text_detector(unittest.TestCase):
     """Basic test cases."""
 
     def setUp(self):
-        self.JSON_class = json_class.Json_handler()
+        self.conf = configuration.Default_configuration()
+        self.text_handler = text_handler.Text_handler(self.conf)
         self.test_file_path = pathlib.Path.cwd() / pathlib.Path("tests/test_files")
 
         if DEBUG:
@@ -20,100 +22,57 @@ class test_json_handler(unittest.TestCase):
     def test_absolute_truth_and_meaning(self):
         assert True
 
-    def test_import_json(self):
-        json_imported = self.JSON_class.import_json(self.test_file_path / 'mini_baseline.json')
-        self.assertEqual(json_imported["nodes"][0]["id"], 0)
-        self.assertEqual(json_imported["nodes"][1]["image"], 'www.force-xloot.ml.png')
+    def test_load_picture_basic(self):
+        simple_picture_path = self.test_file_path / "simple_text.png"
+        target_picture = picture_class.Picture(id=None, conf=self.conf, path=simple_picture_path)
+        self.text_handler.extract_text(target_picture)
 
-    def test_mapping_json(self):
-        json_imported =  self.JSON_class.import_json(self.test_file_path / 'mini_baseline.json')
-        self.JSON_class.json_to_export = json_imported
-        json_imported = self.JSON_class.import_json(self.test_file_path / 'mini_baseline_to_match.json')
+    def test_round_32(self):
+        result = self.text_handler.length_to_32_multiple(300,1)
+        self.assertEqual(result,320)
+        result = self.text_handler.length_to_32_multiple(300,2)
+        self.assertEqual(result,160)
 
-        self.mapping_dict = json_class.create_node_mapping(self.JSON_class.json_to_export, json_imported)
+    def test_get_mean_colors(self):
+        simple_picture_path = self.test_file_path / "simple_text.png"
+        target_picture = picture_class.Picture(id=None, conf=self.conf, path=simple_picture_path)
+        image = self.text_handler.picture_to_cv2_picture(target_picture)
 
-        if DEBUG:
-            print("Matching : ")
-            print(self.JSON_class.json_to_export)
-            print("with : ")
-            print(json_imported)
-            print("gives : ")
-            print(self.mapping_dict)
+        result = self.text_handler.get_mean_color(image, 0, 0, 100,100)
+        self.assertEqual(result[0], 215)
+        self.assertEqual(result[1], 120)
+        self.assertEqual(result[2], 0)
 
-        self.assertEqual(self.mapping_dict[0], 1)
-        self.assertEqual(self.mapping_dict[1], 2)
-        self.assertEqual(self.mapping_dict[2], 0)
+        result = self.text_handler.get_mean_color(image, 200, 200, 400, 400)
+        self.assertEqual(result[0], 220)
+        self.assertEqual(result[1], 137)
+        self.assertEqual(result[2], 32)
 
-    def print_debug_are_same_edge_simple(self, edge1, mapping, edge2):
-        if DEBUG:
-            print("Edge 1 : ")
-            print(edge1)
-            print("Edge 2 : ")
-            print(edge2)
-            print("Mapping ")
-            print(mapping)
+    def test_bincount_color(self):
+        simple_picture_path = self.test_file_path / "simple_text.png"
+        target_picture = picture_class.Picture(id=None, conf=self.conf, path=simple_picture_path)
+        image = self.text_handler.picture_to_cv2_picture(target_picture)
 
-    def test_are_same_edge_simple(self):
-        edge1 = {"to"  : 0,"from": 1}
-        edge2 = {"to"  : 0,"from": 1}
+        result = self.text_handler.get_hist_count_colors(image, 0, 0, 100,100)
+        self.assertEqual(result[0], 215)
+        self.assertEqual(result[1], 120)
+        self.assertEqual(result[2], 0)
 
-        mapping = {0:0,1:1}
-        self.print_debug_are_same_edge_simple(edge1, mapping, edge2)
-        self.assertTrue(json_class.are_same_edge(edge1, mapping, edge2))
+        result = self.text_handler.get_hist_count_colors(image, 200, 200, 400, 400)
+        self.assertEqual(result[0], 215)
+        self.assertEqual(result[1], 120)
+        self.assertEqual(result[2], 0)
 
-        mapping = {0:0,1:1}
-        self.print_debug_are_same_edge_simple(edge1, mapping, edge2)
-        self.assertTrue(json_class.are_same_edge(edge2, mapping, edge1))
+    def test_heavy_testing(self):
+        directory = self.test_file_path.parent.parent.parent / "datasets" / "raw_phishing"
+        target_dir = self.test_file_path.parent.parent.parent / "datasets" / "raw_phishing_COLORED"
 
-        mapping ={0:1,0:1}
-        self.print_debug_are_same_edge_simple(edge1, mapping, edge2)
-        self.assertFalse(json_class.are_same_edge(edge2, mapping, edge1))
-
-
-    def test_are_same_edge(self):
-        self.mapping_dict = {}
-        self.mapping_dict[0] = 1 # 0 -> 1
-        self.mapping_dict[1] = 2 # 1 -> 2
-        self.mapping_dict[2] = 3 # 2 -> 3
-
-        edge1 = {"to"  : 0,"from": 1}
-        edge2 = {"to"  : 0,"from": 1}
-
-        self.assertFalse(json_class.are_same_edge(edge1, self.mapping_dict, edge2))
-
-        edge1 = {"to"  : 0,"from": 1}
-        edge2 = {"to"  : 1,"from": 2}
-        self.assertTrue(json_class.are_same_edge(edge1, self.mapping_dict, edge2))
-
-    def test_inclusion_json(self):
-        json_imported = self.JSON_class.import_json(self.test_file_path / 'mini_baseline.json')
-        self.JSON_class.json_to_export = json_imported
-        json_imported = self.JSON_class.import_json(self.test_file_path / 'mini_baseline_to_match.json')
-
-        self.mapping_dict = json_class.create_node_mapping(self.JSON_class.json_to_export, json_imported)
-        wrong = json_class.is_graphe_included(self.JSON_class.json_to_export, self.mapping_dict, json_imported)
-        self.assertEqual(wrong,0)
-
-        tmp_modified = self.JSON_class.json_to_export
-        tmp_modified["edges"][0]["to"] = 1
-        tmp_modified["edges"][0]["from"] = 0
-        self.JSON_class.json_to_export = tmp_modified
-        wrong = json_class.is_graphe_included(self.JSON_class.json_to_export, self.mapping_dict, json_imported)
-        self.assertEqual(wrong,1)
-
-    def test_matching_graphe_percentage(self):
-        json_imported = self.JSON_class.import_json(self.test_file_path / 'mini_baseline.json')
-        self.JSON_class.json_to_export = json_imported
-        json_imported = self.JSON_class.import_json(self.test_file_path / 'mini_baseline_to_match.json')
-
-        self.assertEqual(json_class.matching_graphe_percentage(self.JSON_class.json_to_export, json_imported), 1)
-        self.assertEqual(json_class.matching_graphe_percentage(json_imported, self.JSON_class.json_to_export), 1)
-
-        tmp_modified = self.JSON_class.json_to_export
-        tmp_modified["edges"][0]["to"] = 1
-        tmp_modified["edges"][0]["from"] = 0
-        self.JSON_class.json_to_export = tmp_modified
-        self.assertAlmostEqual(json_class.matching_graphe_percentage(self.JSON_class.json_to_export, json_imported), 0.66, delta=0.01)
+        for x in directory.resolve().iterdir():
+            if x.is_file():
+                print(x)
+                image = picture_class.Picture(id=None, conf=self.conf, path=x)
+                result_image = self.text_handler.extract_text(image)
+                cv2.imwrite(str(target_dir / x.name), result_image)
 
 
 if __name__ == '__main__':

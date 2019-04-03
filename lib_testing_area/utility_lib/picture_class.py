@@ -1,9 +1,11 @@
 from typing import List
 from PIL import Image
 import configuration
+import pathlib
+
 
 class Picture():
-    def __init__(self, id, conf: configuration.Default_configuration, shape="image", path=None):
+    def __init__(self, id, conf: configuration.Default_configuration, shape: str = "image", path: pathlib.PosixPath = None):
         self.id = id
         self.conf = conf
 
@@ -23,7 +25,7 @@ class Picture():
         self.storage = None
         self.matches = None
 
-    def load_image(self, path):
+    def load_image(self, path: pathlib.PosixPath):
         if path is None or path == "":
             return None
 
