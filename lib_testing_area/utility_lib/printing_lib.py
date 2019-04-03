@@ -5,12 +5,15 @@ from .json_class import remove_target_picture_from_matches
 
 import pathlib
 import configuration
+import logging
 
 OFFSETS = 10
 
 class Printer() :
     def __init__(self, conf: configuration.Default_configuration, offsets=OFFSETS):
         self.offsets = offsets
+        self.logger = logging.getLogger(__name__)
+
         # self.conf = conf
 
     # @staticmethod
@@ -60,7 +63,7 @@ class Printer() :
             new_im.paste(im, (x_offset,0))
             tmp_title = image_name_list[i] + " " + str(pathlib.Path(image_path_list[i]).name)
 
-            print(f"ADDING picture : {tmp_title}")
+            self.logger.debug(f"ADDING picture : {tmp_title}")
 
             self.text_and_outline(draw,x_offset,10,tmp_title, total_width//120)
             x_offset += im.size[0]
