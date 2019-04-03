@@ -17,7 +17,9 @@ class Configuration_launcher():
                  source_pictures_dir: pathlib.Path,
                  output_folder: pathlib.Path,
                  ground_truth_json: pathlib.Path,
+
                  img_type: configuration.SUPPORTED_IMAGE_TYPE):
+        logging.basicConfig(format='%(name)s - %(levelname)s - %(message)s', level=logging.INFO)
         self.logger = logging.getLogger(__name__)
         self.source_pictures_dir = source_pictures_dir
         self.output_folder = output_folder
@@ -57,6 +59,7 @@ class Configuration_launcher():
         # Launch
         for type in list_to_execute:
             curr_configuration.ALGO = type
+            curr_configuration.OUTPUT_DIR = self.output_folder / image_hash.Image_hash_execution_handler.conf_to_string(curr_configuration)
             try:
                 eh = image_hash.Image_hash_execution_handler(conf=curr_configuration)
                 eh.do_full_test()
@@ -81,6 +84,7 @@ class Configuration_launcher():
         # Launch
         for type in list_to_execute:
             curr_configuration.ALGO = type
+            curr_configuration.OUTPUT_DIR = self.output_folder / tlsh.TLSH_execution_handler.conf_to_string(curr_configuration)
             try:
                 eh = tlsh.TLSH_execution_handler(conf=curr_configuration)
                 eh.do_full_test()
@@ -112,6 +116,8 @@ class Configuration_launcher():
                             curr_configuration.FILTER = filter
                             curr_configuration.DISTANCE = distance
                             curr_configuration.CROSSCHECK = crosscheck
+
+                            curr_configuration.OUTPUT_DIR = self.output_folder / opencv.OpenCV_execution_handler.conf_to_string(curr_configuration)
 
                             try:
                                 eh = opencv.OpenCV_execution_handler(conf=curr_configuration)

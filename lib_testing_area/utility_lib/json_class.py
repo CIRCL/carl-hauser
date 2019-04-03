@@ -2,12 +2,17 @@ from .picture_class import Picture
 from typing import List
 import json
 import pathlib
+import logging
+
+import configuration
+import results
 
 TOP_K_EDGE = 1
 
-class JSON_GRAPHE() :
-    def __init__(self, json_value={}):
-        self.json_to_export = json_value
+class Json_handler() :
+    def __init__(self, conf : configuration.Default_configuration):
+        self.conf = conf
+        self.json_to_export = {}
         self.quality = None
 
     # =========================== -------------------------- ===========================
@@ -20,8 +25,9 @@ class JSON_GRAPHE() :
 
         return json_imported
 
-    def json_export(self, file_name='test.json'):
-        with open(pathlib.Path(file_name), 'w') as outfile:
+    def json_export(self):
+        file_out = self.conf.OUTPUT_DIR / "graphe.json"
+        with open(pathlib.Path(file_out), 'w') as outfile:
             json.dump(self.json_to_export, outfile)
 
     # =========================== -------------------------- ===========================
@@ -58,13 +64,11 @@ class JSON_GRAPHE() :
 
         return json_tmp
 
-    def evaluate_json(self, baseline_path):
+    def evaluate_json(self, baseline_path: pathlib.PosixPath, results : results.RESULTS):
         json_imported = self.import_json(baseline_path)
-        self.quality = matching_graphe_percentage(self.json_to_export, json_imported)
+        results.TRUE_POSITIVE_RATE = matching_graphe_percentage(self.json_to_export, json_imported)
 
-        self.json_to_export["quality"] =  self.quality
-
-        return self, self.quality
+        return self, results
 
     def replace_type(selfs, json, target_type='.bmp'):
         nodes = json["nodes"]
@@ -81,12 +85,14 @@ class JSON_GRAPHE() :
 
 def remove_target_picture_from_matches(sorted_picture_list : List[Picture], target_picture : Picture):
     offset = 0
+    logger = logging.getLogger(__name__)
+
     if sorted_picture_list != [] and target_picture.is_same_picture_as(sorted_picture_list[0]):
         # If first picture is the original picture we skip.
-        print("Removed first choice : " + sorted_picture_list[0].path.name)
+        logger.debug("Removed first choice : " + sorted_picture_list[0].path.name)
         offset += 1
 
-    print(f"Offset after target picture removal from matches : {offset}")
+    logger.debug(f"Offset after target picture removal from matches : {offset}")
 
     return offset
 
@@ -128,6 +134,7 @@ def is_graphe_included(candidate_graphe, mapping_dict, ground_truth_graphe):
 
     candidate_edges = candidate_graphe["edges"]
     ground_truth_edges = ground_truth_graphe["edges"]
+    logger = logging.getLogger(__name__)
 
     wrong = 0
 
@@ -139,17 +146,19 @@ def is_graphe_included(candidate_graphe, mapping_dict, ground_truth_graphe):
                 found = True
                 continue
         if not found :
-            print(f"Edge : {str(curr_candidate_edge)} not found in baseline graph.")
+            logger.debug(f"Edge : {str(curr_candidate_edge)} not found in baseline graph.")
             wrong += 1
 
     return wrong
 
 def are_same_edge(edge1, matching, edge2):
+    logger = logging.getLogger(__name__)
+
     try :
         if matching[edge1["to"]] == edge2["to"] and matching[edge1["from"]] == edge2["from"] :
             return True
     except KeyError as e :
-        print("JSON_CLASS : MATCHING AND EDGES ARE NOT CONSISTENT : a source edge index is not part of the matching" + str(e))
+        logger.error("JSON_CLASS : MATCHING AND EDGES ARE NOT CONSISTENT : a source edge index is not part of the matching" + str(e))
 
     return False
 

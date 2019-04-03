@@ -11,7 +11,7 @@ class BasicTestSuite(unittest.TestCase):
     """Basic test cases."""
 
     def setUp(self):
-        self.JSON_class = json_class.JSON_VISUALISATION()
+        self.JSON_class = json_class.Json_handler()
         self.test_file_path = pathlib.Path.cwd() / pathlib.Path("tests/test_files")
 
         if DEBUG:

@@ -208,7 +208,7 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
             mean_dist += curr_match.distance
         mean_dist /= len(matches)
 
-        print(f"Current mean dist : {mean_dist}")
+        self.logger.debug(f"Current mean dist : {mean_dist}")
         return mean_dist
 
     @staticmethod
@@ -306,7 +306,7 @@ class Custom_printer(printing_lib.Printer):
 
             y_offset += tmp_img.size[1]
 
-        print("Save to : " + file_name)
+        self.logger.debug("Save to : " + file_name)
         new_im.save(file_name)
 
     @staticmethod
@@ -317,7 +317,7 @@ class Custom_printer(printing_lib.Printer):
     def save_matches(pic1: Local_Picture, pic2: Local_Picture, matches, distance):
         outImg = Custom_printer.draw_matches(pic1, pic2, matches)
         # outImg = printing_lib.print_title(outImg, pic1.path.name + " " + pic2.path.name)
-        print("./RESULTS/" + pic1.path.name)
+        self.logger.debug("./RESULTS/" + pic1.path.name)
         t = pic1.path.name + " TO " + pic1.path.name + " IS " + str(distance)
         plt.text(0, 0, t, ha='center', wrap=True)
         plt.imsave("./RESULTS/" + pic1.path.name, outImg)

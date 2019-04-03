@@ -19,7 +19,7 @@ class Image_hash_execution_handler(execution_handler.Execution_handler):
 
     # ==== Action definition ====
     def TO_OVERWRITE_prepare_dataset(self, picture_list):
-        print("Hash pictures ... ")
+        self.logger.info("Hash pictures ... ")
         picture_list = self.hash_pictures(picture_list)
         return picture_list
 
@@ -34,7 +34,7 @@ class Image_hash_execution_handler(execution_handler.Execution_handler):
             # Load and Hash picture
             self.hash_picture(curr_picture)
             if i % 40 == 0:
-                print(f"Picture {i} out of {len(picture_list)}")
+                self.logger.debug(f"Picture {i} out of {len(picture_list)}")
 
         return picture_list
 
@@ -58,7 +58,7 @@ class Image_hash_execution_handler(execution_handler.Execution_handler):
             # TO NORMALIZE : https://fullstackml.com/wavelet-image-hash-in-python-3504fdd282b5
             curr_picture.hash = target_hash
         except Exception as e:
-            print("Error during hashing : " + str(e))
+            self.logger.error("Error during hashing : " + str(e))
 
         return curr_picture
 

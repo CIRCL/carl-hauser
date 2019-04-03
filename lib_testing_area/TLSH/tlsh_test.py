@@ -17,7 +17,7 @@ class TLSH_execution_handler(execution_handler.Execution_handler) :
         self.Local_Picture_class_ref = picture_class.Picture
 
     def TO_OVERWRITE_prepare_dataset(self, picture_list):
-        print("Hash pictures ... ")
+        self.logger.info("Hash pictures ... ")
         picture_list = self.hash_pictures(picture_list)
         return picture_list
 
@@ -26,23 +26,21 @@ class TLSH_execution_handler(execution_handler.Execution_handler) :
         return target_picture
 
     # ==== Hashing ====
-    @staticmethod
-    def hash_pictures(picture_list : List[picture_class.Picture]):
+    def hash_pictures(self, picture_list : List[picture_class.Picture]):
 
         for i, curr_picture in enumerate(picture_list):
             try :
                 # Load and Hash picture
-                TLSH_execution_handler.hash_picture(curr_picture)
+                self.hash_picture(curr_picture)
             except Exception as e :
-                print("Error during hashing : " + str(e))
+                self.logger.debug("Error during hashing : " + str(e))
 
             if i % 40 == 0 :
-                print(f"Picture {i} out of {len(picture_list)}")
+                self.logger.debug(f"Picture {i} out of {len(picture_list)}")
 
         return picture_list
 
-    @staticmethod
-    def hash_picture(curr_picture: picture_class.Picture):
+    def hash_picture(self, curr_picture: picture_class.Picture):
         # target_hash = tlsh.hash(Image.open(curr_picture.path))
         target_hash = tlsh.hash(open(curr_picture.path, 'rb').read()) # From https://github.com/trendmicro/tlsh
 

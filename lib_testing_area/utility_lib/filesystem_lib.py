@@ -27,9 +27,9 @@ class File_System():
     # ==== Disk read ====
     def safe_path(self, path):
         if type(path) is pathlib.PosixPath:
-            self.logger.info("Path specified is already a pathlib Path. ")
+            self.logger.debug("Path specified is already a pathlib Path. ")
         elif type(path) is str:
-            self.logger.info("Path specified is a string.")
+            self.logger.debug("Path specified is a string.")
             path = pathlib.Path(path)
         else:
             raise Exception("Unknown path type")
@@ -79,5 +79,5 @@ class File_System():
             curr_pic = cv2.imread(str(path))
 
             if curr_pic is None or curr_pic.shape == [] or curr_pic.shape[0] == 0 or curr_pic.shape[1] == 0:
-                print("Void picture (to delete ?) : " + str(path))
+                self.logger.error(f"Void picture (to delete ?) : {path}")
                 # path.unlink()
