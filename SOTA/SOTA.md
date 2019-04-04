@@ -304,7 +304,7 @@ Compression of descriptors before matching
 #### Hamming distance / Bruteforce
 
 Partially solved by \[23\]
-Works with binary features. Can be accelerated with GPU \[<span class="citeproc-not-found" data-reference-id="bianImageMatchingApplicationorienteda">**???**</span>\].
+Works with binary features. Can be accelerated with GPU \[6\].
 
 -   *O*(*N*<sup>2</sup>), N being the number of descriptor per image
 
@@ -316,7 +316,7 @@ Works with binary features. Can be accelerated with GPU \[<span class="citeproc-
 
 #### FLANN - Fast Library for Approximate Nearest Neighboors
 
-From \[<span class="citeproc-not-found" data-reference-id="bianImageMatchingApplicationorienteda">**???**</span>\], is an approximation for matching in Euclidian space, with KD-Tree techniques.
+From \[6\], is an approximation for matching in Euclidian space, with KD-Tree techniques.
 Work with non-binary features.
 
 -   Collections of algorithm, optimized for large dataset/high dimension
@@ -341,7 +341,7 @@ Higly noisy correspondences need to be filtered.
 
 #### RATIO - 
 
-From \[<span class="citeproc-not-found" data-reference-id="bianImageMatchingApplicationorienteda">**???**</span>\] recognizes the distinctiveness of features by comparing the distance of their two nearest neighbors.
+From \[6\] recognizes the distinctiveness of features by comparing the distance of their two nearest neighbors.
 This test rejects poor matches by computing the ratio between the best and second-best match. If the ratio is below some threshold, the match is discarded as being low-quality.
 
 #### GMS - Gird-based Motion Statistics
@@ -369,7 +369,7 @@ BSD <https://github.com/facebookresearch/faiss> \[53\]
 Step 5 - Model Fitting
 ----------------------
 
-From \[<span class="citeproc-not-found" data-reference-id="bianImageMatchingApplicationorienteda">**???**</span>\] and \[54\], is a step where the geometry of the scene is verified and/or estimated. Given correspondances, the pose of the object is estimated.
+From \[6\] and \[54\], is a step where the geometry of the scene is verified and/or estimated. Given correspondances, the pose of the object is estimated.
 
 -   Identify inliers and outliers ~ Fitting a homography matrix ~ Find the transformation of (picture one) to (picture two)
 
@@ -474,7 +474,7 @@ Matching time : nobs=207, minmax=(0.023s, 1.58s), mean=0.08s, variance=0.025s, s
 
 ### B-HASH : Block Hash
 
-Seems worst than A-hash.
+Seems worst than A-hash. Not tested, then.
 
 ##### Implementation
 
@@ -713,6 +713,16 @@ Normal version : nobs : 207s min time : 0.00083s max time : 0.00165s mean :0.000
 
 <span>0.50</span> <img src="sota-ressources/outputs-evaluation/tlsh_nolength/strange_distance_2.png" title="fig:" alt="Inconsistent distance regarding pictures - TLSH (no length) with PNG" />
 
+<span>0.51</span> <img src="sota-ressources/outputs-evaluation/tlsh_bmp/missmatch.png" title="fig:" alt="Mismatches - TLSH with BMP" />
+
+<span>0.47</span> <img src="sota-ressources/outputs-evaluation/tlsh_bmp/AmericanExpressWellsFargo.png" title="fig:" alt="Mismatches - TLSH with BMP" />
+
+<span>0.65</span> <img src="sota-ressources/outputs-evaluation/tlsh_bmp/Interesting_match.png" title="fig:" alt="Good matches - TLSH with BMP" />
+
+<span>0.65</span> <img src="sota-ressources/outputs-evaluation/tlsh_bmp/Interesting_match_2.png" title="fig:" alt="Good matches - TLSH with BMP" />
+
+<span>0.50</span> <img src="sota-ressources/outputs-evaluation/tlsh_bmp/FiBankGoodMatch.png" title="fig:" alt="Good matches - TLSH with BMP" />
+
 ### SSDeep - Similarity Digest 
 
 From ... few words on it in \[32\]
@@ -862,7 +872,7 @@ Classification of approaches :
 Text is an issue in screenshots matching. On one hand, it provides information that can be used to match pictures together, and on the other hand it creates keypoints that can be too easily matched, which create false positive.
 Therefore, some solutions or their combinations are possible :
 
--   Remove text / Black rectangle
+-   Remove text / Black rectangle (or arbitrary color)
 
 -   Remove text / Background color rectangle
 
@@ -870,11 +880,49 @@ Therefore, some solutions or their combinations are possible :
 
 -   Extract text and use it in the matching
 
-#### EAST - Efficient and Accurate Scene Text detection / deep learning text detector
-
-#### Remove text
+#### Remove text : EAST - Efficient and Accurate Scene Text detection / deep learning text detector
 
 \[29\] provides some details about how to detect text at scale, as the presented solution handle text recognition on real-time video input.
+
+Tests were conducted with this DeeplLearning text detector. The process is the following :
+
+-   Pictures are loaded
+
+-   Text location are detected with the provided model
+
+-   Text areas are filled (background color detected with different ways, fixed color, ...)
+
+-   Pictures are saved
+
+-   Standard algorithms are called on this new dataset
+
+Results are interesting, as pictures were heavily modified. In few words, fuzzy hashing algorithms results are improved by approximately 5% and ORB results are decreased by 5%.
+
+INSERT HERE GENERATED RESULTS
+
+<span>0.49</span> <img src="sota-ressources/painted_pictures/1_painted.png" title="fig:" alt="Pictures with painted text" />
+
+<span>0.49</span> <img src="sota-ressources/painted_pictures/2_painted.png" title="fig:" alt="Pictures with painted text" />
+
+<span>0.49</span> <img src="sota-ressources/painted_pictures/3_painted.png" title="fig:" alt="Pictures with painted text" />
+
+<span>0.49</span> <img src="sota-ressources/painted_pictures/4_painted.png" title="fig:" alt="Pictures with painted text" />
+
+<span>0.49</span> <img src="sota-ressources/painted_pictures/5_painted.png" title="fig:" alt="Pictures with painted text" />
+
+<span>0.49</span> <img src="sota-ressources/painted_pictures/6_painted.png" title="fig:" alt="Pictures with painted text" />
+
+<span>0.49</span> <img src="sota-ressources/painted_pictures/7_painted.png" title="fig:" alt="Pictures with painted text" />
+
+<span>0.49</span> <img src="sota-ressources/painted_pictures/8_painted.png" title="fig:" alt="Pictures with painted text" />
+
+<span>0.55</span> <img src="sota-ressources/outputs-evaluation/DeeplColor_ORB_BF/Bad_match.png" title="fig:" alt="ORB results on painted pictures (Bruteforce matcher)" />
+
+<span>0.44</span> <img src="sota-ressources/outputs-evaluation/DeeplColor_ORB_BF/GoogleToForm.png" title="fig:" alt="ORB results on painted pictures (Bruteforce matcher)" />
+
+<span>0.45</span> <img src="sota-ressources/outputs-evaluation/DeeplColor_PHASH/mismatch.png" title="fig:" alt="P-HASH results on painted pictures" />
+
+<span>0.54</span> <img src="sota-ressources/outputs-evaluation/DeeplColor_PHASH/mismatch_microsoft.png" title="fig:" alt="P-HASH results on painted pictures" />
 
 Non-Specific
 ------------
@@ -891,11 +939,11 @@ Goal is to transform visual information into vector space
 Comparison overview
 -------------------
 
-![Benchmarking of SIFT, SURF, ORB, AKAZE with RATIO and GMS selection ; FLANN or Hamming for distance. SP curves show the success ratio or success number (number of correspondance for AP) with thresholds. X-Axis being the threeshold. AP curves illustrate the mean number of verified correspondences with thresholds.\[<span class="citeproc-not-found" data-reference-id="bianImageMatchingApplicationorienteda">**???**</span>\] <span data-label="fig:benchmarking1"></span>](sota-ressources/benchmarking_1.png)
+![Benchmarking of SIFT, SURF, ORB, AKAZE with RATIO and GMS selection ; FLANN or Hamming for distance. SP curves show the success ratio or success number (number of correspondance for AP) with thresholds. X-Axis being the threeshold. AP curves illustrate the mean number of verified correspondences with thresholds.\[6\] <span data-label="fig:benchmarking1"></span>](sota-ressources/benchmarking_1.png)
 
-![Benchmarking of SIFT, SURF, ORB, AKAZE, BRISK, KAZE with computation time. Ordered best time from best to worst : red, green, blue, black. \[<span class="citeproc-not-found" data-reference-id="bianImageMatchingApplicationorienteda">**???**</span>\] <span data-label="fig:benchmarking2"></span>](sota-ressources/benchmarking_2.png)
+![Benchmarking of SIFT, SURF, ORB, AKAZE, BRISK, KAZE with computation time. Ordered best time from best to worst : red, green, blue, black. \[6\] <span data-label="fig:benchmarking2"></span>](sota-ressources/benchmarking_2.png)
 
-![Benchmarking of SIFT, SURF, ORB, AKAZE, BRISK, KAZE on robustness (RS), accuracy (AS), sufficiency (SS). Ordered best time from best to worst : red, green, blue, black. \[<span class="citeproc-not-found" data-reference-id="bianImageMatchingApplicationorienteda">**???**</span>\] <span data-label="fig:benchmarking3"></span>](sota-ressources/benchmarking_3.png)
+![Benchmarking of SIFT, SURF, ORB, AKAZE, BRISK, KAZE on robustness (RS), accuracy (AS), sufficiency (SS). Ordered best time from best to worst : red, green, blue, black. \[6\] <span data-label="fig:benchmarking3"></span>](sota-ressources/benchmarking_3.png)
 
 In few words :
 
