@@ -2,7 +2,7 @@
 #                      Configuration declaration
 from enum import Enum, auto
 
-class SUPPORTED_IMAGE_TYPE():
+class SUPPORTED_IMAGE_TYPE(Enum):
     PNG = auto()
     BMP = auto()
 

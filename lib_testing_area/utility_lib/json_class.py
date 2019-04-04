@@ -17,7 +17,6 @@ class Json_handler() :
 
     # =========================== -------------------------- ===========================
     #                                   IMPORT / EXPORT
-
     @staticmethod
     def import_json(file_path):
         with file_path.open() as data_file:
@@ -32,7 +31,6 @@ class Json_handler() :
 
     # =========================== -------------------------- ===========================
     #                                GRAPHE MODIFICATION
-
     def json_add_nodes(self, picture_list : List[Picture]) :
         nodes_list = []
 
@@ -104,10 +102,17 @@ def matching_graphe_percentage(candidate_graphe, ground_truth_graphe):
     wrong = is_graphe_included(candidate_graphe, mapping_dict, ground_truth_graphe)
 
     edges_length = len(candidate_graphe["edges"])
+    wrong_length = len(wrong)
 
-    return 1 - wrong/edges_length
+    return 1 - wrong_length/edges_length
 
 def create_node_mapping(candidate_graphe, ground_truth_graphe):
+    '''
+    Create a mapping (dictionnary) as : #Node in candidate graphe gives the #Node in the ground truth graph
+    :param candidate_graphe:
+    :param ground_truth_graphe:
+    :return:
+    '''
     mapping_dict = {}
 
     candidate_nodes = candidate_graphe["nodes"]
@@ -136,18 +141,19 @@ def is_graphe_included(candidate_graphe, mapping_dict, ground_truth_graphe):
     ground_truth_edges = ground_truth_graphe["edges"]
     logger = logging.getLogger(__name__)
 
-    wrong = 0
+    wrong = []
 
-    # For all pictures of the output, give the matching picture in the ground truth dictionnary
+    # For all candidate edge
     for curr_candidate_edge in candidate_edges:
         found = False
+        # Check if we find the corresponding edge in the target edges list, given the node mapping
         for truth_edge in ground_truth_edges:
             if are_same_edge(curr_candidate_edge,mapping_dict,truth_edge) :
                 found = True
                 continue
         if not found :
-            logger.debug(f"Edge : {str(curr_candidate_edge)} not found in baseline graph.")
-            wrong += 1
+            logger.debug(f"Edge : {str(curr_candidate_edge)} not found in target graph.")
+            wrong.append(curr_candidate_edge)
 
     return wrong
 

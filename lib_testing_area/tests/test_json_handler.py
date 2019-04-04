@@ -92,14 +92,14 @@ class test_json_handler(unittest.TestCase):
 
         self.mapping_dict = json_class.create_node_mapping(self.JSON_class.json_to_export, json_imported)
         wrong = json_class.is_graphe_included(self.JSON_class.json_to_export, self.mapping_dict, json_imported)
-        self.assertEqual(wrong,0)
+        self.assertEqual(len(wrong),0)
 
         tmp_modified = self.JSON_class.json_to_export
         tmp_modified["edges"][0]["to"] = 1
         tmp_modified["edges"][0]["from"] = 0
         self.JSON_class.json_to_export = tmp_modified
         wrong = json_class.is_graphe_included(self.JSON_class.json_to_export, self.mapping_dict, json_imported)
-        self.assertEqual(wrong,1)
+        self.assertEqual(len(wrong),1)
 
     def test_matching_graphe_percentage(self):
         json_imported = self.JSON_class.import_json(self.test_file_path / 'mini_baseline.json')

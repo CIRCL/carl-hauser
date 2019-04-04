@@ -7,6 +7,8 @@ import json
 
 # Own imports
 import utility_lib.filesystem_lib as filesystem_lib
+import utility_lib.json_class as json_class
+import utility_lib.graph_lib as graph_lib
 import configuration
 import ImageHash.imagehash_test as image_hash
 import TLSH.tlsh_test as tlsh
@@ -128,7 +130,7 @@ class Configuration_launcher():
                                 logging.error(f"Aborting this configuration. Current configuration thrown an error : {e} ")
 
     @staticmethod
-    def create_tldr(folder : pathlib.Path, output_file : pathlib.Path):
+    def create_tldr(folder: pathlib.Path, output_file: pathlib.Path):
 
         f = open(str(output_file.resolve()), "a+")  # Append and create if does not exist
 
@@ -138,20 +140,21 @@ class Configuration_launcher():
             global_txt = ""
 
             if x.is_dir():
-                global_txt += x.name + " \t"
-                stat_file = x/"stats.txt"
+                global_txt += (x.name).ljust(95, " ") + "\t"
+                stat_file = x / "stats.txt"
                 if stat_file.exists():
 
                     with open(str(stat_file.resolve())) as json_file:
                         json_file = str(json_file.read()).replace("'", '"')
                         data = json.loads(json_file)
-                        global_txt += "TRUE_POSITIVE = "  + str(data["TRUE_POSITIVE_RATE"]) + " \t"
-                        global_txt += "PRE_COMPUTING = "  + str(data["TIME_PER_PICTURE_PRE_COMPUTING"]) + " \t"
-                        global_txt += "MATCHING = "  + str(data["TIME_PER_PICTURE_MATCHING"]) + " \t"
+                        LEN = 34
+                        global_txt += ("TRUE_POSITIVE = " + str(data["TRUE_POSITIVE_RATE"])).ljust(LEN, " ") + " \t"
+                        global_txt += ("PRE_COMPUTING = " + str(data["TIME_PER_PICTURE_PRE_COMPUTING"])).ljust(LEN, " ") + " \t"
+                        global_txt += ("MATCHING = " + str(data["TIME_PER_PICTURE_MATCHING"])).ljust(LEN, " ")
 
                         global_list.append([global_txt, data["TRUE_POSITIVE_RATE"]])
 
-                else :
+                else:
                     global_txt += "NO RESULT / ERROR"
 
                     global_list.append([global_txt, -1])
@@ -160,9 +163,137 @@ class Configuration_launcher():
 
         for x in global_list:
             f.write(x[0] + "\r\n")
+        f.close()
 
-        print("Overview written")
+        logger = logging.getLogger(__name__)
+        logger.info("Overview written")
 
+    @staticmethod
+    def create_similarity_matrix(folder: pathlib.Path, output_file: pathlib.Path):
+        global_result = Configuration_launcher.create_inclusion_matrix(folder=folder)
+        Configuration_launcher.save_similarity_json(global_result, output_file.with_suffix(".json"))
+
+        ordo, absi, values = Configuration_launcher.inclusion_matrix_to_triple_array(global_result)
+
+        graph = graph_lib.Graph_handler()
+        graph.set_values(ordo, absi, values)
+
+        graph.save_matrix(output_file.with_suffix(".png"))
+
+    @staticmethod
+    def get_graph_list(folder: pathlib.Path):
+        graphe_list = []
+
+        # For all graphe
+        for x in folder.resolve().iterdir():
+            if x.is_dir():
+                curr_graphe_file = x / "graphe.json"
+                if curr_graphe_file.is_file():
+                    # We have a valid graphe file to load
+                    with open(str(curr_graphe_file.resolve())) as json_file:
+                        json_file = str(json_file.read()).replace("'", '"')
+                        data = json.loads(json_file)
+
+                        # Load each graphe
+                        graphe_list.append([x.name, data])
+
+        return graphe_list
+
+    @staticmethod
+    def create_pairing_matrix(folder: pathlib.Path, truth_file: pathlib.Path, output_folder: pathlib.Path):
+        graphe_list = Configuration_launcher.get_graph_list(folder)
+
+        logger = logging.getLogger(__name__)
+        logger.info("Pairing matrix written")
+
+    @staticmethod
+    def create_inclusion_matrix(folder: pathlib.Path):
+        # TODO : safe path in case it's not a Pathlib : is it necessary ?
+        # folder = filesystem_lib.File_System.safe_path(folder)
+        # output_folder = filesystem_lib.File_System.safe_path(output_folder)
+        logger = logging.getLogger(__name__)
+        logger.info(f"Creating inclusion matrix for {folder}")
+
+        graphe_list = Configuration_launcher.get_graph_list(folder)
+
+        # For all graphe A
+        global_result = []
+        for curr_graphe_a in graphe_list:
+            logger.debug(f"Checking graphe {curr_graphe_a[0]} ...")
+
+            tmp_result_graph_a = {}
+            tmp_result_graph_a["source"] = curr_graphe_a[0]
+
+            tmp_result_graph_b = []
+            # For all graphe B
+            for curr_graphe_b in graphe_list:
+                logger.debug(f"Checking graphe {curr_graphe_a[0]} with {curr_graphe_b[0]}")
+
+                # Evaluate each graphe A inclusion to each other graphe B
+                tmp_mapping_dict = json_class.create_node_mapping(curr_graphe_a[1], curr_graphe_b[1])
+                wrong_edge_list = json_class.is_graphe_included(curr_graphe_a[1], tmp_mapping_dict, curr_graphe_b[1])
+
+                # Compute similarity based on inclusion (card(inclusion)/card(source))
+                nb_edges = len(curr_graphe_a[1]["edges"])
+                curr_similarity = 1 - (len(wrong_edge_list) / nb_edges)
+
+                # Store the similarity in an array
+                tmp_dict = {}
+                tmp_dict["compared_to"] = curr_graphe_b[0]
+                tmp_dict["similarity"] = curr_similarity
+                tmp_result_graph_b.append(tmp_dict)
+
+            # Store the similarity array as json
+            # TODO : worth to sort it ? Would impact next computation
+            tmp_result_graph_b = sorted(tmp_result_graph_b, key=lambda l: l["similarity"], reverse=True)
+            tmp_result_graph_a["similar_to"] = tmp_result_graph_b
+            global_result.append(tmp_result_graph_a)
+
+        # Alphabetical order
+        global_result = sorted(global_result, key=lambda l: len(l["source"]))
+
+        return global_result
+
+    @staticmethod
+    def save_similarity_json(similarity_matrix, output_file: pathlib.Path):
+        # Store the similarity array as picture
+        # output_file = output_folder / "inclusion_matrix.json"
+        f = open(str(output_file.resolve()), "w+")  # Overwrite and create if does not exist
+        tmp_json = json.dumps(similarity_matrix)
+        f.write(tmp_json)
+        f.close()
+
+        logger = logging.getLogger(__name__)
+        logger.info("Inclusion matrix written")
+
+        return output_file
+
+    @staticmethod
+    def inclusion_matrix_to_triple_array(inclusion_dict):
+        ordo, absi, values = [], [], []
+
+        for curr_source in inclusion_dict:
+            # For the axis
+            ordo.append(curr_source["source"])
+            absi.append(curr_source["source"])
+
+        for curr_source in ordo:
+            tmp_row_values = []
+            for curr_target in absi:
+                tmp_similarity_list = Configuration_launcher.find_source_in_list(inclusion_dict, "source", curr_source)["similar_to"]
+                value = Configuration_launcher.find_source_in_list(tmp_similarity_list, "compared_to", curr_target)["similarity"]
+                tmp_row_values.append(value)
+            values.append(tmp_row_values)
+
+        return ordo, absi, values
+
+    @staticmethod
+    def find_source_in_list(list, tag, to_find):
+        for x in list:
+            if x[tag] == to_find:
+                return x
+        else:
+            return None
 
 
 if __name__ == '__main__':
@@ -172,6 +303,7 @@ if __name__ == '__main__':
     output_folder = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_output/")
     ground_truth_json = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing.json")
     output_file = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_output.overview")
+    output_similarity_matrix = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_output.matrix")
     '''
     img_type = configuration.SUPPORTED_IMAGE_TYPE.PNG
 
@@ -182,12 +314,15 @@ if __name__ == '__main__':
     config_launcher.auto_launch()
     '''
     Configuration_launcher.create_tldr(folder=output_folder, output_file=output_file)
+    Configuration_launcher.create_similarity_matrix(folder=output_folder, output_file=output_similarity_matrix)
 
     # =============================
     source_pictures_dir = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_bmp/")
     output_folder = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_bmp_output/")
     ground_truth_json = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_bmp.json")
     output_file = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_bmp_output.overview")
+    output_similarity_matrix = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_bmp_output.matrix")
+
     '''
     img_type = configuration.SUPPORTED_IMAGE_TYPE.BMP
 
@@ -198,12 +333,14 @@ if __name__ == '__main__':
     config_launcher.auto_launch()
     '''
     Configuration_launcher.create_tldr(folder=output_folder, output_file=output_file)
+    Configuration_launcher.create_similarity_matrix(folder=output_folder, output_file=output_similarity_matrix)
 
     # =============================
     source_pictures_dir = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_COLORED/")
     output_folder = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_COLORED_output/")
     ground_truth_json = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing.json")
     output_file = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_COLORED_output.overview")
+    output_similarity_matrix = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_COLORED_output.matrix")
 
     '''
     img_type = configuration.SUPPORTED_IMAGE_TYPE.PNG
@@ -216,3 +353,4 @@ if __name__ == '__main__':
     '''
 
     Configuration_launcher.create_tldr(folder=output_folder, output_file=output_file)
+    Configuration_launcher.create_similarity_matrix(folder=output_folder, output_file=output_similarity_matrix)

@@ -1,0 +1,6 @@
+{'ALGO': <ALGO_TYPE.D_HASH: 4>,
+ 'GROUND_TRUTH_PATH': PosixPath('XX/raw_phishing.json'),
+ 'IMG_TYPE': <SUPPORTED_IMAGE_TYPE.PNG: 1>,
+ 'OUTPUT_DIR': PosixPath('XX/raw_phishing_PNG_D_HASH'),
+ 'SAVE_PICTURE': False,
+ 'SOURCE_DIR': PosixPath('XX/raw_phishing')}
