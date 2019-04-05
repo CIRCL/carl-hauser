@@ -1524,6 +1524,12 @@ Raw results
 
 ### Phishing dataset / Hashing based
 
+![Algo intersection of BMP pictures](sota-ressources/raw_phishing_bmp_intersection_matrix.png)
+
+![Algo intersection of COLORED pictures](sota-ressources/raw_phishing_COLORED_intersection_matrix.png)
+
+![Algo intersection of PNG pictures](sota-ressources/raw_phishing_intersection_matrix.png)
+
 | Conf               | nobs | min time | max time | mean    | variance | skewness | kurtosis | Quality |
 |:-------------------|:-----|:---------|:---------|:--------|:---------|:---------|:---------|:--------|
 | TLSH PNG           | 207  | 0.00079  | 0.00121  | 0.0009  | 0.0      | 3.65389  | 18.2277  | 0.42512 |
