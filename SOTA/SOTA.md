@@ -1522,13 +1522,19 @@ From ... A word in \[12\]
 Raw results
 -----------
 
-Each algorithm produce a guess, which can be represented as a graphe between all input pictures. Each picture is linked to at least one other picture : its best match. This *result graph* is evaluated, thanks to the baseline graphe (ground truth graphe, hand made). The ratio of the intersection of the *result graph* thanks to the baseline graphe, divided by the original size of the *result graph* is equivalent to an “intersection ratio”.
+Each algorithm produce a guess, which can be represented as a graphe between all input pictures. Each picture is linked to at least one other picture : its best match. This*result graph* is evaluated, thanks to the baseline graphe (ground truth graphe, hand made). The ratio of the intersection of the *result graph* thanks to the baseline graphe, divided by the original size of the *result graph* is equivalent to an “intersection ratio”.
 
 $$Intersection\\\_ratio = \\frac{\\sharp(result\\\_graphe\\\_edges\\cap ground\\\_truth\\\_graphe\\\_edges)}{\\sharp(result\\\_graphe\\\_edges)}$$
 
-The same can be conducted between *result graphe* themselves. An intersection ratio of each graphe thanks to each other graphe can be computed. It is an approximate measure of “similarity” between the algorithms outputs.
+The same can be conducted between *result graph* themselves. An intersection ratio of each graphe thanks to each other graphe can be computed. It is an approximate measure of “similarity” between the algorithms outputs.
 
 $$Output\\\_similarity \\approx Intersection\\\_ratio = \\frac{\\sharp(result\\\_graphe\\\_edges\_A\\cap result\\\_graphe\\\_edges\_B)}{\\sharp(result\\\_graphe\\\_edges\_A)}$$
+
+Results of this calculation are provided in Figure  \[figlist:intersection0\]
+
+Algoritms outputs can be paired. Their graphs can be merged into a uniq graph. This graph can me evaluated in the same way as any algorithm output.
+
+Results of this calculation are provided in Figure  \[figlist:pairing0\]
 
 <span>0.49</span> <img src="sota-ressources/raw_phishing_bmp_intersection_matrix.png" title="fig:" alt="Intersection matrix - Guess of rank 1 for each image comparison" />
 
