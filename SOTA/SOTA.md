@@ -1522,13 +1522,21 @@ From ... A word in \[12\]
 Raw results
 -----------
 
+Each algorithm produce a guess, which can be represented as a graphe between all input pictures. Each picture is linked to at least one other picture : its best match. This *result graph* is evaluated, thanks to the baseline graphe (ground truth graphe, hand made). The ratio of the intersection of the *result graph* thanks to the baseline graphe, divided by the original size of the *result graph* is equivalent to an “intersection ratio”.
+
+$$Intersection\\\_ratio = \\frac{\\sharp(result\\\_graphe\\\_edges\\cap ground\\\_truth\\\_graphe\\\_edges)}{\\sharp(result\\\_graphe\\\_edges)}$$
+
+The same can be conducted between *result graphe* themselves. An intersection ratio of each graphe thanks to each other graphe can be computed. It is an approximate measure of “similarity” between the algorithms outputs.
+
+$$Output\\\_similarity \\approx Intersection\\\_ratio = \\frac{\\sharp(result\\\_graphe\\\_edges\_A\\cap result\\\_graphe\\\_edges\_B)}{\\sharp(result\\\_graphe\\\_edges\_A)}$$
+
+<span>0.49</span> <img src="sota-ressources/raw_phishing_bmp_intersection_matrix.png" title="fig:" alt="Intersection matrix - Guess of rank 1 for each image comparison" />
+
+<span>0.50</span> <img src="sota-ressources/raw_phishing_COLORED_intersection_matrix.png" title="fig:" alt="Intersection matrix - Guess of rank 1 for each image comparison" />
+
+<span>1</span> <img src="sota-ressources/raw_phishing_intersection_matrix.png" title="fig:" alt="Intersection matrix - Guess of rank 1 for each image comparison" />
+
 ### Phishing dataset / Hashing based
-
-![Algo intersection of BMP pictures](sota-ressources/raw_phishing_bmp_intersection_matrix.png)
-
-![Algo intersection of COLORED pictures](sota-ressources/raw_phishing_COLORED_intersection_matrix.png)
-
-![Algo intersection of PNG pictures](sota-ressources/raw_phishing_intersection_matrix.png)
 
 | Conf               | nobs | min time | max time | mean    | variance | skewness | kurtosis | Quality |
 |:-------------------|:-----|:---------|:---------|:--------|:---------|:---------|:---------|:--------|
