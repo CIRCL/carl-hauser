@@ -1536,6 +1536,12 @@ $$Output\\\_similarity \\approx Intersection\\\_ratio = \\frac{\\sharp(result\\\
 
 <span>1</span> <img src="sota-ressources/raw_phishing_intersection_matrix.png" title="fig:" alt="Intersection matrix - Guess of rank 1 for each image comparison" />
 
+<span>0.49</span> <img src="sota-ressources/raw_phishing_bmp_intersection_paired.png" title="fig:" alt="By pair true-positive matrix - Combination of algorithms per pair and their score (Please note that the legend saying it’s similarity is wrong)" />
+
+<span>0.50</span> <img src="sota-ressources/raw_phishing_COLORED_intersection_paired.png" title="fig:" alt="By pair true-positive matrix - Combination of algorithms per pair and their score (Please note that the legend saying it’s similarity is wrong)" />
+
+<span>1</span> <img src="sota-ressources/raw_phishing_intersection_paired.png" title="fig:" alt="By pair true-positive matrix - Combination of algorithms per pair and their score (Please note that the legend saying it’s similarity is wrong)" />
+
 ### Phishing dataset / Hashing based
 
 | Conf               | nobs | min time | max time | mean    | variance | skewness | kurtosis | Quality |

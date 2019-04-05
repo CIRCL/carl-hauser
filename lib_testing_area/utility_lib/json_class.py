@@ -167,5 +167,3 @@ def are_same_edge(edge1, matching, edge2):
         logger.error("JSON_CLASS : MATCHING AND EDGES ARE NOT CONSISTENT : a source edge index is not part of the matching" + str(e))
 
     return False
-
-

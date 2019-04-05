@@ -2,8 +2,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib
 import pathlib
+import logging
+import json
 
-'''
+import utility_lib.json_class as json_class
+
+''' Example of values : 
 vegetables = ["cucumber", "tomato", "lettuce", "asparagus",
               "potato", "wheat", "barley"]
 farmers = ["Farmer Joe", "Upland Bros.", "Smith Gardening",
@@ -25,13 +29,26 @@ class Graph_handler() :
         self.abs = None
         self.values = None
 
+    # ============================== --------------------------------  ==============================
+    #                                    Public useful methods
+
     def set_values(self, ordo, absi, values):
+        '''
+        Set input values of the graph to be created
+        :param ordo:
+        :param absi:
+        :param values:
+        :return:
+        '''
         self.ord = ordo
         self.abs = absi
         self.values = np.array(values)
 
-
     def get_matrix(self):
+        '''
+        Create the matrix of values / heatmap thanks to stored values
+        :return:
+        '''
         fig, ax = plt.subplots(figsize=(20, 14), dpi=200)
 
         im, cbar = self.heatmap(self.values, self.ord,  self.abs, ax=ax,
@@ -41,15 +58,27 @@ class Graph_handler() :
         return fig
 
     def show_matrix(self):
+        '''
+        Show the matrix of values (call get_matrix to create it inside)
+        :return:
+        '''
         fig = self.get_matrix()
         # fig.tight_layout()
         plt.show()
 
     def save_matrix(self, output_file: pathlib.Path):
+        '''
+        Save the matrix of values to the defined location (call get_matrix to create it inside)
+        :return:
+        '''
         fig = self.get_matrix()
 
         fig.tight_layout()
         plt.savefig(str(output_file))
+
+    # ============================== --------------------------------  ==============================
+    #                                   Graphical operation
+
 
     @staticmethod
     def heatmap(data, row_labels, col_labels, ax=None,
@@ -162,3 +191,126 @@ class Graph_handler() :
                 texts.append(text)
 
         return texts
+
+    # ============================== --------------------------------  ==============================
+    #                                   Graphe operation
+
+    @staticmethod
+    def get_graph_list(folder: pathlib.Path):
+        graphe_list = []
+
+        # For all graphe
+        for x in folder.resolve().iterdir():
+            if x.is_dir():
+                curr_graphe_file = x / "graphe.json"
+                if curr_graphe_file.is_file():
+                    # We have a valid graphe file to load
+                    with open(str(curr_graphe_file.resolve())) as json_file:
+                        json_file = str(json_file.read()).replace("'", '"')
+                        data = json.loads(json_file)
+
+                        # Load each graphe
+                        graphe_list.append([x.name, data])
+
+        return graphe_list
+
+    @staticmethod
+    def create_pairing_matrix(folder: pathlib.Path, truth_file: pathlib.Path, output_folder: pathlib.Path):
+        # TODO : safe path in case it's not a Pathlib : is it necessary ?
+        # folder = filesystem_lib.File_System.safe_path(folder)
+        # output_folder = filesystem_lib.File_System.safe_path(output_folder)
+
+        graphe_list = Graph_handler.get_graph_list(folder)
+
+        logger = logging.getLogger(__name__)
+        logger.info("Pairing matrix written")
+
+    @staticmethod
+    def create_inclusion_matrix(folder: pathlib.Path):
+        # TODO : safe path in case it's not a Pathlib : is it necessary ?
+        # folder = filesystem_lib.File_System.safe_path(folder)
+        # output_folder = filesystem_lib.File_System.safe_path(output_folder)
+        logger = logging.getLogger(__name__)
+        logger.info(f"Creating inclusion matrix for {folder}")
+
+        graphe_list = Graph_handler.get_graph_list(folder)
+
+        # For all graphe A
+        global_result = []
+        for curr_graphe_a in graphe_list:
+            logger.debug(f"Checking graphe {curr_graphe_a[0]} ...")
+
+            tmp_result_graph_a = {}
+            tmp_result_graph_a["source"] = curr_graphe_a[0]
+
+            tmp_result_graph_b = []
+            # For all graphe B
+            for curr_graphe_b in graphe_list:
+                logger.debug(f"Checking graphe {curr_graphe_a[0]} with {curr_graphe_b[0]}")
+
+                # Evaluate each graphe A inclusion to each other graphe B
+                tmp_mapping_dict = json_class.create_node_mapping(curr_graphe_a[1], curr_graphe_b[1])
+                wrong_edge_list = json_class.is_graphe_included(curr_graphe_a[1], tmp_mapping_dict, curr_graphe_b[1])
+
+                # Compute similarity based on inclusion (card(inclusion)/card(source))
+                nb_edges = len(curr_graphe_a[1]["edges"])
+                curr_similarity = 1 - (len(wrong_edge_list) / nb_edges)
+
+                # Store the similarity in an array
+                tmp_dict = {}
+                tmp_dict["compared_to"] = curr_graphe_b[0]
+                tmp_dict["similarity"] = curr_similarity
+                tmp_result_graph_b.append(tmp_dict)
+
+            # Store the similarity array as json
+            # TODO : worth to sort it ? Would impact next computation
+            tmp_result_graph_b = sorted(tmp_result_graph_b, key=lambda l: l["similarity"], reverse=True)
+            tmp_result_graph_a["similar_to"] = tmp_result_graph_b
+            global_result.append(tmp_result_graph_a)
+
+        # Alphabetical order
+        global_result = sorted(global_result, key=lambda l: l["source"]) # Sort by alphabetical order
+        global_result = sorted(global_result, key=lambda l: len(l["source"])) # And then by length
+
+        return global_result
+
+    @staticmethod
+    def save_similarity_json(similarity_matrix, output_file: pathlib.Path):
+        # Store the similarity array as picture
+        # output_file = output_folder / "inclusion_matrix.json"
+        f = open(str(output_file.resolve()), "w+")  # Overwrite and create if does not exist
+        tmp_json = json.dumps(similarity_matrix)
+        f.write(tmp_json)
+        f.close()
+
+        logger = logging.getLogger(__name__)
+        logger.info("Inclusion matrix written")
+
+        return output_file
+
+    @staticmethod
+    def inclusion_matrix_to_triple_array(inclusion_dict):
+        ordo, absi, values = [], [], []
+
+        for curr_source in inclusion_dict:
+            # For the axis
+            ordo.append(curr_source["source"])
+            absi.append(curr_source["source"])
+
+        for curr_source in ordo:
+            tmp_row_values = []
+            for curr_target in absi:
+                tmp_similarity_list = Graph_handler.find_source_in_list(inclusion_dict, "source", curr_source)["similar_to"]
+                value = Graph_handler.find_source_in_list(tmp_similarity_list, "compared_to", curr_target)["similarity"]
+                tmp_row_values.append(value)
+            values.append(tmp_row_values)
+
+        return ordo, absi, values
+
+    @staticmethod
+    def find_source_in_list(list, tag, to_find):
+        for x in list:
+            if x[tag] == to_find:
+                return x
+        else:
+            return None

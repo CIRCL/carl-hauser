@@ -13,7 +13,6 @@ import results
 import logging
 import pprint
 
-
 class Execution_handler():
     def __init__(self, conf: configuration.Default_configuration):
         self.conf = conf
