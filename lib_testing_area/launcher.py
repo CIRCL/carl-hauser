@@ -142,15 +142,13 @@ class Configuration_launcher():
                 stat_file = x / "stats.txt"
                 if stat_file.exists():
 
-                    with open(str(stat_file.resolve())) as json_file:
-                        json_file = str(json_file.read()).replace("'", '"')
-                        data = json.loads(json_file)
-                        LEN = 34
-                        global_txt += ("TRUE_POSITIVE = " + str(data["TRUE_POSITIVE_RATE"])).ljust(LEN, " ") + " \t"
-                        global_txt += ("PRE_COMPUTING = " + str(data["TIME_PER_PICTURE_PRE_COMPUTING"])).ljust(LEN, " ") + " \t"
-                        global_txt += ("MATCHING = " + str(data["TIME_PER_PICTURE_MATCHING"])).ljust(LEN, " ")
+                    data = filesystem_lib.File_System.load_json(stat_file)
+                    LEN = 34
+                    global_txt += ("TRUE_POSITIVE = " + str(data["TRUE_POSITIVE_RATE"])).ljust(LEN, " ") + " \t"
+                    global_txt += ("PRE_COMPUTING = " + str(data["TIME_PER_PICTURE_PRE_COMPUTING"])).ljust(LEN, " ") + " \t"
+                    global_txt += ("MATCHING = " + str(data["TIME_PER_PICTURE_MATCHING"])).ljust(LEN, " ")
 
-                        global_list.append([global_txt, data["TRUE_POSITIVE_RATE"]])
+                    global_list.append([global_txt, data["TRUE_POSITIVE_RATE"]])
 
                 else:
                     global_txt += "NO RESULT / ERROR"
@@ -169,7 +167,7 @@ class Configuration_launcher():
     @staticmethod
     def create_and_export_inclusion_matrix(folder: pathlib.Path, output_file: pathlib.Path):
         global_result = graph_lib.Graph_handler.create_inclusion_matrix(folder=folder)
-        graph_lib.Graph_handler.save_similarity_json(global_result, output_file.with_suffix(".json"))
+        graph_lib.Graph_handler.save_matrix_to_json(global_result, output_file.with_suffix(".json"))
 
         ordo, absi, values = graph_lib.Graph_handler.inclusion_matrix_to_triple_array(global_result)
 
@@ -178,15 +176,47 @@ class Configuration_launcher():
 
         graph.save_matrix(output_file.with_suffix(".png"))
 
+    @staticmethod
+    def create_and_export_pair_matrix(input_folder: pathlib.Path, ground_truth_json: pathlib.Path, output_file: pathlib.Path):
+        # Generate pairs
+        global_result = graph_lib.Graph_handler.create_pair_matrix(folder=input_folder, ground_truth_json=ground_truth_json)
+
+        # Save the pair results
+        graph_lib.Graph_handler.save_matrix_to_json(global_result, output_file.with_suffix(".json"))
+
+        # Build the matrix
+        ordo, absi, values = graph_lib.Graph_handler.inclusion_matrix_to_triple_array(global_result)
+
+        graph = graph_lib.Graph_handler()
+        graph.set_values(ordo, absi, values)
+
+        graph.save_matrix(output_file.with_suffix(".png"))
+
+
+    @staticmethod
+    def create_paired_results(input_folder: pathlib.Path, target_pair_folder: pathlib.Path, ground_truth_json: pathlib.Path):
+        # Generate pairs
+        graph_lib.Graph_handler.generate_merged_pairs(input_folder=input_folder, target_pair_folder=target_pair_folder)
+
+        # Evaluate each graphe
+        graph_lib.Graph_handler.evaluate_graphs(target_pair_folder=target_pair_folder, ground_truth_json=ground_truth_json)
 
 if __name__ == '__main__':
 
     # =============================
     source_pictures_dir = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing/")
     output_folder = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_output/")
+
+    paired_output_folder = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_output_paired/")
+
     ground_truth_json = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing.json")
-    output_file = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_output.overview")
+
+    output_overview_file = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_output.overview")
+    output_overview_paired_file = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_output_paired.overview")
+
     output_similarity_matrix = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_output.matrix")
+    output_paired_matrix = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_output_paired.matrix")
+
     '''
     img_type = configuration.SUPPORTED_IMAGE_TYPE.PNG
 
@@ -196,15 +226,23 @@ if __name__ == '__main__':
                                              img_type=img_type)
     config_launcher.auto_launch()
     '''
-    Configuration_launcher.create_tldr(folder=output_folder, output_file=output_file)
-    Configuration_launcher.create_and_export_inclusion_matrix(folder=output_folder, output_file=output_similarity_matrix)
+    # Configuration_launcher.create_tldr(folder=output_folder, output_file=output_overview_file)
+
+    Configuration_launcher.create_paired_results(input_folder=output_folder, target_pair_folder=paired_output_folder, ground_truth_json=ground_truth_json)
+    Configuration_launcher.create_tldr(folder=paired_output_folder, output_file=output_overview_file)
+
+    # Configuration_launcher.create_and_export_inclusion_matrix(folder=output_folder, output_file=output_similarity_matrix)
+    Configuration_launcher.create_and_export_pair_matrix(input_folder=output_folder, ground_truth_json=ground_truth_json, output_file=output_paired_matrix)
 
     # =============================
     source_pictures_dir = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_bmp/")
     output_folder = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_bmp_output/")
+    paired_output_folder = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_bmp_output_paired/")
     ground_truth_json = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_bmp.json")
-    output_file = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_bmp_output.overview")
+    output_overview_file = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_bmp_output.overview")
+    output_overview_paired_file = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_bmp_output_paired.overview")
     output_similarity_matrix = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_bmp_output.matrix")
+    output_paired_matrix = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_bmp_output_paired.matrix")
 
     '''
     img_type = configuration.SUPPORTED_IMAGE_TYPE.BMP
@@ -215,15 +253,23 @@ if __name__ == '__main__':
                                              img_type=img_type)
     config_launcher.auto_launch()
     '''
-    Configuration_launcher.create_tldr(folder=output_folder, output_file=output_file)
-    Configuration_launcher.create_and_export_inclusion_matrix(folder=output_folder, output_file=output_similarity_matrix)
+    # Configuration_launcher.create_tldr(folder=output_folder, output_file=output_overview_file)
+
+    Configuration_launcher.create_paired_results(input_folder=output_folder, target_pair_folder=paired_output_folder, ground_truth_json=ground_truth_json)
+    Configuration_launcher.create_tldr(folder=paired_output_folder, output_file=output_overview_file)
+
+    # Configuration_launcher.create_and_export_inclusion_matrix(folder=output_folder, output_file=output_similarity_matrix)
+    Configuration_launcher.create_and_export_pair_matrix(input_folder=output_folder, ground_truth_json=ground_truth_json, output_file=output_paired_matrix)
 
     # =============================
     source_pictures_dir = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_COLORED/")
     output_folder = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_COLORED_output/")
+    paired_output_folder = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_COLORED_output_paired/")
     ground_truth_json = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing.json")
-    output_file = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_COLORED_output.overview")
+    output_overview_file = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_COLORED_output.overview")
+    output_overview_paired_file = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_COLORED_output_paired.overview")
     output_similarity_matrix = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_COLORED_output.matrix")
+    output_paired_matrix = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_COLORED_output_paired.matrix")
 
     '''
     img_type = configuration.SUPPORTED_IMAGE_TYPE.PNG
@@ -235,5 +281,10 @@ if __name__ == '__main__':
     config_launcher.auto_launch()
     '''
 
-    Configuration_launcher.create_tldr(folder=output_folder, output_file=output_file)
-    Configuration_launcher.create_and_export_inclusion_matrix(folder=output_folder, output_file=output_similarity_matrix)
+    # Configuration_launcher.create_tldr(folder=output_folder, output_file=output_overview_file)
+
+    Configuration_launcher.create_paired_results(input_folder=output_folder, target_pair_folder=paired_output_folder, ground_truth_json=ground_truth_json)
+    Configuration_launcher.create_tldr(folder=paired_output_folder, output_file=output_overview_file)
+
+    # Configuration_launcher.create_and_export_inclusion_matrix(folder=output_folder, output_file=output_similarity_matrix)
+    Configuration_launcher.create_and_export_pair_matrix(input_folder=output_folder, ground_truth_json=ground_truth_json, output_file=output_paired_matrix)

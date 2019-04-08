@@ -1,8 +1,6 @@
-from typing import List
+import pathlib
 from PIL import Image
 import configuration
-import pathlib
-
 
 class Picture():
     def __init__(self, id, conf: configuration.Default_configuration, shape: str = "image", path: pathlib.PosixPath = None):
@@ -17,12 +15,14 @@ class Picture():
         # Hashing related attributes
         self.hash = None
         self.distance = None
+
         # Descriptors related attributes
         self.key_points = None
         self.description = None
         self.image = self.load_image(self.path)
+
         # Multipurpose storage, e.g. store some useful class for processing.
-        self.storage = None
+        # self.storage = None
         self.matches = None
 
     def load_image(self, path: pathlib.PosixPath):
@@ -41,8 +41,3 @@ class Picture():
         tmp_obj["shape"] = self.shape
         tmp_obj["image"] = self.path.name
         return tmp_obj
-
-    ''' OVERWRITE EXAMPLE :
-            self.distance = abs(pic1.hash - pic2.hash)
-        return self.distance
-    '''

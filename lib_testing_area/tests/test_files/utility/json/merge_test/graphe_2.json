@@ -34,12 +34,12 @@
   "edges": [
     {
       "from": 4,
-      "to": 5,
+      "to": 1,
       "label": "rank 0(4)"
     },
     {
-      "from": 5,
-      "to": 4,
+      "from": 1,
+      "to": 5,
       "label": "rank 0(2)"
     }
   ]

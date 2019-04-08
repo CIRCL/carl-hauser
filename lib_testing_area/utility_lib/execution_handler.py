@@ -1,6 +1,9 @@
 import time
 import pathlib
 import operator
+import logging
+import pprint
+import json
 
 from utility_lib import filesystem_lib
 from utility_lib import printing_lib
@@ -10,8 +13,7 @@ from utility_lib import json_class
 
 import configuration
 import results
-import logging
-import pprint
+
 
 class Execution_handler():
     def __init__(self, conf: configuration.Default_configuration):
@@ -19,6 +21,7 @@ class Execution_handler():
         self.results_storage = results.RESULTS()
 
         logging.basicConfig(filename=str(conf.OUTPUT_DIR/"execution.log"), filemode='w', format='%(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+        # logging.basicConfig(format='%(name)s - %(levelname)s - %(message)s', level=logging.INFO)
         self.logger = logging.getLogger(__name__)
 
         self.logger.info("Initialisation of Execution handler ...")
@@ -311,5 +314,9 @@ class Execution_handler():
         filepath = conf.OUTPUT_DIR / fn
         with filepath.open("w", encoding="utf-8") as f:
             f.write(pprint.pformat(vars(conf)))
+
+        # data = json.dumps(results)
+        # with filepath.open("w", encoding="utf-8") as f:
+        #       f.write(data)
 
         self.logger.debug(f"Configuration file saved as {filepath}.")

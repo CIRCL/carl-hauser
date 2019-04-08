@@ -1,18 +1,19 @@
-ROUND_DECIMAL = 5
-END_LINE = ", "
+import logging
+from scipy import stats
+
 import configuration
 import results
-import logging
-import pathlib
-import pprint
-from scipy import stats
+import utility_lib.filesystem_lib as filesystem_lib
+
+ROUND_DECIMAL = 5
+END_LINE = ", "
 
 class Stats_handler():
     def __init__(self, conf: configuration.Default_configuration):
         self.conf = conf
         self.logger = logging.getLogger(__name__)
 
-    def print_stats_human(self, conf: configuration.Default_configuration, results : results.RESULTS, round_decimal=ROUND_DECIMAL):
+    def print_stats_human(self, conf: configuration.Default_configuration, results: results.RESULTS, round_decimal=ROUND_DECIMAL):
         stats_result = stats.describe(results.TIME_LIST_MATCHING)
 
         tmp_str = ""
@@ -25,7 +26,7 @@ class Stats_handler():
         tmp_str += "kurtosis : " + str(round(getattr(stats_result, "kurtosis"), round_decimal))
         self.logger.info(tmp_str)
 
-    def print_stats(self, conf: configuration.Default_configuration, results : results.RESULTS, round_decimal=ROUND_DECIMAL):
+    def print_stats(self, conf: configuration.Default_configuration, results: results.RESULTS, round_decimal=ROUND_DECIMAL):
         stats_result = stats.describe(results.TIME_LIST_MATCHING)
 
         tmp_str = ""
@@ -40,10 +41,11 @@ class Stats_handler():
         tmp_str += str("\\\ \hline \n")
         self.logger.info(tmp_str)
 
-    def write_stats_to_folder(self, conf: configuration.Default_configuration, results : results.RESULTS):
+    def write_stats_to_folder(self, conf: configuration.Default_configuration, results: results.RESULTS):
         fn = "stats.txt"
         filepath = conf.OUTPUT_DIR / fn
-        with filepath.open("w", encoding="utf-8") as f:
-            f.write(pprint.pformat(vars(results)))
+
+        # filesystem_lib.File_System.save_obj(results, filepath)
+        filesystem_lib.File_System.save_json(results, file_path=filepath)
 
         self.logger.debug(f"Statistics file saved as {filepath}.")

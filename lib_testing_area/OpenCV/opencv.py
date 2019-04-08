@@ -317,7 +317,7 @@ class Custom_printer(printing_lib.Printer):
     def save_matches(pic1: Local_Picture, pic2: Local_Picture, matches, distance):
         outImg = Custom_printer.draw_matches(pic1, pic2, matches)
         # outImg = printing_lib.print_title(outImg, pic1.path.name + " " + pic2.path.name)
-        self.logger.debug("./RESULTS/" + pic1.path.name)
+        logger.debug("./RESULTS/" + pic1.path.name)
         t = pic1.path.name + " TO " + pic1.path.name + " IS " + str(distance)
         plt.text(0, 0, t, ha='center', wrap=True)
         plt.imsave("./RESULTS/" + pic1.path.name, outImg)

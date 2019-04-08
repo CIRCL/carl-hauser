@@ -4,26 +4,23 @@ from .context import *
 
 import unittest
 
-import numpy as np
-
-DEBUG = False
-
-
-class test_launcher(unittest.TestCase):
+class test_template(unittest.TestCase):
     """Basic test cases."""
 
     def setUp(self):
-        self.test_file_path = pathlib.Path.cwd() / pathlib.Path("tests/test_files")
-
+        self.logger = logging.getLogger(__name__)
+        self.conf = configuration.Default_configuration()
+        self.test_file_path = pathlib.Path.cwd() / pathlib.Path("tests/test_files/utility/graph/")
         self.result_folder_path = self.test_file_path / 'raw_results'
         self.baseline_path = self.test_file_path / 'baseline' / "graphe.json"
 
     def test_absolute_truth_and_meaning(self):
         assert True
 
+
     def test_writing_similarity_json(self):
         global_result = graph_lib.Graph_handler.create_inclusion_matrix(folder=self.result_folder_path)
-        output_file = graph_lib.Graph_handler.save_similarity_json(global_result, self.test_file_path / "similarity_test.json")
+        output_file = graph_lib.Graph_handler.save_matrix_to_json(global_result, self.test_file_path / "similarity_test.json")
 
         self.assertEqual(output_file.exists(), True)
 
@@ -91,6 +88,10 @@ class test_launcher(unittest.TestCase):
         graph.set_values(ordo, absi, values)
 
         graph.save_matrix(self.test_file_path / "similarity_test" / "matrix.png")
+
+    def test_get_graph_list(self):
+        tmp_gl = graph_lib.Graph_handler.get_graph_list(self.result_folder_path)
+        pprint.pprint(tmp_gl)
 
 if __name__ == '__main__':
     unittest.main()
