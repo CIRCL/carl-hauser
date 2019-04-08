@@ -56,7 +56,7 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
         else:
             raise Exception("CROSSCHECK value in configuration is wrong. Please review the value.")
 
-        self.logger.info(f"Crosscheck selected : {self.CROSSCHECK}")
+        logging.info(f"Crosscheck selected : {self.CROSSCHECK}")
 
         self.algo = cv2.ORB_create(nfeatures=conf.ORB_KEYPOINTS_NB)
         # SIFT, BRISK, SURF, .. # Available to change nFeatures=1000 for example. Limited to 500 by default
@@ -70,10 +70,10 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
             self.matcher = cv2.FlannBasedMatcher(conf.FLANN_LSH_INDEX_params, conf.FLANN_LSH_SEARCH_params)
 
     def TO_OVERWRITE_prepare_dataset(self, picture_list):
-        self.logger.info(f"Describe pictures from repository {self.conf.SOURCE_DIR} ... ")
+        logging.info(f"Describe pictures from repository {self.conf.SOURCE_DIR} ... ")
         picture_list = self.describe_pictures(picture_list)
 
-        self.logger.info("Add cluster of trained images to matcher and train it ...")
+        logging.info("Add cluster of trained images to matcher and train it ...")
         self.train_on_images(picture_list)
 
         return picture_list
@@ -92,7 +92,7 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
         if self.conf.DATASTRUCT != configuration.DATASTRUCT_TYPE.FLANN_LSH:
             self.matcher.train()
         else:
-            self.logger.warning("No training on the matcher : FLANN LSH selected.")
+            logging.warning("No training on the matcher : FLANN LSH selected.")
         # Train: Does nothing for BruteForceMatcher though.
         # Otherwise, construct a "magic good datastructure" as KDTree, for example.
 
@@ -106,11 +106,11 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
             self.describe_picture(curr_picture)
 
             if i % 40 == 0:
-                self.logger.info(f"Picture {i} out of {len(picture_list)}")
+                logging.info(f"Picture {i} out of {len(picture_list)}")
 
             # removal of picture that don't have descriptors
             if curr_picture.description is None:
-                self.logger.warning(f"Picture {i} removed, due to lack of descriptors : {curr_picture.path.name}")
+                logging.warning(f"Picture {i} removed, due to lack of descriptors : {curr_picture.path.name}")
                 # del picture_list[i]
 
                 # TODO : Parametered path
@@ -118,7 +118,7 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
             else:
                 clean_picture_list.append(curr_picture)
 
-        self.logger.info(f"New list length (without None-descriptors pictures : {len(picture_list)}")
+        logging.info(f"New list length (without None-descriptors pictures : {len(picture_list)}")
 
         return clean_picture_list
 
@@ -132,12 +132,12 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
             curr_picture.description = description
 
             if key_points is None:
-                self.logger.warning(f"WARNING : picture {curr_picture.path.name} has no keypoints")
+                logging.warning(f"WARNING : picture {curr_picture.path.name} has no keypoints")
             if description is None:
-                self.logger.warning(f"WARNING : picture {curr_picture.path.name} has no description")
+                logging.warning(f"WARNING : picture {curr_picture.path.name} has no description")
 
         except Exception as e:
-            self.logger.warning("Error during descriptor building : " + str(e))
+            logging.warning("Error during descriptor building : " + str(e))
 
         return curr_picture
 
@@ -208,7 +208,7 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
             mean_dist += curr_match.distance
         mean_dist /= len(matches)
 
-        self.logger.debug(f"Current mean dist : {mean_dist}")
+        logging.debug(f"Current mean dist : {mean_dist}")
         return mean_dist
 
     @staticmethod

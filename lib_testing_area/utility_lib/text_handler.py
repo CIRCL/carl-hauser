@@ -16,16 +16,16 @@ REDUCE_FACTOR = 2
 class Text_handler():
     def __init__(self, conf: configuration.Default_configuration):
         self.conf = conf
-        self.logger = logging.getLogger(__name__)
+        self.logger =  logging.getLogger('__main__.' + __name__)
 
     def length_to_32_multiple(self, length, reduce_factor=REDUCE_FACTOR):
-        # self.logger.debug(f"Input length : {length}")
+        # logging.debug(f"Input length : {length}")
 
         reduced = int(length / reduce_factor)
-        self.logger.debug(f"Reduced length : {reduced}")
+        logging.debug(f"Reduced length : {reduced}")
 
         round = 32 * ((reduced // 32) + 1)
-        self.logger.debug(f"Rounded to 32 length : {round}")
+        logging.debug(f"Rounded to 32 length : {round}")
 
         return round
 
@@ -80,7 +80,7 @@ class Text_handler():
             color = [np.mean([color1[0], color2[0], color3[0]]), np.mean([color1[1], color2[1], color3[1]]),
                      np.mean([color1[2], color2[2], color3[2]])]
         except Exception as e:
-            self.logger.error(f"Error during random color getting {e}")
+            logging.error(f"Error during random color getting {e}")
             return [0, 0, 0]
 
         return color

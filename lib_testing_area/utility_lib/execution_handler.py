@@ -20,11 +20,11 @@ class Execution_handler():
         self.conf = conf
         self.results_storage = results.RESULTS()
 
-        logging.basicConfig(filename=str(conf.OUTPUT_DIR/"execution.log"), filemode='w', format='%(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+        # logging.basicConfig(filename=str(conf.OUTPUT_DIR/"execution.log"), filemode='w', format='%(name)s - %(levelname)s - %(message)s', level=logging.INFO)
         # logging.basicConfig(format='%(name)s - %(levelname)s - %(message)s', level=logging.INFO)
-        self.logger = logging.getLogger(__name__)
+        self.logger =  logging.getLogger('__main__.' + __name__)
 
-        self.logger.info("Initialisation of Execution handler ...")
+        logging.info("Initialisation of Execution handler ...")
 
         # Load primary configuration parameters
         # TODO : Checks on the dir to verify they exist
@@ -33,8 +33,8 @@ class Execution_handler():
         self.conf.OUTPUT_DIR = self.file_system.safe_path(conf.OUTPUT_DIR)
         # Passed by reference ? No need ? # self.file_system.conf = self.conf
 
-        self.logger.debug("Actual configuration : ")
-        self.logger.debug(pprint.pformat(vars(conf)))
+        logging.debug("Actual configuration : ")
+        logging.debug(pprint.pformat(vars(conf)))
 
         # Actions handlers
         self.printer = printing_lib.Printer(conf=self.conf)
@@ -64,7 +64,7 @@ class Execution_handler():
         self.sorted_picture_list = []
 
     def do_random_test(self):
-        self.logger.info("=============== RANDOM TEST SELECTED ===============")
+        logging.info("=============== RANDOM TEST SELECTED ===============")
         self.target_picture = self.pick_random_picture_handler(self.conf.SOURCE_DIR)
         self.picture_list = self.load_pictures(self.conf.SOURCE_DIR, self.Local_Picture_class_ref)
         self.picture_list = self.prepare_dataset(self.picture_list)
@@ -74,7 +74,7 @@ class Execution_handler():
         self.save_pictures(self.sorted_picture_list, self.target_picture)
 
     def do_full_test(self):
-        self.logger.info("=============== FULL TEST SELECTED ===============")
+        logging.info("=============== FULL TEST SELECTED ===============")
         self.picture_list = self.load_pictures(self.conf.SOURCE_DIR, self.Local_Picture_class_ref)
         self.json_handler = self.prepare_initial_JSON(self.picture_list, self.json_handler)
         self.picture_list = self.prepare_dataset(self.picture_list)
@@ -86,15 +86,15 @@ class Execution_handler():
     # ====================== STEPS OF ALGORITHMS ======================
 
     def pick_random_picture_handler(self, target_dir: pathlib.Path):
-        self.logger.info("Pick a random picture ... ")
+        logging.info("Pick a random picture ... ")
         target_picture_path = self.file_system.random_choice(target_dir)
-        self.logger.info(f"Target picture : {target_picture_path}")
+        logging.info(f"Target picture : {target_picture_path}")
 
         target_picture = self.Local_Picture_class_ref(id=None, conf=self.conf, path=target_picture_path)
         return target_picture
 
     def load_pictures(self, target_dir: pathlib.Path, Local_Picture_class_ref):
-        self.logger.info("Load pictures ... ")
+        logging.info("Load pictures ... ")
         start_time = time.time()
         picture_list = self.file_system.get_Pictures_from_directory(target_dir, class_name=Local_Picture_class_ref)
 
@@ -103,7 +103,7 @@ class Execution_handler():
         return picture_list
 
     def prepare_dataset(self, picture_list):
-        self.logger.info("Prepare dataset pictures ... (Launch timer)")
+        logging.info("Prepare dataset pictures ... (Launch timer)")
         start_time = time.time()
         picture_list = self.TO_OVERWRITE_prepare_dataset(picture_list)
 
@@ -118,7 +118,7 @@ class Execution_handler():
         return picture_list
 
     def prepare_target_picture(self, target_picture):
-        self.logger.info("Prepare target picture ... (Launch timer)")
+        logging.info("Prepare target picture ... (Launch timer)")
         start_time = time.time()
         target_picture = self.TO_OVERWRITE_prepare_target_picture(target_picture)
 
@@ -131,7 +131,7 @@ class Execution_handler():
         return target_picture
 
     def iterate_over_dataset(self, picture_list, json_handler):
-        self.logger.info("Iterate over dataset ... (Launch global timer)")
+        logging.info("Iterate over dataset ... (Launch global timer)")
 
         if len(picture_list) == 0 or picture_list == []:
             raise Exception("ITERATE OVER DATASET IN EXECUTION HANDLER : Picture list empty ! Abort.")
@@ -139,22 +139,22 @@ class Execution_handler():
         list_time = []
         start_FULL_time = time.time()
         for i, curr_target_picture in enumerate(picture_list):
-            self.logger.info(f"PICTURE {i} picked as target ... (start current timer)")
-            self.logger.debug(f"Target picture : {curr_target_picture.path}")
+            logging.info(f"PICTURE {i} picked as target ... (start current timer)")
+            logging.debug(f"Target picture : {curr_target_picture.path}")
             start_time = time.time()
 
             try:
                 # self.find_closest_picture(picture_list, curr_target_picture)
                 curr_sorted_picture_list = self.find_top_k_closest_pictures(picture_list, curr_target_picture)
             except Exception as e:
-                self.logger.error(
+                logging.error(
                     f"An Exception has occured during the tentative to find a (k-top) match to {curr_target_picture.path.name} : " + str(e))
                 raise e
 
             try:
                 self.save_pictures(curr_sorted_picture_list, curr_target_picture)
             except Exception as e:
-                self.logger.error(
+                logging.error(
                     f"An Exception has occured during the tentative save the result picture of {curr_target_picture.path.name} : " + str(e))
                 raise e
 
@@ -162,7 +162,7 @@ class Execution_handler():
                 # if curr_sorted_picture_list[0].distance < THREESHOLD :
                 json_handler = self.add_top_matches_to_JSON(curr_sorted_picture_list, curr_target_picture, json_handler)
             except Exception as e:
-                self.logger.error(
+                logging.error(
                     f"An Exception has occured during the tentative to add result to json for {curr_target_picture.path.name} : " + str(e))
                 raise e
 
@@ -180,7 +180,7 @@ class Execution_handler():
 
     def find_closest_picture(self, picture_list, target_picture):
         # TODO : To remove ? Not useful ?
-        self.logger.info("Find closest picture from target picture ... ")
+        logging.info("Find closest picture from target picture ... ")
         if picture_list == None or picture_list == []:
             raise Exception("PICTURE_CLASS : Provided picture list is empty.")
         if target_picture == None:
@@ -198,20 +198,20 @@ class Execution_handler():
                 min_object = curr_picture
 
         if min is None or min_object is None:
-            self.logger.error("No best match found. No picture seems to have even a big distance from the target.")
+            logging.error("No best match found. No picture seems to have even a big distance from the target.")
             raise Exception("PICTURE_CLASS : No object found at a minimal distance. Most likely a library error or a too narrow dataset.")
         else:
-            self.logger.debug("original picture : \t" + str(target_picture.path))
-            self.logger.debug("min found : \t" + str(min_object.path) + " with " + str(min))
+            logging.debug("original picture : \t" + str(target_picture.path))
+            logging.debug("min found : \t" + str(min_object.path) + " with " + str(min))
 
     def find_top_k_closest_pictures(self, picture_list, target_picture):
         # Compute distances
         for curr_pic in picture_list:
             curr_pic.distance = self.TO_OVERWRITE_compute_distance(curr_pic, target_picture)
 
-        self.logger.info("Extract top K images ... ")
+        logging.info("Extract top K images ... ")
         picture_list = [i for i in picture_list if i.distance is not None]
-        self.logger.debug(f"Candidate picture list length : {len(picture_list)}")
+        logging.debug(f"Candidate picture list length : {len(picture_list)}")
 
         sorted_picture_list = self.get_top(picture_list, target_picture)
         return sorted_picture_list
@@ -249,22 +249,22 @@ class Execution_handler():
         return json_handler.json_add_nodes(picture_list)
 
     def add_top_matches_to_JSON(self, sorted_picture_list, target_picture, json_handler):
-        self.logger.info("Save result for final Json ... ")
+        logging.info("Save result for final Json ... ")
         json_handler.json_to_export = json_handler.json_add_top_matches(json_handler.json_to_export, sorted_picture_list, target_picture)
         return json_handler
 
     def export_final_JSON(self, json_handler):
-        self.logger.info("Export json ... ")
+        logging.info("Export json ... ")
         json_handler.json_export()
 
     # ====================== STATISTICS AND PRINTING ======================
     def evaluate_JSON(self, json_handler, baseline_path):
         json_handler, self.results_storage = json_handler.evaluate_json(pathlib.Path(baseline_path), self.results_storage)
-        self.logger.info(f"Quality of guess : {str(round(self.results_storage.TRUE_POSITIVE_RATE, stats_lib.ROUND_DECIMAL))}")
+        logging.info(f"Quality of guess : {str(round(self.results_storage.TRUE_POSITIVE_RATE, stats_lib.ROUND_DECIMAL))}")
         return json_handler
 
     def describe_stats(self, list_time):
-        self.logger.info("Describing timer statistics... ")
+        logging.info("Describing timer statistics... ")
         self.stats_handler.print_stats(self.conf, self.results_storage)
         self.stats_handler.write_stats_to_folder(self.conf, self.results_storage)
 
@@ -307,7 +307,7 @@ class Execution_handler():
     def create_folder(self, path: pathlib.PosixPath):
         path.mkdir(parents=True, exist_ok=True)
 
-        self.logger.debug(f"Folder {path} created.")
+        logging.debug(f"Folder {path} created.")
 
     def write_configuration_to_folder(self, conf: configuration.Default_configuration):
         fn = "conf.txt"
@@ -319,4 +319,4 @@ class Execution_handler():
         # with filepath.open("w", encoding="utf-8") as f:
         #       f.write(data)
 
-        self.logger.debug(f"Configuration file saved as {filepath}.")
+        logging.debug(f"Configuration file saved as {filepath}.")

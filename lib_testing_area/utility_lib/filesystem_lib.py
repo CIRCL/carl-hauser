@@ -16,7 +16,7 @@ TOP_K_EDGE = 1
 class File_System():
     def __init__(self, conf: configuration.Default_configuration):
         self.conf = conf
-        self.logger = logging.getLogger(__name__)
+        self.logger =  logging.getLogger('__main__.' + __name__)
 
         if conf.IMG_TYPE == configuration.SUPPORTED_IMAGE_TYPE.PNG:
             self.type = ".png"
@@ -28,9 +28,9 @@ class File_System():
     # ==== Disk read ====
     def safe_path(self, path):
         if type(path) is pathlib.PosixPath:
-            self.logger.debug("Path specified is already a pathlib Path. ")
+            logging.debug("Path specified is already a pathlib Path. ")
         elif type(path) is str:
-            self.logger.debug("Path specified is a string.")
+            logging.debug("Path specified is a string.")
             path = pathlib.Path(path)
         else:
             raise Exception("Unknown path type")
@@ -80,7 +80,7 @@ class File_System():
             curr_pic = cv2.imread(str(path))
 
             if curr_pic is None or curr_pic.shape == [] or curr_pic.shape[0] == 0 or curr_pic.shape[1] == 0:
-                self.logger.error(f"Void picture (to delete ?) : {path}")
+                logging.error(f"Void picture (to delete ?) : {path}")
                 # path.unlink()
 
 
@@ -109,7 +109,7 @@ class File_System():
 
     @staticmethod
     def load_json(file_path: pathlib.Path ):
-        logger = logging.getLogger(__name__)
+        logger = logging.getLogger()
         data = None
 
         if file_path.is_file():
@@ -119,11 +119,11 @@ class File_System():
                     data = json.loads(json_file)
                 except Exception as e :
                     try :
-                        logger.error("JSON tried to load is not a correctly formatted json. Try to perform recover ...")
+                        logger.warning("JSON tried to load is not a correctly formatted json. Try to perform recover ...")
                         tmp_json_file = str(json_file.read()).replace("'", '"').replace("\n", '')
                         data = json.loads(tmp_json_file)
                     except Exception as e :
-                        logger.error("Recover failed. Loading file as text only ...")
+                        logger.warning("Recover failed. Loading file as text only ...")
                         data = str(json_file.read())
 
         else:
