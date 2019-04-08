@@ -3,17 +3,18 @@
 from enum import Enum, auto
 
 class RESULTS():
-    TOTAL_TIME = None
+    def __init__(self):
+        self.TOTAL_TIME = None
 
-    TIME_TO_LOAD_PICTURES = None
+        self.TIME_TO_LOAD_PICTURES = None
 
-    TIME_TOTAL_PRE_COMPUTING = None
-    TIME_REQUEST_PICTURE_COMPUTING = None
-    TIME_PER_PICTURE_PRE_COMPUTING = None
+        self.TIME_TOTAL_PRE_COMPUTING = None
+        self.TIME_REQUEST_PICTURE_COMPUTING = None
+        self.TIME_PER_PICTURE_PRE_COMPUTING = None
 
-    TIME_TOTAL_MATCHING = None
-    TIME_LIST_MATCHING = None
-    TIME_PER_PICTURE_MATCHING = None
+        self.TIME_TOTAL_MATCHING = None
+        self.TIME_LIST_MATCHING = None
+        self.TIME_PER_PICTURE_MATCHING = None
 
-    NB_PICTURE = None
-    TRUE_POSITIVE_RATE = None
+        self.NB_PICTURE = None
+        self.TRUE_POSITIVE_RATE = None
