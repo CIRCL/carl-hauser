@@ -2,7 +2,7 @@
 #                      Configuration declaration
 from enum import Enum, auto
 
-class SUPPORTED_IMAGE_TYPE():
+class SUPPORTED_IMAGE_TYPE(Enum):
     PNG = auto()
     BMP = auto()
 
@@ -18,16 +18,17 @@ class ALGO_TYPE(Enum):
     ORB = auto()
 
 class Default_configuration():
-    # Inputs
-    SOURCE_DIR = None
-    GROUND_TRUTH_PATH = None
-    IMG_TYPE = SUPPORTED_IMAGE_TYPE.PNG
-    # Processing
-    ALGO = ALGO_TYPE.A_HASH
-    SELECTION_THREESHOLD = None #TODO : To fix and to use, to prevent "forced linked" if none
-    # Output
-    SAVE_PICTURE = False
-    OUTPUT_DIR = None
+    def __init__(self):
+        # Inputs
+        self.SOURCE_DIR = None
+        self.GROUND_TRUTH_PATH = None
+        self.IMG_TYPE = SUPPORTED_IMAGE_TYPE.PNG
+        # Processing
+        self.ALGO = ALGO_TYPE.A_HASH
+        self.SELECTION_THREESHOLD = None #TODO : To fix and to use, to prevent "forced linked" if none
+        # Output
+        self.SAVE_PICTURE = False
+        self.OUTPUT_DIR = None
 
 # ==================== ------------------------ ====================
 #                      ORB POSSIBLE CONFIGURATIONS
@@ -61,27 +62,30 @@ class CROSSCHECK(Enum):
     AUTO = auto()
 
 class ORB_default_configuration(Default_configuration):
-    ORB_KEYPOINTS_NB = 500
+    def __init__(self):
+        super().__init__()
 
-    DISTANCE = DISTANCE_TYPE.LEN_MAX
-    FILTER = FILTER_TYPE.NO_FILTER
-    MATCH = MATCH_TYPE.STD
-    DATASTRUCT = DATASTRUCT_TYPE.BRUTE_FORCE
+        self.ORB_KEYPOINTS_NB = 500
 
-    # Facultative depending on upper
-    MATCH_K_FOR_KNN = 2
+        self.DISTANCE = DISTANCE_TYPE.LEN_MAX
+        self.FILTER = FILTER_TYPE.NO_FILTER
+        self.MATCH = MATCH_TYPE.STD
+        self.DATASTRUCT = DATASTRUCT_TYPE.BRUTE_FORCE
 
-    FLANN_KDTREE_INDEX = 0
-    FLANN_KDTREE_INDEX_params = dict(algorithm=FLANN_KDTREE_INDEX, trees=5)
-    FLANN_KDTREE_SEARCH_params = dict(checks=50)
+        # Facultative depending on upper
+        self.MATCH_K_FOR_KNN = 2
 
-    FLANN_LSH_INDEX = 6
-    FLANN_LSH_INDEX_params = dict(algorithm=FLANN_LSH_INDEX, table_number=6, key_size=12, multi_probe_level=1)
-    FLANN_LSH_SEARCH_params = dict(checks=50)  # or pass empty dictionary
-    FLANN_LSH_INDEX_params_light = dict(algorithm=FLANN_LSH_INDEX, table_number=6)
+        self.FLANN_KDTREE_INDEX = 0
+        self.FLANN_KDTREE_INDEX_params = dict(algorithm=self.FLANN_KDTREE_INDEX, trees=5)
+        self.FLANN_KDTREE_SEARCH_params = dict(checks=50)
 
-    # Crosscheck is handled automatically
-    CROSSCHECK = CROSSCHECK.AUTO
+        self.FLANN_LSH_INDEX = 6
+        self.FLANN_LSH_INDEX_params = dict(algorithm=self.FLANN_LSH_INDEX, table_number=6, key_size=12, multi_probe_level=1)
+        self.FLANN_LSH_SEARCH_params = dict(checks=50)  # or pass empty dictionary
+        self.FLANN_LSH_INDEX_params_light = dict(algorithm=self.FLANN_LSH_INDEX, table_number=6)
+
+        # Crosscheck is handled automatically
+        self.CROSSCHECK = CROSSCHECK.AUTO
 
 # ==================== ------------------------ ====================
 #                        Custom configuration

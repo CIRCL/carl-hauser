@@ -1,13 +1,12 @@
-from imutils.object_detection import non_max_suppression
-import numpy as np
-import json
-import pathlib
 import logging
-import cv2
+import pathlib
 import time
 
+import cv2
+import numpy as np
+from imutils.object_detection import non_max_suppression
+
 import configuration
-import results
 from utility_lib import picture_class
 
 MIN_CONFIDENCE = 0.5
@@ -17,16 +16,16 @@ REDUCE_FACTOR = 2
 class Text_handler():
     def __init__(self, conf: configuration.Default_configuration):
         self.conf = conf
-        self.logger = logging.getLogger(__name__)
+        self.logger =  logging.getLogger('__main__.' + __name__)
 
     def length_to_32_multiple(self, length, reduce_factor=REDUCE_FACTOR):
-        # self.logger.debug(f"Input length : {length}")
+        # logging.debug(f"Input length : {length}")
 
         reduced = int(length / reduce_factor)
-        self.logger.debug(f"Reduced length : {reduced}")
+        logging.debug(f"Reduced length : {reduced}")
 
         round = 32 * ((reduced // 32) + 1)
-        self.logger.debug(f"Rounded to 32 length : {round}")
+        logging.debug(f"Rounded to 32 length : {round}")
 
         return round
 
@@ -41,13 +40,12 @@ class Text_handler():
     def get_mean_color(self, img, startX, startY, endX, endY):
         percentage_more = 0.5
 
-        startX_less = int(startX*(1-percentage_more))
-        endX_more = int(endX*(1+percentage_more))
-        startY_less = int(startY*(1-percentage_more))
-        endY_more = int(endY*(1+percentage_more))
+        startX_less = int(startX * (1 - percentage_more))
+        endX_more = int(endX * (1 + percentage_more))
+        startY_less = int(startY * (1 - percentage_more))
+        endY_more = int(endY * (1 + percentage_more))
 
         crop_img = img[startX_less:endX_more, startY_less:endY_more]  # H,W
-
 
         # calculate the average color of each row of our image
         avg_color_per_row = np.average(crop_img, axis=0)
@@ -70,18 +68,19 @@ class Text_handler():
 
     def get_random_color(self, boxes, orig):
         color = []
-        if len(boxes) == 0 :
-            return [0,0,0]
-        try :
+        if len(boxes) == 0:
+            return [0, 0, 0]
+        try:
             curr_box = boxes[0]
             color1 = self.get_hist_count_colors(orig, curr_box[0], curr_box[1], curr_box[2], curr_box[3])
             curr_box = boxes[int(len(boxes) / 2)]
             color2 = self.get_hist_count_colors(orig, curr_box[0], curr_box[1], curr_box[2], curr_box[3])
             curr_box = boxes[len(boxes) - 1]
             color3 = self.get_hist_count_colors(orig, curr_box[0], curr_box[1], curr_box[2], curr_box[3])
-            color = [np.mean([color1[0], color2[0], color3[0]]), np.mean([color1[1], color2[1], color3[1]]),np.mean([color1[2], color2[2], color3[2]])]
-        except Exception as e :
-            self.logger.error(f"Error during random color getting {e}")
+            color = [np.mean([color1[0], color2[0], color3[0]]), np.mean([color1[1], color2[1], color3[1]]),
+                     np.mean([color1[2], color2[2], color3[2]])]
+        except Exception as e:
+            logging.error(f"Error during random color getting {e}")
             return [0, 0, 0]
 
         return color
@@ -182,8 +181,7 @@ class Text_handler():
                 rects.append((startX, startY, endX, endY))
                 confidences.append(scoresData[x])
 
-        # apply non-maxima suppression to suppress weak, overlapping bounding
-        # boxes
+        # apply non-maxima suppression to suppress weak, overlapping bounding boxes
         boxes = non_max_suppression(np.array(rects), probs=confidences)
 
         color = self.get_random_color(boxes, orig)
@@ -197,29 +195,12 @@ class Text_handler():
             endX = int(endX * rW)
             endY = int(endY * rH)
 
-            # self.conf.TYPE =
 
             # draw the bounding box on the image
             # orig = self.utility_rect_area(orig, startX, startY, endX, endY)
             # orig = self.fill_area_most_common_background(orig, startX, startY, endX, endY)
-
             orig = self.fill_area_color(orig, startX, startY, endX, endY, color)
-
             # orig = self.blur_area(orig, startX, startY, endX, endY)
-            # thickness – Thickness of lines that make up the rectangle. Negative values, like CV_FILLED , mean that the function has to draw a filled rectangle.
-
-        # show the output image
-        # cv2.imshow("Text Detection", orig)
-        # cv2.waitKey(0)
-        '''
-        (newW, newH) = (args["width"], args["height"])
-        rW = W / float(newW)
-        rH = H / float(newH)
-
-        # resize the image and grab the new image dimensions
-        image = cv2.resize(image, (newW, newH))
-        (H, W) = image.shape[:2]
-        '''
 
         return orig
 

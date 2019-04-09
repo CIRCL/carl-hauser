@@ -7,41 +7,53 @@ import json
 
 # Own imports
 import utility_lib.filesystem_lib as filesystem_lib
+import utility_lib.graph_lib as graph_lib
 import configuration
 import ImageHash.imagehash_test as image_hash
 import TLSH.tlsh_test as tlsh
 import OpenCV.opencv as opencv
 
+TO_ROUND = 5
 
 class Configuration_launcher():
     def __init__(self,
                  source_pictures_dir: pathlib.Path,
                  output_folder: pathlib.Path,
                  ground_truth_json: pathlib.Path,
-
                  img_type: configuration.SUPPORTED_IMAGE_TYPE):
-        logging.basicConfig(format='%(name)s - %(levelname)s - %(message)s', level=logging.INFO)
-        self.logger = logging.getLogger(__name__)
+        #TODO : Doesn't work ! Make it work !
+        logging.basicConfig(filename='app.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+        self.logger = logging.getLogger() # __name__) See : https://stackoverflow.com/questions/50714316/how-to-use-logging-getlogger-name-in-multiple-modules
+        self.logger.setLevel(logging.INFO)
+        # create console handler with a higher log level
+        handler = logging.StreamHandler()
+        handler.setLevel(logging.DEBUG)
+        # create formatter and add it to the handler
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        handler.setFormatter(formatter)
+        # add the handler to the logger
+        self.logger.addHandler(handler)
+
 
         self.source_pictures_dir = source_pictures_dir
         self.output_folder = output_folder
         self.ground_truth_json = ground_truth_json
         self.img_type = img_type
 
-        self.logger.warning("Creation of filesystem handler : deletion of 0-sized pictures in source folder.")
+        logging.warning("Creation of filesystem handler : deletion of 0-sized pictures in source folder.")
         tmp_conf = configuration.Default_configuration()
         tmp_conf.IMG_TYPE = img_type
         self.filesystem_handler = filesystem_lib.File_System(conf=tmp_conf)
         self.filesystem_handler.clean_folder(self.source_pictures_dir)
 
     def auto_launch(self):
-        self.logger.info("==== ----- LAUNCHING AUTO CONF LAUNCHER ---- ==== ")
+        logging.info("==== ----- LAUNCHING AUTO CONF LAUNCHER ---- ==== ")
         self.auto_launch_image_hash()
         self.auto_launch_tlsh()
         self.auto_launch_orb()
 
     def auto_launch_image_hash(self):
-        self.logger.info("==== ----- LAUNCHING IMAGE HASH ALGOS ---- ==== ")
+        logging.info("==== ----- LAUNCHING IMAGE HASH ALGOS ---- ==== ")
 
         # Create conf
         curr_configuration = configuration.Default_configuration()
@@ -69,7 +81,7 @@ class Configuration_launcher():
                 logging.error(f"Aborting this configuration. Current configuration thrown an error : {e} ")
 
     def auto_launch_tlsh(self):
-        self.logger.info("==== ----- LAUNCHING TLSH algos ---- ==== ")
+        logging.info("==== ----- LAUNCHING TLSH algos ---- ==== ")
 
         # Create conf
         curr_configuration = configuration.Default_configuration()
@@ -94,7 +106,7 @@ class Configuration_launcher():
                 logging.error(f"Aborting this configuration. Current configuration thrown an error : {e} ")
 
     def auto_launch_orb(self):
-        self.logger.info("==== ----- LAUNCHING ORB algos ---- ==== ")
+        logging.info("==== ----- LAUNCHING ORB algos ---- ==== ")
 
         # Create conf
         curr_configuration = configuration.ORB_default_configuration()
@@ -128,9 +140,9 @@ class Configuration_launcher():
                                 logging.error(f"Aborting this configuration. Current configuration thrown an error : {e} ")
 
     @staticmethod
-    def create_tldr(folder : pathlib.Path, output_file : pathlib.Path):
+    def create_tldr(folder: pathlib.Path, output_file: pathlib.Path):
 
-        f = open(str(output_file.resolve()), "a+")  # Append and create if does not exist
+        f = open(str(output_file.resolve()), "w+")  # Append and create if does not exist
 
         global_list = []
         for x in folder.resolve().iterdir():
@@ -138,20 +150,19 @@ class Configuration_launcher():
             global_txt = ""
 
             if x.is_dir():
-                global_txt += x.name + " \t"
-                stat_file = x/"stats.txt"
+                global_txt += (x.name).ljust(95, " ") + "\t"
+                stat_file = x / "stats.txt"
                 if stat_file.exists():
 
-                    with open(str(stat_file.resolve())) as json_file:
-                        json_file = str(json_file.read()).replace("'", '"')
-                        data = json.loads(json_file)
-                        global_txt += "TRUE_POSITIVE = "  + str(data["TRUE_POSITIVE_RATE"]) + " \t"
-                        global_txt += "PRE_COMPUTING = "  + str(data["TIME_PER_PICTURE_PRE_COMPUTING"]) + " \t"
-                        global_txt += "MATCHING = "  + str(data["TIME_PER_PICTURE_MATCHING"]) + " \t"
+                    data = filesystem_lib.File_System.load_json(stat_file)
+                    LEN = 34
+                    global_txt += ("TRUE_POSITIVE = " + str(data["TRUE_POSITIVE_RATE"])).ljust(LEN, " ") + " \t"
+                    global_txt += ("PRE_COMPUTING = " + str(data["TIME_PER_PICTURE_PRE_COMPUTING"])).ljust(LEN, " ") + " \t"
+                    global_txt += ("MATCHING = " + str(data["TIME_PER_PICTURE_MATCHING"])).ljust(LEN, " ")
 
-                        global_list.append([global_txt, data["TRUE_POSITIVE_RATE"]])
+                    global_list.append([global_txt, data["TRUE_POSITIVE_RATE"]])
 
-                else :
+                else:
                     global_txt += "NO RESULT / ERROR"
 
                     global_list.append([global_txt, -1])
@@ -160,18 +171,105 @@ class Configuration_launcher():
 
         for x in global_list:
             f.write(x[0] + "\r\n")
+        f.close()
 
-        print("Overview written")
+        logger = logging.getLogger(__name__)
+        logger.info("Overview written")
+
+    ##     Conf & nobs & min time &  max time & mean & variance & skewness & kurtosis & True Positive\\ \hline
+    ## ORB \\ LEN MAX - KNN 2 \\Crosscheck : False \\FLANN LSH \\FAR THREESHOLD & 190 & 0.26489s & 1.57223s & 1.11384s & 0.04294s & -0.97579s & 1.09073 & 0.63158 \\ \hline
+
+    @staticmethod
+    def create_latex_tldr(folder: pathlib.Path, output_file: pathlib.Path):
+
+        f = open(str(output_file.resolve()), "w+")  # Append and create if does not exist
+        f.write("NAME & TRUE POSITIVE & PRE COMPUTING (sec) & MATCHING (sec)" + "\\\\ \hline \r\n")
+
+        global_list = []
+        for x in folder.resolve().iterdir():
+
+            global_txt = ""
+
+            if x.is_dir():
+                global_txt += (x.name).replace("_"," ") + " & "
+                stat_file = x / "stats.txt"
+                if stat_file.exists():
+
+                    data = filesystem_lib.File_System.load_json(stat_file)
+                    global_txt += str(round(data["TRUE_POSITIVE_RATE"],TO_ROUND)) + " & "
+                    global_txt += str(round(data["TIME_PER_PICTURE_PRE_COMPUTING"],TO_ROUND)) + " & "
+                    global_txt += str(round(data["TIME_PER_PICTURE_MATCHING"],TO_ROUND)) + "\\\\ \hline "
+
+                    global_list.append([global_txt, data["TRUE_POSITIVE_RATE"]])
+
+                # else:
+                #     global_txt += "NO RESULT / ERROR"
+                #     continue # Jump without adding it
+
+        global_list = sorted(global_list, key=lambda l: l[1], reverse=True)
+
+        for x in global_list:
+            f.write(x[0] + "\r\n")
+        f.close()
+
+        logger = logging.getLogger(__name__)
+        logger.info("Latex overview written")
 
 
+    @staticmethod
+    def create_and_export_inclusion_matrix(folder: pathlib.Path, output_file: pathlib.Path):
+        global_result = graph_lib.Graph_handler.create_inclusion_matrix(folder=folder)
+        graph_lib.Graph_handler.save_matrix_to_json(global_result, output_file.with_suffix(".json"))
+
+        ordo, absi, values = graph_lib.Graph_handler.inclusion_matrix_to_triple_array(global_result)
+
+        graph = graph_lib.Graph_handler()
+        graph.set_values(ordo, absi, values)
+
+        graph.save_matrix(output_file.with_suffix(".png"))
+
+    @staticmethod
+    def create_and_export_pair_matrix(input_folder: pathlib.Path, ground_truth_json: pathlib.Path, output_file: pathlib.Path):
+        # Generate pairs
+        global_result = graph_lib.Graph_handler.create_pair_matrix(folder=input_folder, ground_truth_json=ground_truth_json)
+
+        # Save the pair results
+        graph_lib.Graph_handler.save_matrix_to_json(global_result, output_file.with_suffix(".json"))
+
+        # Build the matrix
+        ordo, absi, values = graph_lib.Graph_handler.inclusion_matrix_to_triple_array(global_result)
+
+        graph = graph_lib.Graph_handler()
+        graph.set_values(ordo, absi, values)
+
+        graph.save_matrix(output_file.with_suffix(".png"))
+
+
+    @staticmethod
+    def create_paired_results(input_folder: pathlib.Path, target_pair_folder: pathlib.Path, ground_truth_json: pathlib.Path):
+        # Generate pairs
+        graph_lib.Graph_handler.generate_merged_pairs(input_folder=input_folder, target_pair_folder=target_pair_folder)
+
+        # Evaluate each graphe
+        graph_lib.Graph_handler.evaluate_graphs(target_pair_folder=target_pair_folder, ground_truth_json=ground_truth_json)
 
 if __name__ == '__main__':
 
     # =============================
     source_pictures_dir = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing/")
     output_folder = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_output/")
+
+    paired_output_folder = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_output_paired/")
+
     ground_truth_json = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing.json")
-    output_file = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_output.overview")
+
+    output_overview_file = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_output.overview")
+    output_latex_overview_file = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_output.latex.overview")
+    output_overview_paired_file = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_output_paired.overview")
+
+    output_similarity_matrix = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_output.matrix")
+    output_paired_matrix = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_output_paired.matrix")
+
     '''
     img_type = configuration.SUPPORTED_IMAGE_TYPE.PNG
 
@@ -181,13 +279,26 @@ if __name__ == '__main__':
                                              img_type=img_type)
     config_launcher.auto_launch()
     '''
-    Configuration_launcher.create_tldr(folder=output_folder, output_file=output_file)
+    # Configuration_launcher.create_tldr(folder=output_folder, output_file=output_overview_file)
+    Configuration_launcher.create_latex_tldr(folder=output_folder, output_file=output_latex_overview_file)
+
+    # Configuration_launcher.create_paired_results(input_folder=output_folder, target_pair_folder=paired_output_folder, ground_truth_json=ground_truth_json)
+    # Configuration_launcher.create_tldr(folder=paired_output_folder, output_file=output_overview_file)
+
+    # Configuration_launcher.create_and_export_inclusion_matrix(folder=output_folder, output_file=output_similarity_matrix)
+    # Configuration_launcher.create_and_export_pair_matrix(input_folder=output_folder, ground_truth_json=ground_truth_json, output_file=output_paired_matrix)
 
     # =============================
     source_pictures_dir = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_bmp/")
     output_folder = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_bmp_output/")
+    paired_output_folder = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_bmp_output_paired/")
     ground_truth_json = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_bmp.json")
-    output_file = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_bmp_output.overview")
+    output_overview_file = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_bmp_output.overview")
+    output_latex_overview_file = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_bmp_output.latex.overview")
+    output_overview_paired_file = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_bmp_output_paired.overview")
+    output_similarity_matrix = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_bmp_output.matrix")
+    output_paired_matrix = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_bmp_output_paired.matrix")
+
     '''
     img_type = configuration.SUPPORTED_IMAGE_TYPE.BMP
 
@@ -197,13 +308,25 @@ if __name__ == '__main__':
                                              img_type=img_type)
     config_launcher.auto_launch()
     '''
-    Configuration_launcher.create_tldr(folder=output_folder, output_file=output_file)
+    # Configuration_launcher.create_tldr(folder=output_folder, output_file=output_overview_file)
+    Configuration_launcher.create_latex_tldr(folder=output_folder, output_file=output_latex_overview_file)
+
+    # Configuration_launcher.create_paired_results(input_folder=output_folder, target_pair_folder=paired_output_folder, ground_truth_json=ground_truth_json)
+    # Configuration_launcher.create_tldr(folder=paired_output_folder, output_file=output_overview_file)
+
+    # Configuration_launcher.create_and_export_inclusion_matrix(folder=output_folder, output_file=output_similarity_matrix)
+    # Configuration_launcher.create_and_export_pair_matrix(input_folder=output_folder, ground_truth_json=ground_truth_json, output_file=output_paired_matrix)
 
     # =============================
     source_pictures_dir = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_COLORED/")
     output_folder = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_COLORED_output/")
+    paired_output_folder = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_COLORED_output_paired/")
     ground_truth_json = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing.json")
-    output_file = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_COLORED_output.overview")
+    output_overview_file = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_COLORED_output.overview")
+    output_latex_overview_file = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_COLORED_output.latex.overview")
+    output_overview_paired_file = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_COLORED_output_paired.overview")
+    output_similarity_matrix = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_COLORED_output.matrix")
+    output_paired_matrix = pathlib.Path.cwd() / pathlib.Path("../datasets/raw_phishing_COLORED_output_paired.matrix")
 
     '''
     img_type = configuration.SUPPORTED_IMAGE_TYPE.PNG
@@ -215,4 +338,11 @@ if __name__ == '__main__':
     config_launcher.auto_launch()
     '''
 
-    Configuration_launcher.create_tldr(folder=output_folder, output_file=output_file)
+    # Configuration_launcher.create_tldr(folder=output_folder, output_file=output_overview_file)
+    Configuration_launcher.create_latex_tldr(folder=output_folder, output_file=output_latex_overview_file)
+
+    # Configuration_launcher.create_paired_results(input_folder=output_folder, target_pair_folder=paired_output_folder, ground_truth_json=ground_truth_json)
+    # Configuration_launcher.create_tldr(folder=paired_output_folder, output_file=output_overview_file)
+
+    # Configuration_launcher.create_and_export_inclusion_matrix(folder=output_folder, output_file=output_similarity_matrix)
+    # Configuration_launcher.create_and_export_pair_matrix(input_folder=output_folder, ground_truth_json=ground_truth_json, output_file=output_paired_matrix)

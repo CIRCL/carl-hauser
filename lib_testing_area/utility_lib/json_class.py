@@ -6,8 +6,10 @@ import logging
 
 import configuration
 import results
+import utility_lib.filesystem_lib as filesystem_lib
 
 TOP_K_EDGE = 1
+MULT_FACTOR_VALUE = 10 # See : http://visjs.org/docs/network/edges.html (Min 1, MAX 15 so min 0, max 10)
 
 class Json_handler() :
     def __init__(self, conf : configuration.Default_configuration):
@@ -17,22 +19,27 @@ class Json_handler() :
 
     # =========================== -------------------------- ===========================
     #                                   IMPORT / EXPORT
-
     @staticmethod
     def import_json(file_path):
+        json_imported = filesystem_lib.File_System.load_json(file_path)
+
+        '''
         with file_path.open() as data_file:
             json_imported = json.load(data_file)
+        '''
 
         return json_imported
 
     def json_export(self):
         file_out = self.conf.OUTPUT_DIR / "graphe.json"
+        filesystem_lib.File_System.save_json(self.json_to_export, file_path=file_out)
+        '''
         with open(pathlib.Path(file_out), 'w') as outfile:
-            json.dump(self.json_to_export, outfile)
+        json.dump(self.json_to_export, outfile)
+        '''
 
     # =========================== -------------------------- ===========================
     #                                GRAPHE MODIFICATION
-
     def json_add_nodes(self, picture_list : List[Picture]) :
         nodes_list = []
 
@@ -58,6 +65,7 @@ class Json_handler() :
             tmp_obj["to"] = sorted_picture_list[i+offset].id
             tmp_obj["label"] = "rank " + str(i) + "(" + str(sorted_picture_list[i+offset].distance) + ")"
             edges_list.append(tmp_obj)
+            tmp_obj["value"] = str(sorted_picture_list[i+offset].distance * MULT_FACTOR_VALUE)
 
         # Store in JSON variable
         json_tmp["edges"] = edges_list
@@ -104,10 +112,17 @@ def matching_graphe_percentage(candidate_graphe, ground_truth_graphe):
     wrong = is_graphe_included(candidate_graphe, mapping_dict, ground_truth_graphe)
 
     edges_length = len(candidate_graphe["edges"])
+    wrong_length = len(wrong)
 
-    return 1 - wrong/edges_length
+    return 1 - wrong_length/edges_length
 
 def create_node_mapping(candidate_graphe, ground_truth_graphe):
+    '''
+    Create a mapping (dictionnary) as : #Node in candidate graphe gives the #Node in the ground truth graph
+    :param candidate_graphe:
+    :param ground_truth_graphe:
+    :return:
+    '''
     mapping_dict = {}
 
     candidate_nodes = candidate_graphe["nodes"]
@@ -136,18 +151,19 @@ def is_graphe_included(candidate_graphe, mapping_dict, ground_truth_graphe):
     ground_truth_edges = ground_truth_graphe["edges"]
     logger = logging.getLogger(__name__)
 
-    wrong = 0
+    wrong = []
 
-    # For all pictures of the output, give the matching picture in the ground truth dictionnary
+    # For all candidate edge
     for curr_candidate_edge in candidate_edges:
         found = False
+        # Check if we find the corresponding edge in the target edges list, given the node mapping
         for truth_edge in ground_truth_edges:
             if are_same_edge(curr_candidate_edge,mapping_dict,truth_edge) :
                 found = True
                 continue
         if not found :
-            logger.debug(f"Edge : {str(curr_candidate_edge)} not found in baseline graph.")
-            wrong += 1
+            logger.debug(f"Edge : {str(curr_candidate_edge)} not found in target graph.")
+            wrong.append(curr_candidate_edge)
 
     return wrong
 
@@ -162,4 +178,33 @@ def are_same_edge(edge1, matching, edge2):
 
     return False
 
+def merge_graphes(graphe1, to_graphe2):
+    '''
+    Merge graphe 1 into graphe 2, and return a merged graphe (copy done during the process! Inputs are unchanged)
 
+    :param graphe1:
+    :param to_graphe2:
+    :return:
+    '''
+    mapping_dict = create_node_mapping(graphe1, to_graphe2)
+
+    future_graphe = {}
+
+    if len(graphe1["nodes"]) != len(to_graphe2["nodes"]) :
+        logger = logging.getLogger(__name__)
+        logger.error("Graphs to merge don't have the same number of nodes ! ")
+        #TODO : probably a problem to handle here
+
+    future_graphe["nodes"] = to_graphe2["nodes"].copy()
+    future_graphe["edges"] = to_graphe2["edges"].copy()
+
+    # Get edge information and translate it
+    for curr_edge in graphe1["edges"]:
+        tmp_future_edge = {}
+        tmp_future_edge["from"] = mapping_dict[curr_edge["from"]]
+        tmp_future_edge["to"] = mapping_dict[curr_edge["to"]]
+        tmp_future_edge["label"] = curr_edge["label"]
+        # Add the edge
+        future_graphe["edges"].append(tmp_future_edge)
+
+    return future_graphe

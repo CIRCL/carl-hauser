@@ -3,21 +3,18 @@
 from .context import *
 
 import unittest
-import cv2
 
-DEBUG = False
+DELTA = 7
 
 
-class test_text_detector(unittest.TestCase):
+class test_text(unittest.TestCase):
     """Basic test cases."""
 
     def setUp(self):
+        self.logger = logging.getLogger(__name__)
         self.conf = configuration.Default_configuration()
         self.text_handler = text_handler.Text_handler(self.conf)
-        self.test_file_path = pathlib.Path.cwd() / pathlib.Path("tests/test_files")
-
-        if DEBUG:
-            print(str(self.test_file_path))
+        self.test_file_path = pathlib.Path.cwd() / pathlib.Path("tests/test_files/utility/text")
 
     def test_absolute_truth_and_meaning(self):
         assert True
@@ -39,14 +36,14 @@ class test_text_detector(unittest.TestCase):
         image = self.text_handler.picture_to_cv2_picture(target_picture)
 
         result = self.text_handler.get_mean_color(image, 0, 0, 100,100)
-        self.assertEqual(result[0], 215)
-        self.assertEqual(result[1], 120)
-        self.assertEqual(result[2], 0)
+        self.assertAlmostEqual(result[0], 215, delta=DELTA)
+        self.assertAlmostEqual(result[1], 120, delta=DELTA)
+        self.assertAlmostEqual(result[2], 0, delta=DELTA)
 
         result = self.text_handler.get_mean_color(image, 200, 200, 400, 400)
-        self.assertEqual(result[0], 220)
-        self.assertEqual(result[1], 137)
-        self.assertEqual(result[2], 32)
+        self.assertAlmostEqual(result[0], 220, delta=DELTA)
+        self.assertAlmostEqual(result[1], 137, delta=DELTA)
+        self.assertAlmostEqual(result[2], 32, delta=DELTA)
 
     def test_bincount_color(self):
         simple_picture_path = self.test_file_path / "simple_text.png"
@@ -54,16 +51,16 @@ class test_text_detector(unittest.TestCase):
         image = self.text_handler.picture_to_cv2_picture(target_picture)
 
         result = self.text_handler.get_hist_count_colors(image, 0, 0, 100,100)
-        self.assertEqual(result[0], 215)
-        self.assertEqual(result[1], 120)
-        self.assertEqual(result[2], 0)
+        self.assertAlmostEqual(result[0], 215, delta=DELTA)
+        self.assertAlmostEqual(result[1], 120, delta=DELTA)
+        self.assertAlmostEqual(result[2], 0, delta=DELTA)
 
         result = self.text_handler.get_hist_count_colors(image, 200, 200, 400, 400)
-        self.assertEqual(result[0], 215)
-        self.assertEqual(result[1], 120)
-        self.assertEqual(result[2], 0)
+        self.assertAlmostEqual(result[0], 215, delta=DELTA)
+        self.assertAlmostEqual(result[1], 120, delta=DELTA)
+        self.assertAlmostEqual(result[2], 0, delta=DELTA)
 
-    def test_heavy_testing(self):
+    def manual_heavy_testing(self):
         directory = self.test_file_path.parent.parent.parent / "datasets" / "raw_phishing"
         target_dir = self.test_file_path.parent.parent.parent / "datasets" / "raw_phishing_COLORED"
 
