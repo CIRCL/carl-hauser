@@ -32,7 +32,7 @@ class Configuration_launcher():
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         handler.setFormatter(formatter)
         # add the handler to the logger
-        sef.logger.addHandler(handler)
+        self.logger.addHandler(handler)
 
 
         self.source_pictures_dir = source_pictures_dir
