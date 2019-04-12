@@ -3,12 +3,13 @@
 from .context import *
 
 import unittest
+import logging
 
 class test_template(unittest.TestCase):
     """Basic test cases."""
 
     def setUp(self):
-        self.logger = logging.getLogger(__name__)
+        # logging = logging.getLogger()
         self.conf = configuration.Default_configuration()
         self.JSON_class = json_class.Json_handler(conf=self.conf)
         self.test_file_path = pathlib.Path.cwd() / pathlib.Path("tests/test_files/utility/json")
@@ -47,6 +48,11 @@ class test_template(unittest.TestCase):
         mapping ={0:1,0:1}
         self.assertFalse(json_class.are_same_edge(edge2, mapping, edge1))
 
+    def test_mapFromTo(self):
+        self.assertEqual(json_class.Json_handler.mapFromTo(1,0,1,20,0),0)
+        self.assertEqual(json_class.Json_handler.mapFromTo(0,0,1,20,0),20)
+        self.assertEqual(json_class.Json_handler.mapFromTo(1,0,1,0,20),20)
+        self.assertEqual(json_class.Json_handler.mapFromTo(0,0,1,0,20),0)
 
     def test_are_same_edge(self):
         self.mapping_dict = {}

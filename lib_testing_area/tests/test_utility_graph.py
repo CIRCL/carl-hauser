@@ -8,7 +8,7 @@ class test_template(unittest.TestCase):
     """Basic test cases."""
 
     def setUp(self):
-        self.logger = logging.getLogger(__name__)
+        logging = logging.getLogger()
         self.conf = configuration.Default_configuration()
         self.test_file_path = pathlib.Path.cwd() / pathlib.Path("tests/test_files/utility/graph/")
         self.result_folder_path = self.test_file_path / 'raw_results'
