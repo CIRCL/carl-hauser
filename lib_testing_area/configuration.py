@@ -37,7 +37,7 @@ class Default_configuration():
 class DISTANCE_TYPE(Enum):
     LEN_MIN = auto()
     LEN_MAX = auto()
-    LEN_MEAN = auto()
+    # LEN_MEAN = auto()
     MEAN_DIST_PER_PAIR = auto()
     MEAN_AND_MAX = auto()
 

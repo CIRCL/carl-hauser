@@ -64,5 +64,5 @@ class Image_hash_execution_handler(execution_handler.Execution_handler):
 
     def TO_OVERWRITE_compute_distance(self, pic1: picture_class.Picture, pic2: picture_class.Picture):
         #TODO : To review if we divide by 2 or not. * 0.5
-        distance = abs(pic1.hash - pic2.hash) / (pic1.hash.size )
+        distance = abs(pic1.hash - pic2.hash) / (pic1.hash.hash.size )
         return distance

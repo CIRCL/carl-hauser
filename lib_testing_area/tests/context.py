@@ -7,10 +7,11 @@ import json
 import pprint
 import cv2
 import logging
+import traceback
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-import OpenCV
+import OpenCV.opencv as opencv
 import ImageHash
 import TLSH
 import utility_lib.json_class as json_class
