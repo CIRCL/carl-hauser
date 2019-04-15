@@ -1,14 +1,14 @@
 # STD LIBRARIES
 import os
 import sys
-import imagehash
-
-from PIL import Image
 from typing import List
+
+import imagehash
+from PIL import Image
 
 # PERSONAL LIBRARIES
 sys.path.append(os.path.abspath(os.path.pardir))
-from utility_lib import filesystem_lib, printing_lib, picture_class, execution_handler
+from utility_lib import picture_class, execution_handler
 import configuration
 
 
@@ -62,6 +62,7 @@ class Image_hash_execution_handler(execution_handler.Execution_handler):
 
         return curr_picture
 
-    def TO_OVERWRITE_compute_distance(self, pic1 : picture_class.Picture, pic2: picture_class.Picture):
-        distance = abs(pic1.hash - pic2.hash)
+    def TO_OVERWRITE_compute_distance(self, pic1: picture_class.Picture, pic2: picture_class.Picture):
+        #TODO : To review if we divide by 2 or not. * 0.5
+        distance = abs(pic1.hash - pic2.hash) / (pic1.hash.size )
         return distance

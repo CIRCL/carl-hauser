@@ -3,6 +3,7 @@ import os
 import sys
 from enum import Enum, auto
 from typing import List
+import logging
 
 import cv2
 import matplotlib.pyplot as plt
@@ -12,19 +13,6 @@ from PIL import Image, ImageDraw
 sys.path.append(os.path.abspath(os.path.pardir))
 from utility_lib import filesystem_lib, printing_lib, picture_class, execution_handler, json_class
 import configuration
-
-# POSSIBLE CONFIGURATION :
-# ALL DIST with NO FILTER with STD with BF
-# ALL DIST with RATIO BAD with STD with BF
-
-# ALL DIST with NO FILTER with KNN with FLANN_LSH : CRASH
-# ALL DIST with RATIO CORRECT with KNN with FLANN_LSH : OK
-# ALL DIST with FAR_THREESHOLD with KNN with FLANN_LSH : OK
-
-'''
-print("CONFIGURATION : " + DISTANCE_CHOSEN.name + " " + MATCH_CHOSEN.name + " " + str(MATCH_K_FOR_KNN) + " " + str(
-    CROSSCHECK_WORKING) + " " + DATASTRUCT_CHOSEN.name + " " + FILTER_CHOSEN.name)
-'''
 
 class Local_Picture(picture_class.Picture):
 
@@ -56,7 +44,7 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
         else:
             raise Exception("CROSSCHECK value in configuration is wrong. Please review the value.")
 
-        logging.info(f"Crosscheck selected : {self.CROSSCHECK}")
+        self.logger.info(f"Crosscheck selected : {self.CROSSCHECK}")
 
         self.algo = cv2.ORB_create(nfeatures=conf.ORB_KEYPOINTS_NB)
         # SIFT, BRISK, SURF, .. # Available to change nFeatures=1000 for example. Limited to 500 by default
@@ -70,10 +58,10 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
             self.matcher = cv2.FlannBasedMatcher(conf.FLANN_LSH_INDEX_params, conf.FLANN_LSH_SEARCH_params)
 
     def TO_OVERWRITE_prepare_dataset(self, picture_list):
-        logging.info(f"Describe pictures from repository {self.conf.SOURCE_DIR} ... ")
+        self.logger.info(f"Describe pictures from repository {self.conf.SOURCE_DIR} ... ")
         picture_list = self.describe_pictures(picture_list)
 
-        logging.info("Add cluster of trained images to matcher and train it ...")
+        self.logger.info("Add cluster of trained images to matcher and train it ...")
         self.train_on_images(picture_list)
 
         return picture_list
@@ -92,7 +80,7 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
         if self.conf.DATASTRUCT != configuration.DATASTRUCT_TYPE.FLANN_LSH:
             self.matcher.train()
         else:
-            logging.warning("No training on the matcher : FLANN LSH selected.")
+            self.logger.warning("No training on the matcher : FLANN LSH selected.")
         # Train: Does nothing for BruteForceMatcher though.
         # Otherwise, construct a "magic good datastructure" as KDTree, for example.
 
@@ -106,11 +94,11 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
             self.describe_picture(curr_picture)
 
             if i % 40 == 0:
-                logging.info(f"Picture {i} out of {len(picture_list)}")
+                self.logger.info(f"Picture {i} out of {len(picture_list)}")
 
             # removal of picture that don't have descriptors
             if curr_picture.description is None:
-                logging.warning(f"Picture {i} removed, due to lack of descriptors : {curr_picture.path.name}")
+                self.logger.warning(f"Picture {i} removed, due to lack of descriptors : {curr_picture.path.name}")
                 # del picture_list[i]
 
                 # TODO : Parametered path
@@ -118,7 +106,7 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
             else:
                 clean_picture_list.append(curr_picture)
 
-        logging.info(f"New list length (without None-descriptors pictures : {len(picture_list)}")
+        self.logger.info(f"New list length (without None-descriptors pictures : {len(picture_list)}")
 
         return clean_picture_list
 
@@ -132,12 +120,12 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
             curr_picture.description = description
 
             if key_points is None:
-                logging.warning(f"WARNING : picture {curr_picture.path.name} has no keypoints")
+                self.logger.warning(f"WARNING : picture {curr_picture.path.name} has no keypoints")
             if description is None:
-                logging.warning(f"WARNING : picture {curr_picture.path.name} has no description")
+                self.logger.warning(f"WARNING : picture {curr_picture.path.name} has no description")
 
         except Exception as e:
-            logging.warning("Error during descriptor building : " + str(e))
+            self.logger.warning("Error during descriptor building : " + str(e))
 
         return curr_picture
 
@@ -317,7 +305,7 @@ class Custom_printer(printing_lib.Printer):
     def save_matches(pic1: Local_Picture, pic2: Local_Picture, matches, distance):
         outImg = Custom_printer.draw_matches(pic1, pic2, matches)
         # outImg = printing_lib.print_title(outImg, pic1.path.name + " " + pic2.path.name)
-        logger.debug("./RESULTS/" + pic1.path.name)
+        logging.debug("./RESULTS/" + pic1.path.name)
         t = pic1.path.name + " TO " + pic1.path.name + " IS " + str(distance)
         plt.text(0, 0, t, ha='center', wrap=True)
         plt.imsave("./RESULTS/" + pic1.path.name, outImg)

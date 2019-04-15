@@ -62,4 +62,7 @@ class TLSH_execution_handler(execution_handler.Execution_handler) :
         else :
             raise Exception("Invalid algorithm type for TLSH execution handler during distance computing : " + str(self.conf.ALGO.name))
 
+        # TODO : discuss the divided by two *0.5
+        dist /= (len(pic1.hash))
+
         return dist
