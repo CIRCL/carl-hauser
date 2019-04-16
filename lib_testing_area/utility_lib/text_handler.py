@@ -5,6 +5,8 @@ import time
 import cv2
 import numpy as np
 from imutils.object_detection import non_max_suppression
+from PIL import Image
+import pytesseract
 
 import configuration
 from utility_lib import picture_class
@@ -88,7 +90,81 @@ class Text_handler():
     def picture_to_cv2_picture(self, picture: picture_class.Picture):
         return cv2.imread(str(picture.path.resolve()))
 
-    def extract_text(self, picture: picture_class.Picture):
+    '''
+    level	page_num	block_num	par_num	line_num	word_num	left	top	    width	height	conf	text
+    1	    1	        0	        0	    0	        0	        0	    0	    1366	2240	-1	
+    2	    1	        1	        0	    0	        0	        152	    18	    46	    13	    -1	
+    3	    1	        1	        1	    0	        0	        152	    18	    46	    13	    -1	
+    4	    1	        1	        1	    1	        0	        152	    18	    46	    13	    -1	
+    5	    1	        1	        1	    1	        1	        152	    18	    46	    13	    96	    English
+    2	    1	        2	        0	    0	        0	        603	    64	    160 	26	    -1	
+    3	    1	        2	        1	    0	        0	        603	    64	    160 	26	    -1	
+    4	    1	        2	        1	    1	        0	        603	    64	    160	    26	    -1	
+    5	    1	        2	        1	    1	        1	        603	    64	    25	    25	    75	    G
+    5	    1	        2	        1	    1	        2	        634	    65	    129	    25	    82	    ackdupexm
+    '''
+
+    @staticmethod
+    def clean_boxes(boxes):
+        THREESHOLD = 60
+        tmp_boxes = []
+
+        # Threeshold on confidence
+        for i in boxes :
+            conf = int(i[10])
+            startX = int(i[6])
+            startY = int(i[7])
+            width = int(i[8])
+            height = int(i[9])
+            endX = startX + width
+            endY = startY + height
+            if conf != -1 and conf > THREESHOLD and height <= 30:
+                tmp_boxes.append(["",startX,startY,endX,endY,0])
+
+        return tmp_boxes
+
+    def extract_text_Tesseract(self, picture: picture_class.Picture):
+        # img = cv2.imread(r'/<path_to_image>/digits.png')
+        # print("test : " + pytesseract.image_to_string(Image.open(picture.path)))
+        # OR explicit beforehand converting
+        # print(pytesseract.image_to_string(cv2.Image.fromarray(img)))
+        image = self.picture_to_cv2_picture(picture)
+        (H, W) = image.shape[:2]
+        orig = image.copy()
+        print("Look up boxes ! ")
+
+        # boxes = pytesseract.image_to_boxes(Image.open(picture.path))
+        boxes = pytesseract.image_to_data(Image.open(picture.path))
+        if boxes != "" :
+            boxes = [i.split("\t") for i in boxes.split("\n")]
+
+        boxes = self.clean_boxes(boxes[1:len(boxes)-1])
+
+        print(boxes)
+
+        for (letter, startX, startY, endX, endY, z) in boxes:
+            print("Box ! ")
+            # startX, startY, endX, endY = int(startX), H-int(startY), int(endX), H-int(endY) # H- due to tesseract coordinate from bottom left corner
+            startX, startY, endX, endY = int(startX), int(startY), int(endX), int(endY) # H- due to tesseract coordinate from bottom left corner
+            # draw the bounding box on the image
+            # orig = self.utility_rect_area(orig, startX, startY, endX, endY)
+            # orig = self.fill_area_most_common_background(orig, startX, startY, endX, endY)
+            # orig = self.fill_area_color(orig, startX, startY, endX, endY, color)
+            orig = self.fill_area_black(orig, startX, startY, endX, endY)
+            # orig = self.blur_area(orig, int(startX),int( startY),int( endX), int(endY))
+
+        '''
+        Cel esttr Moss: e eer M LP ent tce
+        TNC CMON TICE
+        E 152 2212 154 2222 0
+        n 154 2212 157 2222 0
+        g 161 2212 167 2219 0
+        l 169 2209 175 2219 0
+        '''
+
+        return orig
+
+    def extract_text_DeepModel(self, picture: picture_class.Picture):
         # load the input image and grab the image dimensions
         image = self.picture_to_cv2_picture(picture)
         orig = image.copy()
@@ -199,8 +275,8 @@ class Text_handler():
             # draw the bounding box on the image
             # orig = self.utility_rect_area(orig, startX, startY, endX, endY)
             # orig = self.fill_area_most_common_background(orig, startX, startY, endX, endY)
-            orig = self.fill_area_color(orig, startX, startY, endX, endY, color)
-            # orig = self.blur_area(orig, startX, startY, endX, endY)
+            # orig = self.fill_area_color(orig, startX, startY, endX, endY, color)
+            orig = self.blur_area(orig, startX, startY, endX, endY)
 
         return orig
 
@@ -231,5 +307,25 @@ class Text_handler():
         return img
 
     def blur_area(self, img, startX, startY, endX, endY):
-        cv2.rectangle(img, (startX, startY), (endX, endY), (0, 255, 0), 2)
+        # imS = cv2.resize(img, (540, 540))
+        # cv2.imshow('img Blur', imS)
+
+        tmp_pic = img[startY:endY, startX:endX]
+
+        # imS = cv2.resize(tmp_pic, (540, 540))
+        # cv2.imshow('tmp_pic Blur', imS)
+
+        blur = cv2.GaussianBlur(tmp_pic, (25, 25), 0)
+
+        # imS = cv2.resize(blur, (540, 540))
+        # cv2.imshow('blur Blur', imS)
+
+        img[startY:endY, startX:endX] = blur
+
+        # imS = cv2.resize(img, (540, 540))
+        # cv2.imshow('img Blur 2', imS)
+
+        # cv2.waitKey(10000)
+        # cv2.destroyAllWindows()
+
         return img

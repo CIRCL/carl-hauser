@@ -24,7 +24,7 @@ class Stats_handler():
         tmp_str += "variance : " + str(round(getattr(stats_result, "variance"), round_decimal)) + "s " + END_LINE
         tmp_str += "skewness : " + str(round(getattr(stats_result, "skewness"), round_decimal)) + "s " + END_LINE
         tmp_str += "kurtosis : " + str(round(getattr(stats_result, "kurtosis"), round_decimal))
-        logging.info(tmp_str)
+        self.logger.info(tmp_str)
 
     def print_stats(self, conf: configuration.Default_configuration, results: results.RESULTS, round_decimal=ROUND_DECIMAL):
         stats_result = stats.describe(results.TIME_LIST_MATCHING)
@@ -39,7 +39,7 @@ class Stats_handler():
         tmp_str += str(round(getattr(stats_result, "skewness"), round_decimal)) + " & "
         tmp_str += str(round(getattr(stats_result, "kurtosis"), round_decimal))
         tmp_str += str("\\\ \hline \n")
-        logging.info(tmp_str)
+        self.logger.info(tmp_str)
 
 
 
@@ -50,4 +50,4 @@ class Stats_handler():
         # filesystem_lib.File_System.save_obj(results, filepath)
         filesystem_lib.File_System.save_json(results, file_path=filepath)
 
-        logging.debug(f"Statistics file saved as {filepath}.")
+        self.logger.debug(f"Statistics file saved as {filepath}.")

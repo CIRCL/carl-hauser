@@ -127,6 +127,6 @@ class File_System():
                         data = str(json_file.read())
 
         else:
-            raise Exception("Cannot save the provided object to json")
+            raise Exception(f"Cannot load the provided path to json : path is not a valid file {file_path}")
 
         return data

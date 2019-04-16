@@ -4,10 +4,13 @@ import sys
 from enum import Enum, auto
 from typing import List
 import logging
+import pathlib
+
 
 import cv2
 import matplotlib.pyplot as plt
 from PIL import Image, ImageDraw
+import numpy as np
 
 # PERSONAL LIBRARIES
 sys.path.append(os.path.abspath(os.path.pardir))
@@ -32,6 +35,7 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
         self.Local_Picture_class_ref = Local_Picture
         self.conf = conf
 
+        # ===================================== CROSSCHECK =====================================
         # Crosscheck can't be activated with some option. e.g. KNN match can't work with
         if conf.CROSSCHECK == configuration.CROSSCHECK.AUTO:
             FILTER_INCOMPATIBLE_OPTIONS = [configuration.FILTER_TYPE.RATIO_CORRECT]
@@ -46,9 +50,11 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
 
         self.logger.info(f"Crosscheck selected : {self.CROSSCHECK}")
 
+        # ===================================== ALGORITHM TYPE =====================================
         self.algo = cv2.ORB_create(nfeatures=conf.ORB_KEYPOINTS_NB)
         # SIFT, BRISK, SURF, .. # Available to change nFeatures=1000 for example. Limited to 500 by default
 
+        # ===================================== DATASTRUCTURE =====================================
         if self.conf.DATASTRUCT == configuration.DATASTRUCT_TYPE.BRUTE_FORCE:
             self.matcher = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=self.CROSSCHECK)
             # NORML1 (SIFT/SURF) NORML2 (SIFT/SURG) HAMMING (ORB,BRISK, # BRIEF) HAMMING2 (ORB WTAK=3,4)
@@ -56,33 +62,27 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
             self.matcher = cv2.FlannBasedMatcher(conf.FLANN_KDTREE_INDEX_params, conf.FLANN_KDTREE_SEARCH_params)
         elif self.conf.DATASTRUCT == configuration.DATASTRUCT_TYPE.FLANN_LSH:
             self.matcher = cv2.FlannBasedMatcher(conf.FLANN_LSH_INDEX_params, conf.FLANN_LSH_SEARCH_params)
+        elif self.conf.DATASTRUCT == configuration.DATASTRUCT_TYPE.BOW :
+            self.bow_trainer = cv2.BOWKMeansTrainer(self.conf.BOW_SIZE)
+            self.bow_descriptor = cv2.BOWImgDescriptorExtractor(self.algo, cv2.BFMatcher(cv2.NORM_HAMMING))
+        else :
+            raise Exception("DATASTRUCT value in configuration is wrong. Please review the value.")
 
     def TO_OVERWRITE_prepare_dataset(self, picture_list):
         self.logger.info(f"Describe pictures from repository {self.conf.SOURCE_DIR} ... ")
+
+        # ===================================== PREPARE PICTURES = GIVE DESCRIPTORS =====================================
         picture_list = self.describe_pictures(picture_list)
 
         self.logger.info("Add cluster of trained images to matcher and train it ...")
+
+        # ===================================== CONSTRUCT DATASTRUCTURE =====================================
         self.train_on_images(picture_list)
 
+        if self.conf.DATASTRUCT == configuration.DATASTRUCT_TYPE.BOW :
+            picture_list = self.describe_pictures_with_vocabulary(picture_list)
+
         return picture_list
-
-    def TO_OVERWRITE_prepare_target_picture(self, target_picture):
-        target_picture = self.describe_picture(target_picture)
-        return target_picture
-
-    def train_on_images(self, picture_list: List[Local_Picture]):
-        # TODO : ONLY KDTREE FLANN ! OR BF (but does nothing)
-
-        for curr_image in picture_list:
-            self.matcher.add(curr_image.description)
-            curr_image.storage = self.matcher  # Store it to allow pictures to compute it
-
-        if self.conf.DATASTRUCT != configuration.DATASTRUCT_TYPE.FLANN_LSH:
-            self.matcher.train()
-        else:
-            self.logger.warning("No training on the matcher : FLANN LSH selected.")
-        # Train: Does nothing for BruteForceMatcher though.
-        # Otherwise, construct a "magic good datastructure" as KDTree, for example.
 
     # ==== Descriptors ====
     def describe_pictures(self, picture_list: List[Local_Picture]):
@@ -90,25 +90,65 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
 
         for i, curr_picture in enumerate(picture_list):
 
-            # Load and Hash picture
+            # ===================================== GIVE DESCRIPTORS FOR ONE PICTURE =====================================
             self.describe_picture(curr_picture)
 
             if i % 40 == 0:
                 self.logger.info(f"Picture {i} out of {len(picture_list)}")
 
+            # ===================================== REMOVING EDGE CASE PICTURES =====================================
             # removal of picture that don't have descriptors
             if curr_picture.description is None:
                 self.logger.warning(f"Picture {i} removed, due to lack of descriptors : {curr_picture.path.name}")
                 # del picture_list[i]
 
                 # TODO : Parametered path
-                os.system("cp ../../datasets/raw_phishing/" + curr_picture.path.name + " ./RESULTS_BLANKS/" + curr_picture.path.name)
+                os.system("cp " + str((self.conf.SOURCE_DIR / curr_picture.path.name).resolve() ) + str(pathlib.Path(" ./RESULTS_BLANKS/") / curr_picture.path.name))
             else:
                 clean_picture_list.append(curr_picture)
 
         self.logger.info(f"New list length (without None-descriptors pictures : {len(picture_list)}")
 
         return clean_picture_list
+
+    def describe_pictures_with_vocabulary(self, picture_list: List[Local_Picture]):
+
+        # Compute new description given vocabulary
+        for i, curr_picture in enumerate(picture_list):
+            # keypoints = detector.detect(img, None)
+            description = self.bow_descriptor.compute(curr_picture.image, curr_picture.key_points)
+            curr_picture.description = description
+
+        return picture_list
+
+    def train_on_images(self, picture_list: List[Local_Picture]):
+        # TODO : ONLY KDTREE FLANN ! OR BF (but does nothing)
+
+        if self.conf.DATASTRUCT == configuration.DATASTRUCT_TYPE.BOW :
+            # ===================================== BOW TRAINING =====================================
+            for curr_image in picture_list:
+                self.bow_trainer.add(np.float32(curr_image.description))
+
+            self.vocab = self.bow_trainer.cluster().astype(picture_list[0].description.dtype)
+            self.bow_descriptor.setVocabulary(self.vocab)
+        else :
+            # ===================================== ALL OTHER TRAINING =====================================
+            # Construct a "magic good datastructure" as KDTree, for example.
+
+            for curr_image in picture_list:
+                self.matcher.add(curr_image.description)
+                # TODO : To decomment ? curr_image.storage = self.matcher  # Store it to allow pictures to compute it
+
+            # TODO : To decomment ? if self.conf.DATASTRUCT != configuration.DATASTRUCT_TYPE.FLANN_LSH:
+            self.matcher.train()
+            # Train: Does nothing for BruteForceMatcher though.
+            # TODO : To decomment ? else:
+            # TODO : To decomment ?     self.logger.warning("No training on the matcher : FLANN LSH selected.")
+
+
+    def TO_OVERWRITE_prepare_target_picture(self, target_picture):
+        target_picture = self.describe_picture(target_picture)
+        return target_picture
 
     def describe_picture(self, curr_picture: Local_Picture):
         try:
@@ -140,52 +180,56 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
         matches = []
         good = []
 
-        # bfmatcher is stored in Picture local storage
-        if self.conf.MATCH == configuration.MATCH_TYPE.STD:
-            matches = self.matcher.match(pic1.description, pic2.description)
-            # self.matches = sorted(matches, key=lambda x: x.distance)  # Sort matches by distance.  Best come first.
-        elif self.conf.MATCH == configuration.MATCH_TYPE.KNN:
-            matches = self.matcher.knnMatch(pic1.description, pic2.description, k=self.conf.MATCH_K_FOR_KNN)
-        else:
-            raise Exception('OPENCV WRAPPER : MATCH_CHOSEN NOT CORRECT')
+        if self.conf.DATASTRUCT == configuration.DATASTRUCT_TYPE.BOW :
+            dist = 1 - cv2.compareHist(pic1.description, pic2.description, cv2.HISTCMP_CORREL)
 
-        # THREESHOLD ? TODO
-        # TODO : Previously MIN, test with MEAN ?
-        # TODO : Test with Mean of matches.distance .. verify what are matches distance ..
-
-        if self.conf.FILTER == configuration.FILTER_TYPE.NO_FILTER:
-            good = matches
-        elif self.conf.FILTER == configuration.FILTER_TYPE.RATIO_BAD:
-            good = self.ratio_bad(matches)
-        elif self.conf.FILTER == configuration.FILTER_TYPE.RATIO_CORRECT:
-            good = self.ratio_good(matches)
-        elif self.conf.FILTER == configuration.FILTER_TYPE.FAR_THREESHOLD:
-            good = self.ratio_good(matches)
-            good = self.threeshold_distance_filter(good)
-        else:
-            raise Exception('OPENCV WRAPPER : FILTER_CHOSEN NOT CORRECT')
-
-        if self.conf.DISTANCE == configuration.DISTANCE_TYPE.LEN_MIN:  # MIN
-            dist = 1 - len(good) / (min(len(pic1.description), len(pic2.description)))
-        elif self.conf.DISTANCE == configuration.DISTANCE_TYPE.LEN_MAX:  # MAX
-            dist = 1 - len(good) / (max(len(pic1.description), len(pic2.description)))
-        elif self.conf.DISTANCE == configuration.DISTANCE_TYPE.MEAN_DIST_PER_PAIR:
-            if len(good) == 0:
-                dist = None
+        else :
+            # bfmatcher is stored in Picture local storage
+            if self.conf.MATCH == configuration.MATCH_TYPE.STD:
+                matches = self.matcher.match(pic1.description, pic2.description)
+                # self.matches = sorted(matches, key=lambda x: x.distance)  # Sort matches by distance.  Best come first.
+            elif self.conf.MATCH == configuration.MATCH_TYPE.KNN:
+                matches = self.matcher.knnMatch(pic1.description, pic2.description, k=self.conf.MATCH_K_FOR_KNN)
             else:
-                dist = self.mean_matches_dist(good)
-        elif self.conf.DISTANCE == configuration.DISTANCE_TYPE.MEAN_AND_MAX:
-            if len(good) == 0:
-                dist = None
-            else:
-                dist1 = self.mean_matches_dist(good)
-                dist2 = 1 - len(good) / (max(len(pic1.description), len(pic2.description)))
-                dist = dist1 + dist2
-        else:
-            raise Exception('OPENCV WRAPPER : DISTANCE_CHOSEN NOT CORRECT')
+                raise Exception('OPENCV WRAPPER : MATCH_CHOSEN NOT CORRECT')
 
-        # if DISTANCE_CHOSEN == DISTANCE_TYPE.RATIO_LEN or DISTANCE_CHOSEN == DISTANCE_TYPE.RATIO_TEST :
-        pic1.matches = sorted(good, key=lambda x: x.distance)  # Sort matches by distance.  Best come first.
+            # THREESHOLD ? TODO
+            # TODO : Previously MIN, test with MEAN ?
+            # TODO : Test with Mean of matches.distance .. verify what are matches distance ..
+
+            if self.conf.FILTER == configuration.FILTER_TYPE.NO_FILTER:
+                good = matches
+            elif self.conf.FILTER == configuration.FILTER_TYPE.RATIO_BAD:
+                good = self.ratio_bad(matches)
+            elif self.conf.FILTER == configuration.FILTER_TYPE.RATIO_CORRECT:
+                good = self.ratio_good(matches)
+            elif self.conf.FILTER == configuration.FILTER_TYPE.FAR_THREESHOLD:
+                good = self.ratio_good(matches)
+                good = self.threeshold_distance_filter(good)
+            else:
+                raise Exception('OPENCV WRAPPER : FILTER_CHOSEN NOT CORRECT')
+
+            if self.conf.DISTANCE == configuration.DISTANCE_TYPE.LEN_MIN:  # MIN
+                dist = 1 - len(good) / (min(len(pic1.description), len(pic2.description)))
+            elif self.conf.DISTANCE == configuration.DISTANCE_TYPE.LEN_MAX:  # MAX
+                dist = 1 - len(good) / (max(len(pic1.description), len(pic2.description)))
+            elif self.conf.DISTANCE == configuration.DISTANCE_TYPE.MEAN_DIST_PER_PAIR:
+                if len(good) == 0:
+                    dist = None
+                else:
+                    dist = self.mean_matches_dist(good)
+            elif self.conf.DISTANCE == configuration.DISTANCE_TYPE.MEAN_AND_MAX:
+                if len(good) == 0:
+                    dist = None
+                else:
+                    dist1 = self.mean_matches_dist(good)
+                    dist2 = 1 - len(good) / (max(len(pic1.description), len(pic2.description)))
+                    dist = dist1 + dist2
+            else:
+                raise Exception('OPENCV WRAPPER : DISTANCE_CHOSEN NOT CORRECT')
+
+            # if DISTANCE_CHOSEN == DISTANCE_TYPE.RATIO_LEN or DISTANCE_CHOSEN == DISTANCE_TYPE.RATIO_TEST :
+            pic1.matches = sorted(good, key=lambda x: x.distance)  # Sort matches by distance.  Best come first.
 
         return dist
 

@@ -17,6 +17,13 @@ class ALGO_TYPE(Enum):
     TLSH_NO_LENGTH = auto()
     ORB = auto()
 
+# Threshold finder
+class THRESHOLD_MODE(Enum):
+    MIN_WRONG = auto()
+    MEDIAN_WRONG = auto()
+    MAX_WRONG = auto()
+    MAXIMIZE_TRUE_POSITIVE = auto()
+
 class Default_configuration():
     def __init__(self):
         # Inputs
@@ -26,6 +33,8 @@ class Default_configuration():
         # Processing
         self.ALGO = ALGO_TYPE.A_HASH
         self.SELECTION_THREESHOLD = None #TODO : To fix and to use, to prevent "forced linked" if none
+        #Threshold
+        self.THREESHOLD_EVALUATION = THRESHOLD_MODE.MAXIMIZE_TRUE_POSITIVE
         # Output
         self.SAVE_PICTURE = False
         self.OUTPUT_DIR = None
@@ -55,6 +64,7 @@ class DATASTRUCT_TYPE(Enum):
     BRUTE_FORCE = auto()
     FLANN_KDTREE = auto()
     FLANN_LSH = auto()
+    BOW = auto()
 
 class CROSSCHECK(Enum):
     ENABLED = auto()
@@ -83,6 +93,8 @@ class ORB_default_configuration(Default_configuration):
         self.FLANN_LSH_INDEX_params = dict(algorithm=self.FLANN_LSH_INDEX, table_number=6, key_size=12, multi_probe_level=1)
         self.FLANN_LSH_SEARCH_params = dict(checks=50)  # or pass empty dictionary
         self.FLANN_LSH_INDEX_params_light = dict(algorithm=self.FLANN_LSH_INDEX, table_number=6)
+
+        self.BOW_SIZE = 100
 
         # Crosscheck is handled automatically
         self.CROSSCHECK = CROSSCHECK.AUTO
