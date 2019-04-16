@@ -44,7 +44,7 @@ The goal of this document is to provide an overview of the tools and ideas to cl
 
 ##### Methodology
 
-A general overview was made through standard web lookup. \[9\] A look was given to libraries, which also provide detailed and useful information. \[62\]
+A general overview was made through standard web lookup. \[9\] A look was given to libraries, which also provide detailed and useful information. \[63\]
 
 In the following, we expose :
 
@@ -69,9 +69,11 @@ Correspondances can be found between pictures, and so can be used for, e.g. : \[
 
 3.  **Data Association** : Sorting pictures by scene (TO CHECK : Same as Similarity measurement)
 
-Block based approach : the image is divided into various blocks. These block division is done on the basis of Discrete Wavelet Transform, Discrete Cosine Transform, Zernike moment, and Fourier Mellin Transform. \[35\]
+Block based approach : the image is divided into various blocks. These block division is done on the basis of Discrete Wavelet Transform, Discrete Cosine Transform, Zernike moment, and Fourier Mellin Transform. \[36\]
 
 ![Image maching pipeline from \[7\] <span data-label="fig:image_matching_pipeline"></span>](sota-ressources/image-matching-pipeline.png)
+
+Please note that some pictures are old results representation, and may differ from your own experiments. They are kept for their research interest and by lack of time to re-build same pictures for this only purpose.
 
 Classic computer vision algorithm steps
 ---------------------------------------
@@ -104,7 +106,7 @@ And are usually :
 
 ##### Descriptor’s quality
 
-A good descriptor code would be, according to \[63\] :
+A good descriptor code would be, according to \[64\] :
 
 -   easily computed for a novel input
 
@@ -118,15 +120,15 @@ We should be aware that a smaller code leads to more collision in the hash.
 
 ### Step 3 - Feature representation
 
-The goal of this step is to choose a relevant storage format for the descriptors. A local feature needs to be represented, precise \[46\]. <span>To clarify</span>
+The goal of this step is to choose a relevant storage format for the descriptors. A local feature needs to be represented, precise \[47\]. <span>To clarify</span>
 
 #### Bag-Of-Words or Bag-Of-Features or Codebook Generation
 
-From \[46\], representing an image as a set of feature descriptor.
+From \[47\], representing an image as a set of feature descriptor.
 
 From \[19\], “The “**bag of features**” method is a “**bag of words**” analog, which is used in computer vision applications to build strong descriptions of an image. This approach usually includes key point feature detection (typically SIFT), quantization (clustering) of these features (typically with k-means) and distribution of key point features in the space of cluster centers in the form of a histogram (we refer to this procedure as “screening”). Recognition is usually performed by searching for a minimum distance between histograms.”
 
-From \[46\], K-Means clustering over all words describing all pictures. A representative word (=Codeword) of each cluster is chosen (the “mean word”). A list of all representative words is created. A representative vector for each image, is created, as a boolean\_list/histogram of representative words linked or not to this image.
+From \[47\], K-Means clustering over all words describing all pictures. A representative word (=Codeword) of each cluster is chosen (the “mean word”). A list of all representative words is created. A representative vector for each image, is created, as a boolean\_list/histogram of representative words linked or not to this image.
 
 ##### Pro
 
@@ -142,7 +144,7 @@ From \[46\], K-Means clustering over all words describing all pictures. A repres
 
 #### Soft Vector Quantization
 
-From \[46\], **soft vector quantization** is a **Codebook Generation** with most and least frequent words removal. Each feature is then represented by a small group of codewords.
+From \[47\], **soft vector quantization** is a **Codebook Generation** with most and least frequent words removal. Each feature is then represented by a small group of codewords.
 
 ##### Pro
 
@@ -154,7 +156,7 @@ From \[46\], **soft vector quantization** is a **Codebook Generation** with most
 
 #### Hierarchical CodeWords
 
-From \[46\], keep spatial information about the neighboorhood of a codeword.
+From \[47\], keep spatial information about the neighboorhood of a codeword.
 
 #### Visual sentences
 
@@ -162,7 +164,7 @@ Project codeword on a spatial axis. Relative spatial relation between words are 
 
 #### SPM - Spatial Pyramid Matching
 
-From \[46\], divide a picture into equal partitions (/4, /8, ..), compute a Bag-Of-Word for each partition, its histogram, and concatenate them into one big “ordered” histogram.
+From \[47\], divide a picture into equal partitions (/4, /8, ..), compute a Bag-Of-Word for each partition, its histogram, and concatenate them into one big “ordered” histogram.
 
 ##### Pro
 
@@ -172,11 +174,11 @@ From \[46\], divide a picture into equal partitions (/4, /8, ..), compute a Bag-
 
 -   Some “bad translation” can occurs, and split features into different Bag-of-words.
 
-![3 levels spatial pyramid from \[46\] <span data-label="fig:spm_figure"></span>](sota-ressources/spm.png)
+![3 levels spatial pyramid from \[47\] <span data-label="fig:spm_figure"></span>](sota-ressources/spm.png)
 
 #### L-SPM - Latent Spatial Pyramid Matching
 
-From \[46\], based on SPM but does not split the picture in equal partition = the cell of the pyramid is not spatially fixed. Cells of the pyramid move within search regions instead of a predefined rigid partition. Use ESS (See utilities)
+From \[47\], based on SPM but does not split the picture in equal partition = the cell of the pyramid is not spatially fixed. Cells of the pyramid move within search regions instead of a predefined rigid partition. Use ESS (See utilities)
 
 ##### Con
 
@@ -188,7 +190,7 @@ Descriptors can be compressed before matching, especially to allow a fast retrie
 
 #### LSH - Locally Sensitive Hashing
 
-Use a fuzzy hash on feature representation allows a quick approximate lookup on indexed hash.\[64\]
+Use a fuzzy hash on feature representation allows a quick approximate lookup on indexed hash.\[65\]
 
 -   O(N)
 
@@ -207,7 +209,7 @@ This step will find a match between request picture and pictures of the dataset.
 
 #### Hamming distance / Bruteforce
 
-Partially solved by \[30\]
+Partially solved by \[31\]
 Works with binary features. Can be accelerated with GPU \[7\].
 
 *O*(*N*<sup>2</sup>), N being the number of descriptor per image
@@ -224,7 +226,7 @@ Usable with :
 From \[7\], is an approximation for matching in Euclidian space, with KD-Tree techniques.
 Work with non-binary features.
 
-<span>Verify following information link</span> \[64\]
+<span>Verify following information link</span> \[65\]
 
 -   Collections of algorithm, optimized for large dataset/high dimension
 
@@ -232,7 +234,7 @@ Work with non-binary features.
 
 ##### Implementation
 
-Apache 2 From \[8\], available at : <https://github.com/nmslib/nmslib> \[60\] Does not benchmark memory usage.
+Apache 2 From \[8\], available at : <https://github.com/nmslib/nmslib> \[61\] Does not benchmark memory usage.
 
 ### Step 6 - Matching and selection
 
@@ -256,7 +258,7 @@ Robustness, accuracy, sufficiency, and efficiency of GMS all depend on the numbe
 
 #### QBH - Quantization Based Hashing
 
-From \[40\] Incorporates quantization error into the conventional property preserving hashing models to improve the effectiveness of the hash codes
+From \[41\] Incorporates quantization error into the conventional property preserving hashing models to improve the effectiveness of the hash codes
 
 ##### IMI - Inverted Multi-Index
 
@@ -273,11 +275,11 @@ Graph based approach. Precise approximate nearest neighbor search in billion-siz
 
 ###### Implementation
 
-BSD <https://github.com/facebookresearch/faiss> \[61\]
+BSD <https://github.com/facebookresearch/faiss> \[62\]
 
 ### Step 7 - Model Fitting
 
-From \[7\] and \[62\], Model fitting is a step where the geometry of the scene is verified and/or estimated. Given correspondances, the pose of the object is estimated.
+From \[7\] and \[63\], Model fitting is a step where the geometry of the scene is verified and/or estimated. Given correspondances, the pose of the object is estimated.
 
 This allows to **identify inliers and outliers** by fitting a homography matrix, which is equivalent to find the transformation of (picture one) to (picture two)
 
@@ -291,6 +293,8 @@ We define :
 
 Estimation of the homography, searches for the best relative pose between images iteratively and removes outliers that disobey the estimated geometry relation finally. Correspondences that pass the geometry verification are named verified correspondences. Provides a robust estimation of transform matrix.
 “RANSAC loop involves selecting four feature pairs randomly. It computes Homography H (mapping between any two points with the same center of projection). For each key point, there may be more than one candidate matches in the other processed image. We choose the best matching based on the distance between their descriptors” from \[1\]
+
+A good illustration video is available at <https://youtu.be/1YNjMxxXO-E?t=95>
 
 #### Least Meadian
 
@@ -315,7 +319,7 @@ Full region features - FH or CTPH - Fuzzy Hashing Algorithms
 ##### Overview
 
 These algorithms do not intend to match pictures with common part, but to match pictures which are roughly the same or are near copies of one another.
-To be clear : If the hashes are different, then the data is different. And if the hashes are the same, then the data is likely the same. There is a possibility of a hash collision, having the same hash values then does not guarantee the same data. \[39\] specifies that Context Triggered Piecewise Hashing (CTPH) is a combination of Cryptographic Hashes (CH), Rolling Hashes (RH) and Piecewise Hashes (PH).
+To be clear : If the hashes are different, then the data is different. And if the hashes are the same, then the data is likely the same. There is a possibility of a hash collision, having the same hash values then does not guarantee the same data. \[40\] specifies that Context Triggered Piecewise Hashing (CTPH) is a combination of Cryptographic Hashes (CH), Rolling Hashes (RH) and Piecewise Hashes (PH).
 
 ##### Misc. notes
 
@@ -333,13 +337,15 @@ To be clear : If the hashes are different, then the data is different. And if th
 
 An results overview is presented below.
 
-![Results of (a/b/d/m/p/w)-Hash from \[65\] - Lower score is better<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/results_0.png)
+![Results of (a/b/d/m/p/w)-Hash from \[66\] - Lower score is better<span data-label="fig:tests"></span>](sota-ressources/outputs-evaluation/results_0.png)
+
+<img src="sota-ressources/memory_consumption/Hash_only_1/84MB_PNG_BMP_COLORED_HASHS_ALL.png" alt="Memory consumption of hash-algorithms - from left to right. 84 Mo of pictures are loaded and kept in memory for debug and output purposes. Each big block is a different dataset, PNG then BMP, then PNG without text. Each small spike within a block is - from left to right - A, P, P Simple, D, D vertical, W hash. Overhead of the framework is displayed page Figure [fig:frameworkmemory]" />
 
 ### A-HASH : Average Hash
 
 ##### Overview
 
-From ... \[49\] : “the result is better than it has any right to be.”
+From ... \[50\] : “the result is better than it has any right to be.”
 
 There exist relationship between parts of the hash and areas of the input image, that provide ability to apply “masks” (like “ignore the bottom 25% of the image”.) and “transformations” at comparison time. (searches for rotations in 90degree steps, mirroring, inverts...). Eahc picture is hashed into a 8 bits vector.
 
@@ -360,7 +366,7 @@ Javascript Implementation : \[3\]
 
 ##### Results
 
-Results given by the ImageHash implementation of A-hash algorithm are not reliable.
+Results given by the ImageHash implementation of A-hash algorithm are not reliable. The influence of a threeshold does improve the true-positive rate (at the cost of a not-measured increase of false-negative) ; see Figure \[fig:tp-ahash\].
 
 <span>0.99</span> <img src="sota-ressources/outputs-evaluation/a-hash/false_structural_2.png" title="fig:" alt="A-hash" />
 
@@ -376,13 +382,15 @@ Results given by the ImageHash implementation of A-hash algorithm are not reliab
 
 <span>0.7</span> <img src="sota-ressources/outputs-evaluation/a-hash/bad_matching_2.png" title="fig:" alt="A-hash" />
 
+<img src="sota-ressources/outputs-evaluation/a-hash/threshold.png" alt="Threshold influence on True-positive rate. This figure presents the true-positive rate of images matched, regarding the threshold applied to the edge (= matches) between pictures. All matches with a distance below the absciss (threshold) value are removed ; and the generated graph true-positive rate is computed. " />
+
 ### B-HASH : Block Hash
 
 Seems worst than A-hash. Not tested, then.
 
 ##### Implementation
 
-\[66\] <http://blockhash.io> and <https://github.com/commonsmachinery/blockhash-python>
+\[67\] <http://blockhash.io> and <https://github.com/commonsmachinery/blockhash-python>
 
 ### D-HASH - Difference Hashing
 
@@ -434,9 +442,11 @@ A variation of the d-hash algorithm is available, as d-hash vertical.
 
 <span>0.56</span> <img src="sota-ressources/outputs-evaluation/d-hash-vertical/interesting_mismatch_2.png" title="fig:" alt="Vertical d-hash" />
 
+<img src="sota-ressources/outputs-evaluation/d-hash/threshold.png" alt="Threshold influence on True-positive rate. This figure presents the true-positive rate of images matched, regarding the threshold applied to the edge (= matches) between pictures. All matches with a distance below the absciss (threshold) value are removed ; and the generated graph true-positive rate is computed. " />
+
 ### P-HASH - Perceptual Hash
 
-From ... \[49\] and \[24\] and \[51\]. Exist in mean and median flavors, provides a 8 bits vector for each image.
+From ... \[50\] and \[24\] and \[52\]. Exist in mean and median flavors, provides a 8 bits vector for each image.
 
 ##### Pro
 
@@ -469,7 +479,7 @@ From ... \[49\] and \[24\] and \[51\]. Exist in mean and median flavors, provide
 ##### Implementation
 
 ImageHash 4.0 <https://pypi.org/project/ImageHash/>
-Java implementation : \[50\]
+Java implementation : \[51\]
 
 ##### Results
 
@@ -479,6 +489,8 @@ Still some strange results
 
 <span>0.47</span> <img src="sota-ressources/outputs-evaluation/p-hash/strange_1.png" title="fig:" alt="P-hash" />
 
+<img src="sota-ressources/outputs-evaluation/p-hash/threshold.png" alt="Threshold influence on True-positive rate. This figure presents the true-positive rate of images matched, regarding the threshold applied to the edge (= matches) between pictures. All matches with a distance below the absciss (threshold) value are removed ; and the generated graph true-positive rate is computed. " />
+
 ##### “Simple” variation
 
 A variation of the p-hash algorithm is available, as p-hash simple.
@@ -486,6 +498,8 @@ A variation of the p-hash algorithm is available, as p-hash simple.
 <span>0.55</span> <img src="sota-ressources/outputs-evaluation/p-hash-simple/error_0.png" title="fig:" alt="P-hash - Simple" />
 
 <span>0.44</span> <img src="sota-ressources/outputs-evaluation/p-hash-simple/good_black.png" title="fig:" alt="P-hash - Simple" />
+
+<img src="sota-ressources/outputs-evaluation/p-hash-simple/threshold.png" alt="Threshold influence on True-positive rate. This figure presents the true-positive rate of images matched, regarding the threshold applied to the edge (= matches) between pictures. All matches with a distance below the absciss (threshold) value are removed ; and the generated graph true-positive rate is computed. " />
 
 ### W-HASH - Wavelet Hash
 
@@ -505,15 +519,17 @@ Better than others, but still some strange/wrong results.
 
 <span>0.8</span> <img src="sota-ressources/outputs-evaluation/w-hash/error_1.png" title="fig:" alt="W-hash" />
 
+<img src="sota-ressources/outputs-evaluation/w-hash/threshold.png" alt="Threshold influence on True-positive rate. This figure presents the true-positive rate of images matched, regarding the threshold applied to the edge (= matches) between pictures. All matches with a distance below the absciss (threshold) value are removed ; and the generated graph true-positive rate is computed. " />
+
 ### SimHash - Charikar’s simhash
 
-From ... \[30\]
+From ... \[31\]
 Repository of 8B webpages, 64-bit simhash fingerprints and k = 3 are reasonable.
 Has a C++ Implementation
 
 ### R-HASH
 
-From ... \[49\]
+From ... \[50\]
 
 Equivalent to A-Hash with more granularity of masks and transformation. Ability to apply “masks” (color channel, ignoring (f.ex. the lowest two) bits of some/all values) and “transformations” at comparison time. (color channel swaps)
 
@@ -541,13 +557,13 @@ Equivalent to A-Hash with more granularity of masks and transformation. Ability 
 
 ### Spectral-HASH
 
-From \[63\]. A word is given in \[49\]
+From \[64\]. A word is given in \[50\]
 
 The bits are calculated by thresholding a subset of eigenvectors of the Laplacian of the similarity graph
 
 Similar performance to RBM
 
-![Spectral Hashing comparison from \[63\] <span data-label="fig:spectral_hashing_comparison"></span>](sota-ressources/spectral_hashing_comparison.png)
+![Spectral Hashing comparison from \[64\] <span data-label="fig:spectral_hashing_comparison"></span>](sota-ressources/spectral_hashing_comparison.png)
 
 ### LSH - Locality Sensitve Hashing
 
@@ -555,7 +571,7 @@ Same as E2LSH ? Chooses random projections so that two closest image samples in 
 
 ### E2LSH - LSH - Locality Sensitve Hashing
 
-From \[18\] a word is given in \[63\] and \[10\].
+From \[18\] a word is given in \[64\] and \[10\].
 The code is calculated by a random linear projection followed by a random threshold, then the Hamming distance between codewords will asymptotically approach the Euclidean distance between the items.
 
 Not so far from Machine Learning Approaches, but outperformed by them.
@@ -570,7 +586,7 @@ Not so far from Machine Learning Approaches, but outperformed by them.
 
 ### Nilsimsa hash - Locality sensitive hash
 
-A word in \[34\] <span>To detail</span>
+A word in \[35\] <span>To detail</span>
 
 ##### Pro
 
@@ -578,7 +594,7 @@ A word in \[34\] <span>To detail</span>
 
 ### TLSH - Trend Micro Locality Sensitive Hashing
 
-From \[34\] directly performed on file, not only pictures. Therefore, running TLSH on PNG can’t provide consistent results, as the structure of the file is taken into account (and so it’s meaningless compression). Files have to be uncompressed (e.g. some types of BMP files) to have consistent resuls with TLSH.
+From \[35\] directly performed on file, not only pictures. Therefore, running TLSH on PNG can’t provide consistent results, as the structure of the file is taken into account (and so it’s meaningless compression). Files have to be uncompressed (e.g. some types of BMP files) to have consistent resuls with TLSH.
 
 ##### Pro
 
@@ -608,9 +624,11 @@ From \[34\] directly performed on file, not only pictures. Therefore, running TL
 
 <span>0.50</span> <img src="sota-ressources/outputs-evaluation/tlsh_bmp/FiBankGoodMatch.png" title="fig:" alt="Good matches - TLSH with BMP" />
 
+<img src="sota-ressources/memory_consumption/TLSH_only_1/tlsh_plot.png" alt="Memory consumption of TLSH. 84 Mo of pictures are loaded and kept in memory for debug and output purposes. 2 configuration (blocks) are tested, on 3 datasets (arrows). Few blocks are not identified. Overhead of the framework is displayed page Figure [fig:frameworkmemory]" />
+
 ### SSDeep - Similarity Digest 
 
-From ... few words on it in \[39\]. C implementation at \[59\] Historically the first fuzzing algorithm. CTPH type. <span>To detail</span>
+From ... few words on it in \[40\]. C implementation at \[60\] Historically the first fuzzing algorithm. CTPH type. <span>To detail</span>
 
 ![ Hashing time from \[26\] <span data-label="fig:ssdeep_timing"></span>](sota-ressources/ssdeep_time.png)
 
@@ -636,7 +654,7 @@ From ... few words on it in \[39\]. C implementation at \[59\] Historically the 
 
 ### SDHash - Similarity Digest Hash
 
-From ... Roussev in 2010 few words on it in \[39\]
+From ... Roussev in 2010 few words on it in \[40\]
 
 Uses Bloom Filters to identify similarities between files on condition with common features. (Quite blurry)
 
@@ -644,7 +662,7 @@ Uses Bloom Filters to identify similarities between files on condition with comm
 
 -   More accurate than VHash, SSDeep, MRSHV2
 
--   Options available (TO CHECK) - See a particular implementation used in \[39\]
+-   Options available (TO CHECK) - See a particular implementation used in \[40\]
 
 -   Open Source
 
@@ -662,7 +680,7 @@ Uses Bloom Filters to identify similarities between files on condition with comm
 
 ### MVHash - Majority Vote Hash
 
-From ... few words on it in \[39\]
+From ... few words on it in \[40\]
 
 It is Similarity Preserving Digest (SPD) Uses Bloom Filters
 
@@ -680,7 +698,7 @@ It is Similarity Preserving Digest (SPD) Uses Bloom Filters
 
 ### MRSH V2 - MultiResolution Similarity Hashing
 
-From ... few words on it in \[39\]
+From ... few words on it in \[40\]
 Variation of SSDeep, with polynomial hash instead of rolling hash (djb2)
 
 ##### Pro
@@ -693,7 +711,7 @@ Variation of SSDeep, with polynomial hash instead of rolling hash (djb2)
 
 ### GIST - 
 
-From \[33\] a word in \[28\]
+From \[34\] a word in \[29\]
 
 Holistic feature which is based on a low dimensional representation of the scene that does not require any form of segmentation, and it includes a set of perceptual dimensions (naturalness, openness, roughness, expansion, ruggedness)
 
@@ -706,7 +724,7 @@ Holistic feature ...
 
 ### HOG - Histogram of Oriented Gradients
 
-From ... A word in \[46\] The idea is to describe shape information by gradient orientation in localized sub-regions. <span>To detail</span>
+From ... A word in \[47\] The idea is to describe shape information by gradient orientation in localized sub-regions. <span>To detail</span>
 
 ### Contrast context histogramm
 
@@ -744,17 +762,17 @@ In few words :
     Feature detection time + Feature matching time.
     ORB and BRISK are the fastest, KASE the slowest.
 
-Some more comparisons are performed in \[52\] about robustness of different algorithms.
+Some more comparisons are performed in \[53\] about robustness of different algorithms.
 
-<span>0.49</span> <img src="sota-ressources/repetability_blurring.png" title="fig:" alt="Robustness (nb of matches/nb points in original image in %) comparison from [52]" />
+<span>0.49</span> <img src="sota-ressources/repetability_blurring.png" title="fig:" alt="Robustness (nb of matches/nb points in original image in %) comparison from [53]" />
 
-<span>0.49</span> <img src="sota-ressources/repetability_brightness.png" title="fig:" alt="Robustness (nb of matches/nb points in original image in %) comparison from [52]" />
+<span>0.49</span> <img src="sota-ressources/repetability_brightness.png" title="fig:" alt="Robustness (nb of matches/nb points in original image in %) comparison from [53]" />
 
-<span>0.49</span> <img src="sota-ressources/repetability_rotation.png" title="fig:" alt="Robustness (nb of matches/nb points in original image in %) comparison from [52]" />
+<span>0.49</span> <img src="sota-ressources/repetability_rotation.png" title="fig:" alt="Robustness (nb of matches/nb points in original image in %) comparison from [53]" />
 
-<span>0.49</span> <img src="sota-ressources/repetability_scaling.png" title="fig:" alt="Robustness (nb of matches/nb points in original image in %) comparison from [52]" />
+<span>0.49</span> <img src="sota-ressources/repetability_scaling.png" title="fig:" alt="Robustness (nb of matches/nb points in original image in %) comparison from [53]" />
 
-A large performance overview has been operated by \[43\]. Many information are extracted from their tests and are showed on each algorithm description.The paper is ordering algorithms thanks to different objective.
+A large performance overview has been operated by \[44\]. Many information are extracted from their tests and are showed on each algorithm description.The paper is ordering algorithms thanks to different objective.
 
 **Ability to detect high quantity of features** :
 *O**R**B* &gt; *B**R**I**S**K* &gt; *S**U**R**F* &gt; *S**I**F**T* &gt; *A**K**A**Z**E* &gt; *K**A**Z**E*
@@ -768,9 +786,9 @@ A large performance overview has been operated by \[43\]. Many information are e
 **Speed of total image matching :**
 *O**R**B*(1000)&gt;*B**R**I**S**K*(1000)&gt;*A**K**A**Z**E* &gt; *K**A**Z**E* &gt; *S**U**R**F*(64*D*)&gt;*S**I**F**T* &gt; *O**R**B* &gt; *B**R**I**S**K* &gt; *S**U**R**F*(128*D*)
 
-![Results from \[43\] - Time cost - mean value on original paper dataset<span data-label="fig:tests"></span>](sota-ressources/performance_algo.png)
+![Results from \[44\] - Time cost - mean value on original paper dataset<span data-label="fig:tests"></span>](sota-ressources/performance_algo.png)
 
-<img src="sota-ressources/comparison_graph_0.png" alt="Results from [43] - Resilience to changes graphs" />
+<img src="sota-ressources/comparison_graph_0.png" alt="Results from [44] - Resilience to changes graphs" />
 
 Feature detector
 ----------------
@@ -780,7 +798,7 @@ Feature detector
 #### Harris Detector
 
 From the original paper \[22\].
-Based on the main principle that at a corner, the **image intensity** will change largely in multiple directions, with a windows shift. \[46\] says it is invariant to rotation, scale, illumination, noise .. Scale invariance is probably obtained by a variation of the original algorithm (increase gaussian blur many time, automatic scale selection ..)
+Based on the main principle that at a corner, the **image intensity** will change largely in multiple directions, with a windows shift. \[47\] says it is invariant to rotation, scale, illumination, noise .. Scale invariance is probably obtained by a variation of the original algorithm (increase gaussian blur many time, automatic scale selection ..)
 “Harris is a corner detector based on Moravec algorithm, which is proposed by Harris and Stephens in 1988. A detecting window in the image is designed. The average variation in intensity is determined by shifting the window by a small amount in a different direction. The center point of the window is extracted as a corner point.” from \[1\]
 
 ##### Pro and cons
@@ -823,13 +841,13 @@ Based on the main principle that at a corner, the **image intensity** will chang
 
 #### SUSAN
 
-From ... a word in \[37\]
+From ... a word in \[38\]
 Less accuracy but faster. <span>To detail</span>
 <span>Kind of descriptor ?</span>
 
 #### FAST - Features from Accelerated Segment Test
 
-From the original paper \[37\] cited in \[53\]
+From the original paper \[38\] cited in \[54\]
 Is a corner detector, based on machine learning. More accuracy, kept with high speed. Based on SUSAN
 “FAST is a high-speed feature detector that is much suitable for real-time applications. The algorithm considers a circle of 16 pixels around the candidate corner p. A feature is specified when a set of n contiguous pixels in the circle are all darker or brighter than the candidate pixel p plus a threshold t” from \[1\]
 
@@ -882,24 +900,24 @@ Feature detector and descriptor
 
 #### KASE - 
 
-Shipped in OpenCV library. Example can be found at \[31\] <span>To detail</span>
+Shipped in OpenCV library. Example can be found at \[32\] <span>To detail</span>
 <span>Kind of algo ?</span>
 
 ### Non-binary features / Vector descriptor
 
 #### SIFT- Scale Invariant Feature Transform
 
-From the original paper \[29\] and a concise explanation from \[54\] 3x less fast than Harris Detector
+From the original paper \[30\] and a concise explanation from \[55\] 3x less fast than Harris Detector
 
-SIFT detects scale-invariant key points by finding local extrema in the difference-of-Gaussian (DoG) space. \[28\]
+SIFT detects scale-invariant key points by finding local extrema in the difference-of-Gaussian (DoG) space. \[29\]
 Each key point is described by a 128-dimensional gradient orientation histogram. Subsequently, all SIFT descriptors are modeled/quantized using a bag-of-words (BoW). The feature vector of each image is computed by counting the frequency of the generated visual words in the image.
 
-Interesting “usability” notices are presented in \[42\], as skiping first octave features, ...
+Interesting “usability” notices are presented in \[43\], as skiping first octave features, ...
 “SIFT proposed by David Lowe and then improved in 2004. Currently, it is the most common known vector descriptor. It consists of four essential stages: scale-space extrema detection, key points localization, orientation assignment, and generating keypoint descriptor. In the first stage, the key points are extracted based on their strength that are invariant to orientation and scale using Difference of Gaussian. In the second stage, the wrong points are removed. Then in the following stage, one or more orientations are assigned to each keypoint. In the final stage, a vector descriptor is made for each keypoint.” from \[1\]
 
 ##### Pro
 
--   “SIFT is \[...\] most accurate feature-detector descriptor for scale, rotation and affine variations (overall).” \[43\]
+-   “SIFT is \[...\] most accurate feature-detector descriptor for scale, rotation and affine variations (overall).” \[44\]
 
 -   invariant to scale and rotational variation
 
@@ -907,7 +925,7 @@ Interesting “usability” notices are presented in \[42\], as skiping first oc
 
 -   and not included in OpenCV (only non-free module)
 
--   Slow : “a general perception that SURF is computationally efficient than SIFT, but the experiments revealed that SURF(128D) algorithm takes more time than SIFT(128D)” \[43\]
+-   Slow : “a general perception that SURF is computationally efficient than SIFT, but the experiments revealed that SURF(128D) algorithm takes more time than SIFT(128D)” \[44\]
 
 ##### Steps of the algorithm
 
@@ -945,7 +963,7 @@ From \[17\], realize in motion prediction from a single image, motion synthesis 
 
 ##### Implementation
 
-SIFT Flow (modified version of SIFT) C++ \[67\] at <http://people.csail.mit.edu/celiu/SIFTflow/>
+SIFT Flow (modified version of SIFT) C++ \[68\] at <http://people.csail.mit.edu/celiu/SIFTflow/>
 
 #### Root-SIFT
 
@@ -993,7 +1011,7 @@ Rotation invariance can be “desactivated” for faster results, by bypassing t
 
 #### TOP-SURF
 
-From \[44\] and a word in \[<span class="citeproc-not-found" data-reference-id="gorokhovatskyiAnalysisApplicationCluster2018">**???**</span>\]
+From \[45\] and a word in \[<span class="citeproc-not-found" data-reference-id="gorokhovatskyiAnalysisApplicationCluster2018">**???**</span>\]
 
 Based on the BoW approach. Library provided with the paper under an open-source license. This seems a very promising tool to implement a BoW approach.
 
@@ -1011,7 +1029,7 @@ Based on the BoW approach. Library provided with the paper under an open-source 
 
 #### GSSIS - Generalized Scale-Space Interest Points
 
-From \[56\], generalized interest point, with colors exension, of SIFT and SURF.
+From \[57\], generalized interest point, with colors exension, of SIFT and SURF.
 
 Roughly : uses more complicated way of generating local interest points.
 
@@ -1021,13 +1039,13 @@ Roughly : uses more complicated way of generating local interest points.
 
 #### LBP - Local Binary Pattern
 
-From \[28\], use the BoWs to generate local features
+From \[29\], use the BoWs to generate local features
 
 ### Binary features / Binary descriptor
 
 #### ORB – Oriented FAST and Rotated BRIEF
 
-From \[38\] which is rougly a fusion of FAST and BRIEF. See also \[55\] The threeshold of 0.75 (Lowe ratio) should be modified for ORB. 0.89 seems to be the equivalent to 0.75
+From \[39\] which is rougly a fusion of FAST and BRIEF. See also \[56\] The threeshold of 0.75 (Lowe ratio) should be modified for ORB. 0.89 seems to be the equivalent to 0.75
 “ORB technique developed by Rublee et al. It is a combination of features from FAST keypoint detection and Binary Robust Independent Elementary Features (BRIEF) descriptor. It describes the features of the input image in a binary string instead of the vector.” from \[1\]
 
 ##### Pro
@@ -1060,7 +1078,7 @@ From \[38\] which is rougly a fusion of FAST and BRIEF. See also \[55\] The thre
 
 ###### Option explanation
 
-Mostly from \[57\], \[68\] :
+Mostly from \[58\], \[69\] :
 To be clear :
 
 -   **Target picture** = request picture = new picture = picture we want to find correlation on
@@ -1103,7 +1121,7 @@ Distance can be computed in many ways. Here is an analysis of each of the used d
 
 A question remains, about “How to select good and batch matches”. Ratio approach (as in SIFT) are for example usable. A simple threeshold can be used :
 
-![Threeshold to use from \[69\]<span data-label="fig:generalized-matching"></span>](sota-ressources/threeshold.png)
+![Threeshold to use from \[70\]<span data-label="fig:generalized-matching"></span>](sota-ressources/threeshold.png)
 
 <span>0.58</span> <img src="sota-ressources/outputs-evaluation/orb_min/microsoft_match.png" title="fig:" alt="Results - ORB - min version" />
 
@@ -1154,11 +1172,13 @@ Few tips to analyze following pictures :
 
 <span>0.48</span> <img src="sota-ressources/outputs-evaluation/orb_matches/whitepagetextproblem.png" title="fig:" alt="Results - ORB - drawbacks examples 3/3" />
 
+<img src="sota-ressources/memory_consumption/ORB_only_PNG_1/ORB_Memory.png" alt="Memory consumption of ORB. 84 Mo of pictures are loaded and kept in memory for debug and output purposes. Each spike is a different ORB configuration trial. About 60 configurations are successfully tested. Overhead of the framework is displayed page Figure [fig:frameworkmemory]" />
+
 #### BRIEF – Binary Robust Independent Elementary Features
 
 Extract binary strings equivalent to a descriptor without having to create a descriptor
 
-See BRIEF \[70\]
+See BRIEF \[71\]
 
 ##### Pro
 
@@ -1197,19 +1217,19 @@ Feature matching
 
 #### PSO
 
-From ... few words in \[32\] <span>To detail</span>
+From ... few words in \[33\] <span>To detail</span>
 <span>Kind of algo ?</span>
 
 #### SKF
 
-From \[32\]
+From \[33\]
 
 Faster than PSO. <span>To detail</span>
 <span>Kind of algo ?</span>
 
 #### RPM - Robust Point Matching
 
-From ... Few words in \[45\] Unidirectional matching approach. Does not “check back” if a matching is correct. Seems to achieve only the transformation (geometry matching) part.
+From ... Few words in \[46\] Unidirectional matching approach. Does not “check back” if a matching is correct. Seems to achieve only the transformation (geometry matching) part.
 
 <span>To detail</span>
 <span>Kind of algo ?</span>
@@ -1264,7 +1284,7 @@ Image matching
 Algorithms combination
 ======================
 
-Few sources expose algorithms combination for specific goals. e.g. \[5\], \[71\], \[58\]
+Few sources expose algorithms combination for specific goals. e.g. \[5\], \[72\], \[59\]
 
 Phishing
 --------
@@ -1302,11 +1322,11 @@ Upon my request, I got the following information.
 *Chun-Rong Huang mainly contributed the L-CCH part in the paper. Thus, he can only show me what he knows for the implementation. The clustering is computed based on the spatial positions (x, y) of keypoints. They have done experiments on the phishing pages. The k-means method provides good results in this case and is easy to implement. Given the number of main clusters in this case, performance seems not to be a problem. If I’m interested in the assumption of unknown number of clusters, please refer to affinity propagation. To look forward to the implementation of the phishing page detection, Dr. Kuan-Ta Chen or Jau-Yuan Chen should be contacted.*
 \[20\] is presenting in the same way an idea to cluster keypoints with Kmeans.
 
-\[27\] describe a performance improvement uppon kmeans based feature clustering. It describes the structure of cluster to adopt to get better matching performances.
+\[28\] describe a performance improvement uppon kmeans based feature clustering. It describes the structure of cluster to adopt to get better matching performances.
 
 \[2\] uses a two passes method, based on metadata (SSL, URL, .. 49% to 66.78% detection rate) and then SIFT keypoint matching. It reported %90 of accuracy with less than %0.5 of false positives.
 
-\[48\] uses a spatial postprocessing algorithm upon SIFT, to remove matches that are not relevant, if not “spatially consistent” with source picture. \[47\] seems to use a similar idea.
+\[49\] uses a spatial postprocessing algorithm upon SIFT, to remove matches that are not relevant, if not “spatially consistent” with source picture. \[48\] seems to use a similar idea.
 
 ### Visual similarity - Text handling
 
@@ -1323,7 +1343,7 @@ Therefore, some solutions or their combinations are possible :
 
 #### Remove text : EAST - Efficient and Accurate Scene Text detection / deep learning text detector
 
-\[36\] provides some details about how to detect text at scale, as the presented solution handle text recognition on real-time video input.
+\[37\] provides some details about how to detect text at scale, as the presented solution handle text recognition on real-time video input.
 
 Tests were conducted with this DeeplLearning text detector. The process is the following :
 
@@ -1338,8 +1358,6 @@ Tests were conducted with this DeeplLearning text detector. The process is the f
 -   Standard algorithms are called on this new dataset
 
 Results are interesting, as pictures were heavily modified. In few words, fuzzy hashing algorithms results are improved by approximately 5% and ORB results are decreased by 5%.
-
-INSERT HERE GENERATED RESULTS
 
 <span>0.49</span> <img src="sota-ressources/painted_pictures/1_painted.png" title="fig:" alt="Pictures with painted text" />
 
@@ -1365,19 +1383,27 @@ INSERT HERE GENERATED RESULTS
 
 <span>0.54</span> <img src="sota-ressources/outputs-evaluation/DeeplColor_PHASH/mismatch_microsoft.png" title="fig:" alt="P-HASH results on painted pictures" />
 
+#### Remove text : Tesseract / Bundled text detector
+
+Tesseract \[27\] with its python wrapper PyTesseract is a Google OCR library. It allows to retrieve detected text as well as getting bounding boxes of detected text areas.
+
+However, such solution provide false positive, some of which are easily prunnable and some of which are very hard to remove.
+
+<span>0.6</span> <img src="sota-ressources/tesseract_pictures/logo_issue.png" title="fig:" alt="Logos have similar bounding boxes to text ones." />
+
 Neural networks – Black box algorithms
 ======================================
 
-See \[28\] to get a larger overview of deeplearning capabilities, applied to a particular field.
+See \[29\] to get a larger overview of deeplearning capabilities, applied to a particular field.
 
 FAST – Features from Accelerated Segment Test
 ---------------------------------------------
 
-From \[53\] the algorithm is mainly Machine Learning, but as far as I can see, there is no direct need of machine learning in the algorithm, but for speed.
+From \[54\] the algorithm is mainly Machine Learning, but as far as I can see, there is no direct need of machine learning in the algorithm, but for speed.
 
 It seems that the selection of candidate pixel, and the selection of a threeshold is holded by Machine Learning. It also seems, that “mostly brighter”, “similar” and “mostly darker” pixels are used to feed a decision tree (ID3 algorithm - decision tree classifier) to allow a fast recognition of a corner.
 
-![Corner detector from \[37\] <span data-label="fig:spectral_hashing_comparison"></span>](sota-ressources/corner-detector.png)
+![Corner detector from \[38\] <span data-label="fig:spectral_hashing_comparison"></span>](sota-ressources/corner-detector.png)
 
 ##### Pro
 
@@ -1417,7 +1443,7 @@ From ... \[18\]
 FRCNN - Faster RCNN
 -------------------
 
-From ... \[41\] Mainly for faces detection.
+From ... \[42\] Mainly for faces detection.
 
 ##### Pro
 
@@ -1435,7 +1461,7 @@ Uses a hashing method, binary hierarchical trees and TSVM classifier.
 RBM - Restricted Boltzmann machine
 ----------------------------------
 
-From ... A word is given in \[63\]
+From ... A word is given in \[64\]
 
 To learn 32 bits, the middle layer of the autoencoder has 32 hidden units Neighborhood Components Analysis (NCA) objective function = refine the weights in the network to preserve the neighborhood structure of the input space.
 
@@ -1451,7 +1477,7 @@ From ... \[24\]
 Boosting SSC
 ------------
 
-From ... A word is given in \[63\]
+From ... A word is given in \[64\]
 
 ##### Pro
 
@@ -1486,7 +1512,7 @@ Utility algorithms
 
 ### SWS - Sliding Windows Search
 
-From ... \[46\] A bounding box is sliding on the picture, and an objet-existence score in the bounding box is computed for each position, and each rectangle size.
+From ... \[47\] A bounding box is sliding on the picture, and an objet-existence score in the bounding box is computed for each position, and each rectangle size.
 
 ##### Pro
 
@@ -1500,7 +1526,7 @@ Heuristics can be used to reduce the expected complexity of the algorithm. The p
 
 ### ESS - Efficient Subwindow Search
 
-From \[46\] Based on a branch-and-bound algorithm. The algorithm does not evaluate all subrectangle of rectangle with a low evaluation of the best chance they have to contain an object.
+From \[47\] Based on a branch-and-bound algorithm. The algorithm does not evaluate all subrectangle of rectangle with a low evaluation of the best chance they have to contain an object.
 
 ##### Pro
 
@@ -1511,11 +1537,11 @@ Segmentation
 
 ### SLICO - Simple Linear Iterative Clustering
 
-Cluster a picture into smaller chunks. For example, used in \[35\] for Copy Move detection.
+Cluster a picture into smaller chunks. For example, used in \[36\] for Copy Move detection.
 
-\[72\] describes a “cutting” method.
+\[73\] describes a “cutting” method.
 
-![Sample Segmentation from \[72\]](sota-ressources/Segmentation.png)
+![Sample Segmentation from \[73\]](sota-ressources/Segmentation.png)
 
 ### HSNW - ... indexing
 
@@ -1526,7 +1552,7 @@ Unsorted
 
 ### Block-based approach + KeyPoint approach for Image manipulation
 
-From \[35\]
+From \[36\]
 
 ### Scalable cluster discovery
 
@@ -1666,68 +1692,9 @@ Results of this calculation are provided in Figure  \[figlist:pairing0\]
 | raw phishing bmp BMP ORB 500 LEN MAX NO FILTER STD BRUTE FORCE DISABLED | 0.01579       | 0.0531              | 1.43634        |
 | raw phishing bmp BMP ORB 500 LEN MIN NO FILTER STD BRUTE FORCE DISABLED | 0.0           | 0.05253             | 1.17698        |
 
-### Phishing dataset / Feature based
+The baseline memory usage of the framework is roughly 350 Mo. Note that this has been measured with a “void” algorithm, which doesn’t compute hash, descriptors or any distance but affect hardcoded values to all pictures.
 
-Note : nobs is lower than hash base algorithm, due to removal of None-feature pictures.
-
-| Conf                    | nobs | min time | max time | mean     | variance | skewness  | kurtosis | True Positive |
-|:------------------------|:-----|:---------|:---------|:---------|:---------|:----------|:---------|:--------------|
-| ORB                     |      |          |          |          |          |           |          |               |
-| LEN MAX - KNN 2         |      |          |          |          |          |           |          |               |
-| Crosscheck : False      |      |          |          |          |          |           |          |               |
-| FLANN LSH               |      |          |          |          |          |           |          |               |
-| FAR THREESHOLD          | 190  | 0.26489s | 1.57223s | 1.11384s | 0.04294s | -0.97579s | 1.09073  | 0.63158       |
-| ORB                     |      |          |          |          |          |           |          |               |
-| LEN MAX - KNN 2         |      |          |          |          |          |           |          |               |
-| Crosscheck : False      |      |          |          |          |          |           |          |               |
-| FLANN LSH               |      |          |          |          |          |           |          |               |
-| RATIO CORRECT           | 190  | 0.37287s | 2.18801s | 1.19707s | 0.08682s | 0.4874s   | 0.84502  | 0.62105       |
-| ORB                     |      |          |          |          |          |           |          |               |
-| LEN MAX - STD           |      |          |          |          |          |           |          |               |
-| Crosscheck : True       |      |          |          |          |          |           |          |               |
-| BF                      |      |          |          |          |          |           |          |               |
-| NO FILTER               | 190  | 0.14815s | 2.71545s | 1.76562s | 0.05727s | -1.95637s | 18.60976 | 0.65263       |
-| ORB (1000) PNG          |      |          |          |          |          |           |          |               |
-| LEN MAX - STD           |      |          |          |          |          |           |          |               |
-| Crosscheck : True       |      |          |          |          |          |           |          |               |
-| BF                      |      |          |          |          |          |           |          |               |
-| NO FILTER               | 190  | 0.39845  | 27.05392 | 7.55308  | 5.26437  | 3.50726   | 27.80995 | 0.63684       |
-| ORB(100) PNG            |      |          |          |          |          |           |          |               |
-| LEN MAX - STD           |      |          |          |          |          |           |          |               |
-| Crosscheck : True       |      |          |          |          |          |           |          |               |
-| BF                      |      |          |          |          |          |           |          |               |
-| NO FILTER               | 190  | 0.05959  | 0.70835  | 0.20155  | 0.01367  | 1.01663   | 1.39958  | 0.59474       |
-| ORB(300) PNG            |      |          |          |          |          |           |          |               |
-| LEN MAX - STD           |      |          |          |          |          |           |          |               |
-| Crosscheck : True       |      |          |          |          |          |           |          |               |
-| BF                      |      |          |          |          |          |           |          |               |
-| NO FILTER               | 190  | 0.08     | 1.20131  | 0.68654  | 0.01096  | -0.37938  | 10.68281 | 0.61579       |
-| ORB BMP (read problem?) |      |          |          |          |          |           |          |               |
-| MEAN DIST PER PAIR      |      |          |          |          |          |           |          |               |
-| STD                     |      |          |          |          |          |           |          |               |
-| Crosscheck : True       |      |          |          |          |          |           |          |               |
-| BF                      |      |          |          |          |          |           |          |               |
-| NO FILTER               | 190  | 0.13807  | 1.97816  | 1.6771   | 0.02955  | -6.69731  | 53.39513 | 0.56842       |
-| ORB BMP (read problem?) |      |          |          |          |          |           |          |               |
-| MEAN DIST PER PAIR      |      |          |          |          |          |           |          |               |
-| KNN 2                   |      |          |          |          |          |           |          |               |
-| Crosscheck: False       |      |          |          |          |          |           |          |               |
-| FLANN LSH               |      |          |          |          |          |           |          |               |
-| RATIO CORRECT           | 190  | 0.30946  | 2.64872  | 1.21666  | 0.08734  | 0.73779   | 3.23452  | 0.39474       |
-| ORB BMP (read problem?) |      |          |          |          |          |           |          |               |
-| MEAN DIST PER PAIR      |      |          |          |          |          |           |          |               |
-| KNN 2                   |      |          |          |          |          |           |          |               |
-| Crosscheck: False       |      |          |          |          |          |           |          |               |
-| FLANN LSH               |      |          |          |          |          |           |          |               |
-| FAR THREESHOLD          | 190  | 0.27585  | 1.53042  | 1.09527  | 0.0407   | -1.11117  | 1.12641  | 0.34211       |
-| ORB PNG                 |      |          |          |          |          |           |          |               |
-| MEAN DIST PER PAIR      |      |          |          |          |          |           |          |               |
-| KNN 2                   |      |          |          |          |          |           |          |               |
-| Crosscheck : False      |      |          |          |          |          |           |          |               |
-| FLANN LSH               |      |          |          |          |          |           |          |               |
-| RATIO CORRECT           | 190  | 0.3026   | 2.18593  | 1.14796  | 0.05415  | 0.15196   | 2.96968  | 0.57895       |
-
-TODO : MEMORY USAGE
+<img src="sota-ressources/baseline_memory.png" alt="Baseline memory consumption of the test framework" />
 
 1. Ebtsam Adel, Mohammed Elmogy, and Hazem Elbakry. *Image Stitching System Based on ORB Feature- Based Technique and Compensation Blending*.
 
@@ -1781,94 +1748,96 @@ TODO : MEMORY USAGE
 
 26. Jesse Kornblum. 2006. Identifying almost identical files using context triggered piecewise hashing. *Digital Investigation* 3: 91–97. <https://doi.org/10.1016/j.diin.2006.06.015>
 
-27. B. Leibe, K. Mikolajczyk, and B. Schiele. 2006. Efficient Clustering and Matching for Object Class Recognition. In *Procedings of the British Machine Vision Conference 2006*, 81.1–81.10. <https://doi.org/10.5244/C.20.81>
+27. Matthias Lee. Pytesseract: Python-tesseract is a python wrapper for Google’s Tesseract-OCR.
 
-28. Zhongyu Li, Xiaofan Zhang, Henning Müller, and Shaoting Zhang. 2018. Large-scale retrieval for medical image analytics: A comprehensive review. *Medical Image Analysis* 43: 66–84. <https://doi.org/10.1016/j.media.2017.09.007>
+28. B. Leibe, K. Mikolajczyk, and B. Schiele. 2006. Efficient Clustering and Matching for Object Class Recognition. In *Procedings of the British Machine Vision Conference 2006*, 81.1–81.10. <https://doi.org/10.5244/C.20.81>
 
-29. David G. Lowe. 2004. Distinctive Image Features from Scale-Invariant Keypoints. *International Journal of Computer Vision* 60, 2: 91–110. <https://doi.org/10.1023/B:VISI.0000029664.99615.94>
+29. Zhongyu Li, Xiaofan Zhang, Henning Müller, and Shaoting Zhang. 2018. Large-scale retrieval for medical image analytics: A comprehensive review. *Medical Image Analysis* 43: 66–84. <https://doi.org/10.1016/j.media.2017.09.007>
 
-30. Gurmeet Singh Manku, Arvind Jain, and Anish Das Sarma. 2007. Detecting near-duplicates for web crawling. In *Proceedings of the 16th international conference on World Wide Web - WWW ’07*, 141. <https://doi.org/10.1145/1242572.1242592>
+30. David G. Lowe. 2004. Distinctive Image Features from Scale-Invariant Keypoints. *International Journal of Computer Vision* 60, 2: 91–110. <https://doi.org/10.1023/B:VISI.0000029664.99615.94>
 
-31. Andrey Nikishaev. 2018. Feature extraction and similar image search with OpenCV for newbies. *Medium*.
+31. Gurmeet Singh Manku, Arvind Jain, and Anish Das Sarma. 2007. Detecting near-duplicates for web crawling. In *Proceedings of the 16th international conference on World Wide Web - WWW ’07*, 141. <https://doi.org/10.1145/1242572.1242592>
 
-32. Ann Nurnajmin Qasrina, Dwi Pebrianti, Ibrahim Zuwairie, Bayuaji Luhur, and Mat Jusof Mohd Falfazli. 2018. Image Template Matching Based on Simulated Kalman Filter (SKF) Algorithm.
+32. Andrey Nikishaev. 2018. Feature extraction and similar image search with OpenCV for newbies. *Medium*.
 
-33. Aude Oliva and Antonio Torralba. Modeling the Shape of the Scene: A Holistic Representation of the Spatial Envelope. 31.
+33. Ann Nurnajmin Qasrina, Dwi Pebrianti, Ibrahim Zuwairie, Bayuaji Luhur, and Mat Jusof Mohd Falfazli. 2018. Image Template Matching Based on Simulated Kalman Filter (SKF) Algorithm.
 
-34. Jonathan Oliver, Chun Cheng, and Yanggui Chen. 2013. TLSH – A Locality Sensitive Hash. In *2013 Fourth Cybercrime and Trustworthy Computing Workshop*, 7–13. <https://doi.org/10.1109/CTC.2013.9>
+34. Aude Oliva and Antonio Torralba. Modeling the Shape of the Scene: A Holistic Representation of the Spatial Envelope. 31.
 
-35. Reshma Raj and Niya Joseph. 2016. Keypoint Extraction Using SURF Algorithm for CMFD.
+35. Jonathan Oliver, Chun Cheng, and Yanggui Chen. 2013. TLSH – A Locality Sensitive Hash. In *2013 Fourth Cybercrime and Trustworthy Computing Workshop*, 7–13. <https://doi.org/10.1109/CTC.2013.9>
 
-36. Adrian Rosebrock. 2018. OpenCV Text Detection (EAST text detector). *PyImageSearch*.
+36. Reshma Raj and Niya Joseph. 2016. Keypoint Extraction Using SURF Algorithm for CMFD.
 
-37. Edward Rosten and Tom Drummond. 2006. Machine Learning for High-Speed Corner Detection. In *Computer Vision 2006*, Aleš Leonardis, Horst Bischof and Axel Pinz (eds.). Springer Berlin Heidelberg, Berlin, Heidelberg, 430–443. <https://doi.org/10.1007/11744023_34>
+37. Adrian Rosebrock. 2018. OpenCV Text Detection (EAST text detector). *PyImageSearch*.
 
-38. Ethan Rublee, Vincent Rabaud, Kurt Konolige, and Gary Bradski. 2011. ORB: An efficient alternative to SIFT or SURF. In *2011 International Conference on Computer Vision*, 2564–2571. <https://doi.org/10.1109/ICCV.2011.6126544>
+38. Edward Rosten and Tom Drummond. 2006. Machine Learning for High-Speed Corner Detection. In *Computer Vision 2006*, Aleš Leonardis, Horst Bischof and Axel Pinz (eds.). Springer Berlin Heidelberg, Berlin, Heidelberg, 430–443. <https://doi.org/10.1007/11744023_34>
 
-39. Nikolaos Sarantinos, Chafika Benzaid, Omar Arabiat, and Ameer Al-Nemrat. 2016. Forensic Malware Analysis: The Value of Fuzzy Hashing Algorithms in Identifying Similarities. In *2016 IEEE Trustcom/BigDataSE/ISPA*, 1782–1787. <https://doi.org/10.1109/TrustCom.2016.0274>
+39. Ethan Rublee, Vincent Rabaud, Kurt Konolige, and Gary Bradski. 2011. ORB: An efficient alternative to SIFT or SURF. In *2011 International Conference on Computer Vision*, 2564–2571. <https://doi.org/10.1109/ICCV.2011.6126544>
 
-40. Jingkuan Song, Lianli Gao, Li Liu, Xiaofeng Zhu, and Nicu Sebe. 2018. Quantization-based hashing: A general framework for scalable image and video retrieval. *Pattern Recognition* 75: 175–187. <https://doi.org/10.1016/j.patcog.2017.03.021>
+40. Nikolaos Sarantinos, Chafika Benzaid, Omar Arabiat, and Ameer Al-Nemrat. 2016. Forensic Malware Analysis: The Value of Fuzzy Hashing Algorithms in Identifying Similarities. In *2016 IEEE Trustcom/BigDataSE/ISPA*, 1782–1787. <https://doi.org/10.1109/TrustCom.2016.0274>
 
-41. Xudong Sun, Pengcheng Wu, and Steven C.H. Hoi. 2018. Face detection using deep learning: An improved faster RCNN approach. *Neurocomputing* 299: 42–50. <https://doi.org/10.1016/j.neucom.2018.03.030>
+41. Jingkuan Song, Lianli Gao, Li Liu, Xiaofeng Zhu, and Nicu Sebe. 2018. Quantization-based hashing: A general framework for scalable image and video retrieval. *Pattern Recognition* 75: 175–187. <https://doi.org/10.1016/j.patcog.2017.03.021>
 
-42. Sahil Suri, Peter Schwind, Johannes Uhl, and Peter Reinartz. 2010. Modifications in the SIFT operator for effective SAR image matching.
+42. Xudong Sun, Pengcheng Wu, and Steven C.H. Hoi. 2018. Face detection using deep learning: An improved faster RCNN approach. *Neurocomputing* 299: 42–50. <https://doi.org/10.1016/j.neucom.2018.03.030>
 
-43. Shaharyar Ahmed Khan Tareen and Zahra Saleem. 2018. A comparative analysis of SIFT, SURF, KAZE, AKAZE, ORB, and BRISK. In *2018 International Conference on Computing, Mathematics and Engineering Technologies (iCoMET)*, 1–10. <https://doi.org/10.1109/ICOMET.2018.8346440>
+43. Sahil Suri, Peter Schwind, Johannes Uhl, and Peter Reinartz. 2010. Modifications in the SIFT operator for effective SAR image matching.
 
-44. Bart Thomee, Erwin M. Bakker, and Michael S. Lew. 2010. TOP-SURF: A visual words toolkit. In *Proceedings of the international conference on Multimedia - MM ’10*, 1473. <https://doi.org/10.1145/1873951.1874250>
+44. Shaharyar Ahmed Khan Tareen and Zahra Saleem. 2018. A comparative analysis of SIFT, SURF, KAZE, AKAZE, ORB, and BRISK. In *2018 International Conference on Computing, Mathematics and Engineering Technologies (iCoMET)*, 1–10. <https://doi.org/10.1109/ICOMET.2018.8346440>
 
-45. Xuan Yang, Jihong Pei, and Jingli Shi. 2014. Inverse consistent non-rigid image registration based on robust point set matching.
+45. Bart Thomee, Erwin M. Bakker, and Michael S. Lew. 2010. TOP-SURF: A visual words toolkit. In *Proceedings of the international conference on Multimedia - MM ’10*, 1473. <https://doi.org/10.1145/1873951.1874250>
 
-46. Pengfei Yu. 2011. Image classification using latent spatial pyramid matching.
+46. Xuan Yang, Jihong Pei, and Jingli Shi. 2014. Inverse consistent non-rigid image registration based on robust point set matching.
 
-47. Wengang Zhou, Houqiang Li, Yijuan Lu, and Qi Tian. 2013. SIFT match verification by geometric coding for large-scale partial-duplicate web image search. *ACM Transactions on Multimedia Computing, Communications, and Applications* 9, 1: 1–18. <https://doi.org/10.1145/2422956.2422960>
+47. Pengfei Yu. 2011. Image classification using latent spatial pyramid matching.
 
-48. Wengang Zhou, Yijuan Lu, Houqiang Li, Yibing Song, and Qi Tian. 2010. Spatial coding for large scale partial-duplicate web image search. In *Proceedings of the international conference on Multimedia - MM ’10*, 511. <https://doi.org/10.1145/1873951.1874019>
+48. Wengang Zhou, Houqiang Li, Yijuan Lu, and Qi Tian. 2013. SIFT match verification by geometric coding for large-scale partial-duplicate web image search. *ACM Transactions on Multimedia Computing, Communications, and Applications* 9, 1: 1–18. <https://doi.org/10.1145/2422956.2422960>
 
-49. 2011. Looks Like It - The Hacker Factor Blog.
+49. Wengang Zhou, Yijuan Lu, Houqiang Li, Yibing Song, and Qi Tian. 2010. Spatial coding for large scale partial-duplicate web image search. In *Proceedings of the international conference on Multimedia - MM ’10*, 511. <https://doi.org/10.1145/1873951.1874019>
 
-50. 2011. pHash-like image hash for java. *Pastebin.com*.
+50. 2011. Looks Like It - The Hacker Factor Blog.
 
-51. 2013. pHash.Org: Home of pHash, the open source perceptual hash library.
+51. 2011. pHash-like image hash for java. *Pastebin.com*.
 
-52. 2014. Keypoints and Descriptors 1.
+52. 2013. pHash.Org: Home of pHash, the open source perceptual hash library.
 
-53. 2014. FAST Algorithm for Corner Detection 3.0.0-dev documentation.
+53. 2014. Keypoints and Descriptors 1.
 
-54. 2014. Introduction to SIFT (Scale-Invariant Feature Transform) 3.0.0-dev documentation.
+54. 2014. FAST Algorithm for Corner Detection 3.0.0-dev documentation.
 
-55. 2014. ORB (Oriented FAST and Rotated BRIEF) 3.0.0-dev documentation.
+55. 2014. Introduction to SIFT (Scale-Invariant Feature Transform) 3.0.0-dev documentation.
 
-56. 2015. Image Matching Using Generalized Scale-Space Interest Points.
+56. 2014. ORB (Oriented FAST and Rotated BRIEF) 3.0.0-dev documentation.
 
-57. 2015. BFMatcher raises error for Python interface when crossCheck option is enabled ⋅ Issue \#46 ⋅ MasteringOpenCV/code. *GitHub*.
+57. 2015. Image Matching Using Generalized Scale-Space Interest Points.
 
-58. 2016. Phishing Website Identification through Visual Clustering.
+58. 2015. BFMatcher raises error for Python interface when crossCheck option is enabled ⋅ Issue \#46 ⋅ MasteringOpenCV/code. *GitHub*.
 
-59. 2019. Fuzzy hashing API and fuzzy hashing tool. Contribute to ssdeep-project/ssdeep development by creating an account on GitHub.
+59. 2016. Phishing Website Identification through Visual Clustering.
 
-60. 2019. Non-Metric Space Library (NMSLIB): An efficient similarity search library and a toolkit for evaluation of k-NN methods for generic non-metric spaces.: nmslib/nmslib.
+60. 2019. Fuzzy hashing API and fuzzy hashing tool. Contribute to ssdeep-project/ssdeep development by creating an account on GitHub.
 
-61. 2019. A library for efficient similarity search and clustering of dense vectors.: facebookresearch/faiss.
+61. 2019. Non-Metric Space Library (NMSLIB): An efficient similarity search library and a toolkit for evaluation of k-NN methods for generic non-metric spaces.: nmslib/nmslib.
 
-62. Feature Matching + Homography to find Objects 3.0.0-dev documentation.
+62. 2019. A library for efficient similarity search and clustering of dense vectors.: facebookresearch/faiss.
 
-63. Spectralhashing.Pdf.
+63. Feature Matching + Homography to find Objects 3.0.0-dev documentation.
 
-64. OpenCV: Feature Matching.
+64. Spectralhashing.Pdf.
 
-65. Testing different image hash functions.
+65. OpenCV: Feature Matching.
 
-66. Blockhash.
+66. Testing different image hash functions.
 
-67. SIFT Flow: Dense Correspondence across Scenes and its Applications.
+67. Blockhash.
 
-68. Java OpenCV - extracting good matches from knnMatch. *Stack Overflow*.
+68. SIFT Flow: Dense Correspondence across Scenes and its Applications.
 
-69. Android - Matching ORB Features with a threshold. *Stack Overflow*.
+69. Java OpenCV - extracting good matches from knnMatch. *Stack Overflow*.
 
-70. BRIEF (Binary Robust Independent Elementary Features) 3.0.0-dev documentation.
+70. Android - Matching ORB Features with a threshold. *Stack Overflow*.
 
-71. Toward a Phish Free World: A Cascaded Learning Framework for Phish Detection.
+71. BRIEF (Binary Robust Independent Elementary Features) 3.0.0-dev documentation.
 
-72. SLIC Superpixels.
+72. Toward a Phish Free World: A Cascaded Learning Framework for Phish Detection.
+
+73. SLIC Superpixels.
