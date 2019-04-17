@@ -64,7 +64,6 @@ class DATASTRUCT_TYPE(Enum):
     BRUTE_FORCE = auto()
     FLANN_KDTREE = auto()
     FLANN_LSH = auto()
-    BOW = auto()
 
 class CROSSCHECK(Enum):
     ENABLED = auto()
@@ -94,10 +93,27 @@ class ORB_default_configuration(Default_configuration):
         self.FLANN_LSH_SEARCH_params = dict(checks=50)  # or pass empty dictionary
         self.FLANN_LSH_INDEX_params_light = dict(algorithm=self.FLANN_LSH_INDEX, table_number=6)
 
-        self.BOW_SIZE = 100
-
         # Crosscheck is handled automatically
         self.CROSSCHECK = CROSSCHECK.AUTO
+
+# ==================== ------------------------ ====================
+#                      BoW ORB POSSIBLE CONFIGURATIONS
+#
+
+class BOW_CMP_HIST(Enum):
+    CORREL = auto() # Standard
+    BHATTACHARYYA = auto()
+
+class BoW_ORB_default_configuration(Default_configuration):
+    def __init__(self):
+        super().__init__()
+
+        self.ORB_KEYPOINTS_NB = 500
+
+        # BOW SPECIFIC
+        self.BOW_SIZE = 100
+        self.BOW_CMP_HIST = BOW_CMP_HIST.CORREL
+
 
 # ==================== ------------------------ ====================
 #                        Custom configuration

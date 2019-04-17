@@ -330,6 +330,11 @@ class Execution_handler():
             answer += final_char + conf.DATASTRUCT.name
             answer += final_char + conf.CROSSCHECK.name
 
+        if type(conf) == configuration.BoW_ORB_default_configuration:
+            answer += final_char + str(conf.ORB_KEYPOINTS_NB)
+            answer += final_char + str(conf.BOW_SIZE)
+            answer += final_char + str(conf.BOW_CMP_HIST)
+
         return answer
 
     def create_folder(self, path: pathlib.PosixPath):
