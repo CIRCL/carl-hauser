@@ -70,7 +70,7 @@ class test_template(unittest.TestCase):
         # Create conf
         curr_configuration = configuration.ORB_default_configuration()
         curr_configuration.SOURCE_DIR = self.source_pictures_dir
-        curr_configuration.OUTPUT_DIR = self.output_folder / "output_folder_orb_full"
+        curr_configuration.OUTPUT_DIR = self.output_folder / "output_folder_orb_pairwise"
         curr_configuration.GROUND_TRUTH_PATH = self.ground_truth_json
         curr_configuration.IMG_TYPE = self.tmp_conf.IMG_TYPE
         curr_configuration.SAVE_PICTURE = True
@@ -95,7 +95,7 @@ class test_template(unittest.TestCase):
                             try:
                                 self.logger.info(f"Current configuration : {curr_configuration.__dict__} ")
                                 eh = opencv.OpenCV_execution_handler(conf=curr_configuration)
-                                eh.do_pair_test(pic1_path,pic2_path )
+                                eh.do_pair_test(pic1_path,pic2_path)
                             except Exception as e:
                                 self.logger.error(f"Aborting this configuration. Current configuration thrown an error : {e} ")
                                 traceback.print_tb(e.__traceback__)

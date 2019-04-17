@@ -957,6 +957,16 @@ Interesting “usability” notices are presented in \[43\], as skiping first oc
 
     -   Ratio of closest distance to second closest is taken as a second indicator when second closest match is very near to the first. Has to be above 0.8 (original paper) (TO CHECK what IT MEANS)
 
+DigInPix from INA does use SIFT along with indexing techniques. Few example of retrived pictures and logos can be seen at following links : <http://diginpix.ina.fr/en/analysis/9858-3499-9117-1290> and <http://diginpix.ina.fr/en/analysis/8640-0399-5437-8023>
+
+<span>0.49</span> <img src="sota-ressources/DiginPix/image1.png" title="fig:" alt="Diginpix results on picture with lot of logos" />
+
+<span>0.50</span> <img src="sota-ressources/DiginPix/image2.png" title="fig:" alt="Diginpix results on picture with lot of logos" />
+
+<span>0.9</span> <img src="sota-ressources/DiginPix/image_1_result.png" title="fig:" alt="Diginpix results on picture with lot of logos" />
+
+<span>0.9</span> <img src="sota-ressources/DiginPix/image2_results.png" title="fig:" alt="Diginpix results on picture with lot of logos" />
+
 #### SIFT-FLOW
 
 From \[17\], realize in motion prediction from a single image, motion synthesis via object transfer and face recognition.
