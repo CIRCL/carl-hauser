@@ -44,9 +44,9 @@ class Configuration_launcher():
 
     def auto_launch(self):
         self.logger.info("==== ----- LAUNCHING AUTO CONF LAUNCHER ---- ==== ")
-        # self.auto_launch_image_hash()
-        # self.auto_launch_tlsh()
-        # self.auto_launch_orb()
+        self.auto_launch_image_hash()
+        self.auto_launch_tlsh()
+        self.auto_launch_orb()
         self.auto_launch_orb_BOW()
         # self.auto_launch_void()
 
@@ -126,6 +126,13 @@ class Configuration_launcher():
                 for filter in configuration.FILTER_TYPE:
                     for distance in configuration.DISTANCE_TYPE:
                         for crosscheck in [configuration.CROSSCHECK.DISABLED, configuration.CROSSCHECK.ENABLED]:
+
+                            # Check configuration
+                            if filter == configuration.FILTER_TYPE.FAR_THREESHOLD and match == configuration.MATCH_TYPE.STD :
+                                continue
+                            # if filter == configuration.FILTER_TYPE.FAR_THREESHOLD and match == configuration.MATCH_TYPE.STD :
+                            #     continue
+                            # cat ./raw_phishing_output.overview | grep -v "LEAN_MEAN" | grep -v "FLANN_KDTREE" | grep "FAR_THREESHOLD_STD"
 
                             curr_configuration.MATCH = match
                             curr_configuration.DATASTRUCT = datastruct
@@ -285,7 +292,7 @@ class Configuration_launcher():
         graph = graph_lib.Graph_handler()
         graph.set_values(ordo, absi, values)
 
-        graph.save_matrix(output_file.with_suffix(".png"))
+        graph.save_matrix(output_file.with_suffix(".pdf"))
 
 
     @staticmethod
@@ -302,7 +309,7 @@ class Configuration_launcher():
         graph = graph_lib.Graph_handler()
         graph.set_values(ordo, absi, values)
 
-        graph.save_matrix(output_file.with_suffix(".png"))
+        graph.save_matrix(output_file.with_suffix(".pdf"))
 
 
     @staticmethod
@@ -331,9 +338,9 @@ if __name__ == '__main__':
     logger.addHandler(handler)
 
     base_path = [["../datasets/raw_phishing", configuration.SUPPORTED_IMAGE_TYPE.PNG],
-                 # ["../datasets/raw_phishing_bmp", configuration.SUPPORTED_IMAGE_TYPE.BMP],
-                 # ["../datasets/raw_phishing_COLORED", configuration.SUPPORTED_IMAGE_TYPE.PNG]
-                 # ["../datasets/raw_phishing_Tesseract", configuration.SUPPORTED_IMAGE_TYPE.PNG]
+                 ["../datasets/raw_phishing_bmp", configuration.SUPPORTED_IMAGE_TYPE.BMP],
+                 ["../datasets/raw_phishing_COLORED", configuration.SUPPORTED_IMAGE_TYPE.PNG],
+                 ["../datasets/raw_phishing_Tesseract", configuration.SUPPORTED_IMAGE_TYPE.PNG]
                  ]
 
     for curr_base_path, img_type in base_path:
@@ -368,12 +375,12 @@ if __name__ == '__main__':
         # ")
 
         # Create overview for simple results
-        Configuration_launcher.create_tldr(folder=output_folder, output_file=output_overview_file)
-        Configuration_launcher.create_latex_tldr(folder=output_folder, output_file=output_latex_overview_file)
+        # Configuration_launcher.create_tldr(folder=output_folder, output_file=output_overview_file)
+        # Configuration_launcher.create_latex_tldr(folder=output_folder, output_file=output_latex_overview_file)
 
         # Create overview for paired results
-        Configuration_launcher.create_paired_results(input_folder=output_folder, target_pair_folder=paired_output_folder, ground_truth_json=ground_truth_json)
-        Configuration_launcher.create_tldr(folder=paired_output_folder, output_file=output_overview_file)
+        # Configuration_launcher.create_paired_results(input_folder=output_folder, target_pair_folder=paired_output_folder, ground_truth_json=ground_truth_json)
+        # Configuration_launcher.create_tldr(folder=paired_output_folder, output_file=output_overview_paired_file)
 
         # Create matrixes
         Configuration_launcher.create_and_export_inclusion_matrix(folder=output_folder, output_file=output_similarity_matrix)

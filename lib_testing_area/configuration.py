@@ -46,7 +46,7 @@ class Default_configuration():
 class DISTANCE_TYPE(Enum):
     LEN_MIN = auto()
     LEN_MAX = auto()
-    # LEN_MEAN = auto()
+    # LEN_MEAN = auto() # DOESNT WORK
     MEAN_DIST_PER_PAIR = auto()
     MEAN_AND_MAX = auto()
 
@@ -62,7 +62,7 @@ class MATCH_TYPE(Enum):
 
 class DATASTRUCT_TYPE(Enum):
     BRUTE_FORCE = auto()
-    FLANN_KDTREE = auto()
+    # FLANN_KDTREE = auto()  # DOESNT WORK
     FLANN_LSH = auto()
 
 class CROSSCHECK(Enum):
