@@ -46,15 +46,17 @@ class Default_configuration():
 class DISTANCE_TYPE(Enum):
     LEN_MIN = auto()
     LEN_MAX = auto()
-    # LEN_MEAN = auto() # DOESNT WORK
+    # LEN_MEAN = auto() # DOESNT WORK AT ALL
     MEAN_DIST_PER_PAIR = auto()
     MEAN_AND_MAX = auto()
 
 class FILTER_TYPE(Enum):
-    RATIO_BAD = auto() # NOT with KNN
+    RATIO_BAD = auto() # NOT with KNN # DOESNT WORK WELL
     RATIO_CORRECT = auto() # ONLY with KNN
-    FAR_THREESHOLD = auto() # NOT with KNN = THREESHOLD DISTANCE
+    FAR_THREESHOLD = auto() # NOT with KNN = THREESHOLD DISTANCE # DOESNT WORK WELL
+    #### BASIC_THRESHOLD = auto() # DOESNT WORK WELL
     NO_FILTER = auto()
+    RANSAC = auto()
 
 class MATCH_TYPE(Enum):
     STD = auto() # Standard
@@ -62,7 +64,7 @@ class MATCH_TYPE(Enum):
 
 class DATASTRUCT_TYPE(Enum):
     BRUTE_FORCE = auto()
-    # FLANN_KDTREE = auto()  # DOESNT WORK
+    # FLANN_KDTREE = auto()  # DOESNT WORK AT ALL
     FLANN_LSH = auto()
 
 class CROSSCHECK(Enum):

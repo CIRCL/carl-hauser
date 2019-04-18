@@ -141,7 +141,7 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
                 self.logger.warning(f"WARNING : picture {curr_picture.path.name} has no description")
 
         except Exception as e:
-            self.logger.warning("Error during descriptor building : " + str(e))
+            self.logger.error("Error during descriptor building : " + str(e))
 
         return curr_picture
 
@@ -178,6 +178,10 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
         elif self.conf.FILTER == configuration.FILTER_TYPE.FAR_THREESHOLD:
             good = self.ratio_good(matches)
             good = self.threeshold_distance_filter(good)
+        # elif self.conf.FILTER == configuration.FILTER_TYPE.BASIC_THRESHOLD :
+        #    good = self.threeshold_distance_filter(good)
+        elif self.conf.FILTER == configuration.FILTER_TYPE.RANSAC:
+            good = self.ransac_filter(matches, pic1, pic2)
         else:
             raise Exception('OPENCV WRAPPER : FILTER_CHOSEN NOT CORRECT')
 
@@ -248,6 +252,36 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
         for curr_matches in matches:
             if curr_matches.distance < dist_th:
                 good.append(curr_matches)
+
+        return good
+
+    @staticmethod
+    def ransac_filter(matches, pic1, pic2):
+        MIN_MATCH_COUNT = 10
+        good = []
+
+        if len(matches) > MIN_MATCH_COUNT:
+            src_pts = np.float32([pic1.key_points[m.queryIdx].pt for m in matches]).reshape(-1, 1, 2)
+            dst_pts = np.float32([pic2.key_points[m.trainIdx].pt for m in matches]).reshape(-1, 1, 2)
+
+            # Find the transformation between points
+            M, mask = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, 5.0)
+
+            # Get a mask list for matches = A list that says "This match is an in/out-lier"
+            matchesMask = mask.ravel().tolist()
+
+            # Filter the matches list thanks to the mask
+            for i, element in enumerate(matchesMask):
+                if element == 1 :
+                    good.append(matches[i])
+            # h, w = pic1.image.shape
+            # pts = np.float32([[0, 0], [0, h - 1], [w - 1, h - 1], [w - 1, 0]]).reshape(-1, 1, 2)
+            # dst = cv2.perspectiveTransform(pts, M)
+
+            # img2 = cv2.polylines(img2, [np.int32(dst)], True, 255, 3, cv2.LINE_AA)
+
+        else:
+            print("not enough matches")
 
         return good
 
