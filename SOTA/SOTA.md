@@ -1397,9 +1397,31 @@ Results are interesting, as pictures were heavily modified. In few words, fuzzy 
 
 Tesseract \[27\] with its python wrapper PyTesseract is a Google OCR library. It allows to retrieve detected text as well as getting bounding boxes of detected text areas.
 
-However, such solution provide false positive, some of which are easily prunnable and some of which are very hard to remove.
+However, such solution provide false positive, some of which are easily prunnable and some of which are very hard to remove. A basic threshold to keep bounding boxes is *h**e**i**g**h**t*\_*b**o**u**n**d**i**n**g*\_*b**o**x* &lt; =30, which has pretty relevant results.
+
+##### Results
+
+On phishing dataset, results are partially exploitable : some pictures not matched with other methods are correctly matched, whereas pictures correctly matched without text removal are mismatched with.
 
 <span>0.6</span> <img src="sota-ressources/tesseract_pictures/logo_issue.png" title="fig:" alt="Logos have similar bounding boxes to text ones." />
+
+<span>0.60</span> <img src="sota-ressources/tesseract_pictures/lot_of_text.png" title="fig:" alt="Example of partialy good hiding, with all logos kept. Some text remains." />
+
+<span>0.39</span> <img src="sota-ressources/tesseract_pictures/good_hidden.png" title="fig:" alt="Example of partialy good hiding, with all logos kept. Some text remains." />
+
+<span>0.49</span> <img src="sota-ressources/tesseract_pictures/nothing_more.png" title="fig:" alt="Example of partialy good hiding, with all logos kept. Some text remains." />
+
+<span>0.49</span> <img src="sota-ressources/tesseract_pictures/good_hidden_2.png" title="fig:" alt="Example of partialy good hiding, with all logos kept. Some text remains." />
+
+<span>0.49</span> <img src="sota-ressources/tesseract_pictures/microsoft_issue.png" title="fig:" alt="Example of partialy good hiding, with all logos kept. Some text remains." />
+
+<span>0.49</span> <img src="sota-ressources/tesseract_pictures/good_threshold.png" title="fig:" alt="Example of partialy good hiding, with all logos kept. Some text remains." />
+
+<span>0.47</span> <img src="sota-ressources/tesseract_pictures/ORB_BOW_10000_BATTHA/mismatch_example.png" title="fig:" alt="ORB (Bow 10000 BET.) results on painted pictures by tesseract" />
+
+<span>0.52</span> <img src="sota-ressources/tesseract_pictures/ORB_BOW_10000_BATTHA/steam_good.png" title="fig:" alt="ORB (Bow 10000 BET.) results on painted pictures by tesseract" />
+
+<span>0.9</span> <img src="sota-ressources/tesseract_pictures/ORB_BOW_10000_BATTHA/internalerror_match.png" title="fig:" alt="ORB (Bow 10000 BET.) results on painted pictures by tesseract" />
 
 Neural networks – Black box algorithms
 ======================================
@@ -1585,17 +1607,17 @@ Algoritms outputs can be paired. Their graphs can be merged into a uniq graph. T
 
 Results of this calculation are provided in Figure  \[figlist:pairing0\]
 
-<span>0.49</span> <img src="sota-ressources/raw_phishing_bmp_intersection_matrix.png" title="fig:" alt="Intersection matrix - Guess of rank 1 for each image comparison" />
+<span>0.49</span> <embed src="sota-ressources/raw_phishing_bmp_intersection_matrix.pdf" title="fig:" />
 
-<span>0.50</span> <img src="sota-ressources/raw_phishing_COLORED_intersection_matrix.png" title="fig:" alt="Intersection matrix - Guess of rank 1 for each image comparison" />
+<span>0.50</span> <embed src="sota-ressources/raw_phishing_COLORED_intersection_matrix.pdf" title="fig:" />
 
-<span>1</span> <img src="sota-ressources/raw_phishing_intersection_matrix.png" title="fig:" alt="Intersection matrix - Guess of rank 1 for each image comparison" />
+<span>1</span> <embed src="sota-ressources/raw_phishing_intersection_matrix.pdf" title="fig:" />
 
-<span>0.49</span> <img src="sota-ressources/raw_phishing_bmp_intersection_paired.png" title="fig:" alt="By pair true-positive matrix - Combination of algorithms per pair and their score (Please note that the legend saying it’s similarity is wrong)" />
+<span>0.49</span> <embed src="sota-ressources/raw_phishing_bmp_intersection_paired.pdf" title="fig:" />
 
-<span>0.50</span> <img src="sota-ressources/raw_phishing_COLORED_intersection_paired.png" title="fig:" alt="By pair true-positive matrix - Combination of algorithms per pair and their score (Please note that the legend saying it’s similarity is wrong)" />
+<span>0.50</span> <embed src="sota-ressources/raw_phishing_COLORED_intersection_paired.pdf" title="fig:" />
 
-<span>1</span> <img src="sota-ressources/raw_phishing_intersection_paired.png" title="fig:" alt="By pair true-positive matrix - Combination of algorithms per pair and their score (Please note that the legend saying it’s similarity is wrong)" />
+<span>1</span> <embed src="sota-ressources/raw_phishing_intersection_paired.pdf" title="fig:" />
 
 ### Phishing dataset / Hashing based
 
