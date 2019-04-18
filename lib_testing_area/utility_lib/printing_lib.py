@@ -9,6 +9,8 @@ import logging
 
 OFFSETS = 10
 
+import os
+dir_path = os.path.dirname(os.path.realpath(__file__))
 
 class Printer():
     def __init__(self, conf: configuration.Default_configuration, offsets=OFFSETS):
@@ -23,7 +25,7 @@ class Printer():
         shadowcolor = "black"
         outline_size = 1
 
-        fontPath = pathlib.Path("./../utility_lib/fonts/OpenSans-Bold.ttf")
+        fontPath = pathlib.Path(dir_path) / pathlib.Path("fonts/OpenSans-Bold.ttf")
         sans16 = ImageFont.truetype(str(fontPath.resolve()), font_size)
 
         draw.text((x - outline_size, y - outline_size), text, font=sans16, fill=shadowcolor)

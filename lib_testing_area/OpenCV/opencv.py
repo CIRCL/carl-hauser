@@ -4,15 +4,18 @@ import sys
 from enum import Enum, auto
 from typing import List
 import logging
+import pathlib
 
 import cv2
 import matplotlib.pyplot as plt
 from PIL import Image, ImageDraw
+import numpy as np
 
 # PERSONAL LIBRARIES
 sys.path.append(os.path.abspath(os.path.pardir))
 from utility_lib import filesystem_lib, printing_lib, picture_class, execution_handler, json_class
 import configuration
+
 
 class Local_Picture(picture_class.Picture):
 
@@ -25,6 +28,7 @@ class Local_Picture(picture_class.Picture):
 
         return image
 
+
 # ==== Action definition ====
 class OpenCV_execution_handler(execution_handler.Execution_handler):
     def __init__(self, conf: configuration.ORB_default_configuration):
@@ -32,6 +36,7 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
         self.Local_Picture_class_ref = Local_Picture
         self.conf = conf
 
+        # ===================================== CROSSCHECK =====================================
         # Crosscheck can't be activated with some option. e.g. KNN match can't work with
         if conf.CROSSCHECK == configuration.CROSSCHECK.AUTO:
             FILTER_INCOMPATIBLE_OPTIONS = [configuration.FILTER_TYPE.RATIO_CORRECT]
@@ -46,9 +51,11 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
 
         self.logger.info(f"Crosscheck selected : {self.CROSSCHECK}")
 
+        # ===================================== ALGORITHM TYPE =====================================
         self.algo = cv2.ORB_create(nfeatures=conf.ORB_KEYPOINTS_NB)
         # SIFT, BRISK, SURF, .. # Available to change nFeatures=1000 for example. Limited to 500 by default
 
+        # ===================================== DATASTRUCTURE =====================================
         if self.conf.DATASTRUCT == configuration.DATASTRUCT_TYPE.BRUTE_FORCE:
             self.matcher = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=self.CROSSCHECK)
             # NORML1 (SIFT/SURF) NORML2 (SIFT/SURG) HAMMING (ORB,BRISK, # BRIEF) HAMMING2 (ORB WTAK=3,4)
@@ -56,33 +63,19 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
             self.matcher = cv2.FlannBasedMatcher(conf.FLANN_KDTREE_INDEX_params, conf.FLANN_KDTREE_SEARCH_params)
         elif self.conf.DATASTRUCT == configuration.DATASTRUCT_TYPE.FLANN_LSH:
             self.matcher = cv2.FlannBasedMatcher(conf.FLANN_LSH_INDEX_params, conf.FLANN_LSH_SEARCH_params)
+        else:
+            raise Exception("DATASTRUCT value in configuration is wrong. Please review the value.")
 
     def TO_OVERWRITE_prepare_dataset(self, picture_list):
+        # ===================================== PREPARE PICTURES = GIVE DESCRIPTORS =====================================
         self.logger.info(f"Describe pictures from repository {self.conf.SOURCE_DIR} ... ")
         picture_list = self.describe_pictures(picture_list)
 
+        # ===================================== CONSTRUCT DATASTRUCTURE =====================================
         self.logger.info("Add cluster of trained images to matcher and train it ...")
         self.train_on_images(picture_list)
 
         return picture_list
-
-    def TO_OVERWRITE_prepare_target_picture(self, target_picture):
-        target_picture = self.describe_picture(target_picture)
-        return target_picture
-
-    def train_on_images(self, picture_list: List[Local_Picture]):
-        # TODO : ONLY KDTREE FLANN ! OR BF (but does nothing)
-
-        for curr_image in picture_list:
-            self.matcher.add(curr_image.description)
-            curr_image.storage = self.matcher  # Store it to allow pictures to compute it
-
-        if self.conf.DATASTRUCT != configuration.DATASTRUCT_TYPE.FLANN_LSH:
-            self.matcher.train()
-        else:
-            self.logger.warning("No training on the matcher : FLANN LSH selected.")
-        # Train: Does nothing for BruteForceMatcher though.
-        # Otherwise, construct a "magic good datastructure" as KDTree, for example.
 
     # ==== Descriptors ====
     def describe_pictures(self, picture_list: List[Local_Picture]):
@@ -90,25 +83,48 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
 
         for i, curr_picture in enumerate(picture_list):
 
-            # Load and Hash picture
+            # ===================================== GIVE DESCRIPTORS FOR ONE PICTURE =====================================
             self.describe_picture(curr_picture)
 
             if i % 40 == 0:
                 self.logger.info(f"Picture {i} out of {len(picture_list)}")
 
+            # ===================================== REMOVING EDGE CASE PICTURES =====================================
             # removal of picture that don't have descriptors
             if curr_picture.description is None:
                 self.logger.warning(f"Picture {i} removed, due to lack of descriptors : {curr_picture.path.name}")
                 # del picture_list[i]
 
                 # TODO : Parametered path
-                os.system("cp ../../datasets/raw_phishing/" + curr_picture.path.name + " ./RESULTS_BLANKS/" + curr_picture.path.name)
+                os.system("cp " + str((self.conf.SOURCE_DIR / curr_picture.path.name).resolve()) + str(
+                    pathlib.Path(" ./RESULTS_BLANKS/") / curr_picture.path.name))
             else:
                 clean_picture_list.append(curr_picture)
 
         self.logger.info(f"New list length (without None-descriptors pictures : {len(picture_list)}")
 
         return clean_picture_list
+
+    def train_on_images(self, picture_list: List[Local_Picture]):
+        # TODO : ONLY KDTREE FLANN ! OR BF (but does nothing)
+
+
+        # ===================================== ALL OTHER TRAINING =====================================
+        # Construct a "magic good datastructure" as KDTree, for example.
+
+        for curr_image in picture_list:
+            self.matcher.add(curr_image.description)
+            # TODO : To decomment ? curr_image.storage = self.matcher  # Store it to allow pictures to compute it
+
+        # TODO : To decomment ? if self.conf.DATASTRUCT != configuration.DATASTRUCT_TYPE.FLANN_LSH:
+        self.matcher.train()
+        # Train: Does nothing for BruteForceMatcher though.
+        # TODO : To decomment ? else:
+        # TODO : To decomment ?     self.logger.warning("No training on the matcher : FLANN LSH selected.")
+
+    def TO_OVERWRITE_prepare_target_picture(self, target_picture):
+        target_picture = self.describe_picture(target_picture)
+        return target_picture
 
     def describe_picture(self, curr_picture: Local_Picture):
         try:
@@ -149,9 +165,9 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
         else:
             raise Exception('OPENCV WRAPPER : MATCH_CHOSEN NOT CORRECT')
 
-        # THREESHOLD ? TODO
-        # TODO : Previously MIN, test with MEAN ?
-        # TODO : Test with Mean of matches.distance .. verify what are matches distance ..
+            # THREESHOLD ? TODO
+            # TODO : Previously MIN, test with MEAN ?
+            # TODO : Test with Mean of matches.distance .. verify what are matches distance ..
 
         if self.conf.FILTER == configuration.FILTER_TYPE.NO_FILTER:
             good = matches
@@ -184,7 +200,7 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
         else:
             raise Exception('OPENCV WRAPPER : DISTANCE_CHOSEN NOT CORRECT')
 
-        # if DISTANCE_CHOSEN == DISTANCE_TYPE.RATIO_LEN or DISTANCE_CHOSEN == DISTANCE_TYPE.RATIO_TEST :
+            # if DISTANCE_CHOSEN == DISTANCE_TYPE.RATIO_LEN or DISTANCE_CHOSEN == DISTANCE_TYPE.RATIO_TEST :
         pic1.matches = sorted(good, key=lambda x: x.distance)  # Sort matches by distance.  Best come first.
 
         return dist

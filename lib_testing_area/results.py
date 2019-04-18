@@ -18,3 +18,5 @@ class RESULTS():
 
         self.NB_PICTURE = None
         self.TRUE_POSITIVE_RATE = None
+        self.COMPUTED_THREESHOLD = None
+        self.TRUE_POSITIVE_RATE_THREESHOLD = None

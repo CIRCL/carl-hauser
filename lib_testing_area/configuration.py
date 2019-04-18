@@ -17,6 +17,13 @@ class ALGO_TYPE(Enum):
     TLSH_NO_LENGTH = auto()
     ORB = auto()
 
+# Threshold finder
+class THRESHOLD_MODE(Enum):
+    MIN_WRONG = auto()
+    MEDIAN_WRONG = auto()
+    MAX_WRONG = auto()
+    MAXIMIZE_TRUE_POSITIVE = auto()
+
 class Default_configuration():
     def __init__(self):
         # Inputs
@@ -26,6 +33,8 @@ class Default_configuration():
         # Processing
         self.ALGO = ALGO_TYPE.A_HASH
         self.SELECTION_THREESHOLD = None #TODO : To fix and to use, to prevent "forced linked" if none
+        #Threshold
+        self.THREESHOLD_EVALUATION = THRESHOLD_MODE.MAXIMIZE_TRUE_POSITIVE
         # Output
         self.SAVE_PICTURE = False
         self.OUTPUT_DIR = None
@@ -37,7 +46,7 @@ class Default_configuration():
 class DISTANCE_TYPE(Enum):
     LEN_MIN = auto()
     LEN_MAX = auto()
-    LEN_MEAN = auto()
+    # LEN_MEAN = auto() # DOESNT WORK
     MEAN_DIST_PER_PAIR = auto()
     MEAN_AND_MAX = auto()
 
@@ -53,7 +62,7 @@ class MATCH_TYPE(Enum):
 
 class DATASTRUCT_TYPE(Enum):
     BRUTE_FORCE = auto()
-    FLANN_KDTREE = auto()
+    # FLANN_KDTREE = auto()  # DOESNT WORK
     FLANN_LSH = auto()
 
 class CROSSCHECK(Enum):
@@ -86,6 +95,25 @@ class ORB_default_configuration(Default_configuration):
 
         # Crosscheck is handled automatically
         self.CROSSCHECK = CROSSCHECK.AUTO
+
+# ==================== ------------------------ ====================
+#                      BoW ORB POSSIBLE CONFIGURATIONS
+#
+
+class BOW_CMP_HIST(Enum):
+    CORREL = auto() # Standard
+    BHATTACHARYYA = auto()
+
+class BoW_ORB_default_configuration(Default_configuration):
+    def __init__(self):
+        super().__init__()
+
+        self.ORB_KEYPOINTS_NB = 500
+
+        # BOW SPECIFIC
+        self.BOW_SIZE = 100
+        self.BOW_CMP_HIST = BOW_CMP_HIST.CORREL
+
 
 # ==================== ------------------------ ====================
 #                        Custom configuration
