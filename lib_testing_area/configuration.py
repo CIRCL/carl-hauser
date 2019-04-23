@@ -79,6 +79,10 @@ class CROSSCHECK(Enum):
     DISABLED = auto()
     AUTO = auto()
 
+class POST_FILTER(Enum):
+    NONE = auto()
+    MATRIX_CHECK = auto()
+
 class ORB_default_configuration(Default_configuration):
     def __init__(self):
         super().__init__()
@@ -104,6 +108,10 @@ class ORB_default_configuration(Default_configuration):
 
         # Crosscheck is handled automatically
         self.CROSSCHECK = CROSSCHECK.AUTO
+
+        # RANSAC parameter
+        self.RANSAC_ACCELERATOR_THRESHOLD = 50 # Remove farthest matches
+        self.POST_FILTER_CHOSEN =
 
 # ==================== ------------------------ ====================
 #                      BoW ORB POSSIBLE CONFIGURATIONS

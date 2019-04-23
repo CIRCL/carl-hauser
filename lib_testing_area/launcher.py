@@ -135,6 +135,9 @@ class Configuration_launcher():
         curr_configuration.ALGO = configuration.ALGO_TYPE.ORB
         curr_configuration.ORB_KEYPOINTS_NB = 500
 
+        curr_configuration.SAVE_PICTURE_INSTRUCTION_LIST = [configuration.PICTURE_SAVE_MODE.TOP3,
+                                                            configuration.PICTURE_SAVE_MODE.FEATURE_MATCHES_TOP3,
+                                                            configuration.PICTURE_SAVE_MODE.RANSAC_MATRIX]  # No saving
         for match in configuration.MATCH_TYPE:
             for datastruct in configuration.DATASTRUCT_TYPE:
                 for filter in configuration.FILTER_TYPE:

@@ -206,6 +206,14 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
         else:
             raise Exception('OPENCV WRAPPER : DISTANCE_CHOSEN NOT CORRECT')
 
+        if self.conf.POST_FILTER_CHOSEN == configuration.POST_FILTER.NONE :
+            #Do nothing
+            self.logger.debug("No post filtering")
+        elif self.conf.POST_FILTER_CHOSEN == configuration.POST_FILTER.MATRIX_CHECK :
+            self.matrix_filtering()
+        else :
+            raise Exception('OPENCV WRAPPER : POST_FILTER CHOSEN NOT CORRECT.')
+
             # if DISTANCE_CHOSEN == DISTANCE_TYPE.RATIO_LEN or DISTANCE_CHOSEN == DISTANCE_TYPE.RATIO_TEST :
         pic1.not_filtered_matches = sorted(matches, key=lambda x: x.distance)
         pic1.matches = sorted(good, key=lambda x: x.distance)  # Sort matches by distance.  Best come first.
@@ -258,8 +266,7 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
 
         return good
 
-    @staticmethod
-    def ransac_filter(matches, pic1, pic2):
+    def ransac_filter(self, matches, pic1, pic2):
         '''
         Find a geomatrical transformation with RANSAC algorithms and filter outliers points thanks to the found transformation.
         Does store the transformation matrix in the source picture (pic1).
@@ -269,11 +276,22 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
         good = []
         transformation_matrix = None
 
-        #TODO : Check =  à l'envers ?
+        # ======================= --------------------------- =======================
+        #                        Filter matches to accelerate
+        # Do remove the farthest matches to greatly accelerate RANSAC
+        # From : http://answers.opencv.org/question/984/performance-of-findhomography/
+
+        diminished_matches = []
+        for m in matches :
+            if m.distance < self.conf.RANSAC_ACCELERATOR_THRESHOLD :
+                diminished_matches.append(m)
+
+        # ======================= --------------------------- =======================
+        #                        Compute homography with RANSAC
 
         if len(matches) > MIN_MATCH_COUNT:
-            src_pts = np.float32([pic1.key_points[m.queryIdx].pt for m in matches]).reshape(-1, 1, 2)
-            dst_pts = np.float32([pic2.key_points[m.trainIdx].pt for m in matches]).reshape(-1, 1, 2)
+            src_pts = np.float32([pic1.key_points[m.queryIdx].pt for m in diminished_matches]).reshape(-1, 1, 2)
+            dst_pts = np.float32([pic2.key_points[m.trainIdx].pt for m in diminished_matches]).reshape(-1, 1, 2)
 
             # Find the transformation between points
             transformation_matrix, mask = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, 5.0)
@@ -284,7 +302,7 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
             # Filter the matches list thanks to the mask
             for i, element in enumerate(matchesMask):
                 if element == 1:
-                    good.append(matches[i])
+                    good.append(diminished_matches[i])
             # h, w = pic1.image.shape
             # pts = np.float32([[0, 0], [0, h - 1], [w - 1, h - 1], [w - 1, 0]]).reshape(-1, 1, 2)
             # dst = cv2.perspectiveTransform(pts, M)
@@ -299,6 +317,13 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
 
         return good, transformation_matrix
 
+    def matrix_filtering(self):
+        '''
+        Compute the determinant of the homography, and see if it's too close to zero for comfort.
+Even better, compute its SVD, and verify that the ratio of the first-to-last singular value is sane (not too high). Either result will tell you whether the matrix is close to singular.
+Compute the images of the image corners and of its center (i.e. the points you get when you apply the homography to those corners and center), and verify that they make sense, i.e. are they inside the image canvas (if you expect them to be)? Are they well separated from each other?
+Plot in matlab/octave the output (data) points you fitted the homography to, along with their computed values from the input ones, using the homography, and verify that they are close (i.e. the error is low).
+        '''
 
 class Custom_printer(printing_lib.Printer):
 
@@ -356,30 +381,10 @@ class Custom_printer(printing_lib.Printer):
             # Copy paste the matches in the column
             new_im.paste(tmp_img, (0, y_offset))
 
-            # Print nice text
-            P1 = "LEFT = BEST MATCH #" + str(i + offset) + " d=" + str(sorted_picture_list[i + offset].distance)
-            P2 = " at " + sorted_picture_list[i + offset].path.name
-            P3 = "| RIGHT = ORIGINAL IMAGE"
-            P4 = " at " + target_picture.path.name + "\n"
+            # Add title
+            self.add_text_matches(i + offset, sorted_picture_list[i + offset], target_picture, y_offset, max_width, draw)
 
-            if sorted_picture_list[i + offset].description is not None:
-                P5 = str(len(sorted_picture_list[i + offset].description)) + " descriptors for LEFT "
-            else:
-                P5 = "NONE DESCRIPTORS LEFT "
-
-            if target_picture.description is not None:
-                P6 = str(len(target_picture.description)) + " descriptors for RIGHT "
-            else:
-                P6 = "NONE DESCRIPTORS RIGHT "
-
-            if sorted_picture_list[i + offset].matches is not None:
-                P7 = str(len(sorted_picture_list[i + offset].matches)) + "# matches "
-            else:
-                P7 = "NONE MATCHES "
-
-            tmp_title = P1 + P2 + P3 + P4 + P5 + P6 + P7
-            self.text_and_outline(draw, 10, y_offset + 10, tmp_title, font_size=max_width // 60)
-
+            # Set next offset
             y_offset += tmp_img.size[1]
 
         self.logger.debug(f"Save to : {str(file_name)}")
@@ -422,30 +427,10 @@ class Custom_printer(printing_lib.Printer):
             # Copy paste the matches in the column
             new_im.paste(tmp_img, (0, y_offset))
 
-            # Print nice text
-            P1 = "LEFT = BEST MATCH #" + str(i + offset) + " d=" + str(sorted_picture_list[i + offset].distance)
-            P2 = " at " + sorted_picture_list[i + offset].path.name
-            P3 = "| RIGHT = ORIGINAL IMAGE"
-            P4 = " at " + target_picture.path.name + "\n"
+            # Add title
+            self.add_text_matches(i + offset, sorted_picture_list[i + offset], target_picture, y_offset, max_width, draw)
 
-            if sorted_picture_list[i + offset].description is not None:
-                P5 = str(len(sorted_picture_list[i + offset].description)) + " descriptors for LEFT "
-            else:
-                P5 = "NONE DESCRIPTORS LEFT "
-
-            if target_picture.description is not None:
-                P6 = str(len(target_picture.description)) + " descriptors for RIGHT "
-            else:
-                P6 = "NONE DESCRIPTORS RIGHT "
-
-            if sorted_picture_list[i + offset].matches is not None:
-                P7 = str(len(sorted_picture_list[i + offset].matches)) + "# matches "
-            else:
-                P7 = "NONE MATCHES "
-
-            tmp_title = P1 + P2 + P3 + P4 + P5 + P6 + P7
-            self.text_and_outline(draw, 10, y_offset + 10, tmp_title, font_size=max_width // 60)
-
+            # Set next offset
             y_offset += tmp_img.size[1]
 
         self.logger.debug(f"Save to : {str(file_name)}")
@@ -524,7 +509,7 @@ class Custom_printer(printing_lib.Printer):
                 continue
 
             # Draw the transformed 4 corners on the target picture (pic2, request)
-            img2 = cv2.polylines(target_picture.image, [np.int32(dst)], True, 255, 7, cv2.LINE_AA)
+            img2 = cv2.polylines(target_picture.image.copy(), [np.int32(dst)], True, 255, 7, cv2.LINE_AA)
 
             # Draw matches side to side between picture reference and picture request
             output = cv2.drawMatches(sorted_picture_list[i + offset].image, sorted_picture_list[i + offset].key_points,
@@ -548,33 +533,41 @@ class Custom_printer(printing_lib.Printer):
             new_im.paste(Image.fromarray(output), (0, y_offset)) # height offset
             new_im.paste(Image.fromarray(im_out), (output.shape[1], y_offset)) # width offset and height offset
 
-            # Print nice text
-            P1 = "LEFT = BEST MATCH #" + str(i + offset) + " d=" + str(sorted_picture_list[i + offset].distance)
-            P2 = " at " + sorted_picture_list[i + offset].path.name
-            P3 = "| RIGHT = ORIGINAL IMAGE"
-            P4 = " at " + target_picture.path.name + "\n"
+            # Add title
+            self.add_text_matches(i + offset, sorted_picture_list[i + offset], target_picture, y_offset, max_width, draw)
 
-            if sorted_picture_list[i + offset].description is not None:
-                P5 = str(len(sorted_picture_list[i + offset].description)) + " descriptors for LEFT "
-            else:
-                P5 = "NONE DESCRIPTORS LEFT "
-
-            if target_picture.description is not None:
-                P6 = str(len(target_picture.description)) + " descriptors for RIGHT "
-            else:
-                P6 = "NONE DESCRIPTORS RIGHT "
-
-            if sorted_picture_list[i + offset].matches is not None:
-                P7 = str(len(sorted_picture_list[i + offset].matches)) + "# matches "
-            else:
-                P7 = "NONE MATCHES "
-
-            tmp_title = P1 + P2 + P3 + P4 + P5 + P6 + P7
-            self.text_and_outline(draw, 10, y_offset + 10, tmp_title, font_size=max_width // 60)
-
+            # Set next offset
             y_offset += Image.fromarray(output).size[1]
 
         self.logger.debug(f"Save to : {str(file_name)}")
         print(file_name)
 
         new_im.save(file_name)
+
+    def add_text_matches(self, picture_index, sorted_curr_picture, target_picture, y_offset, max_width, draw):
+
+        # Print nice text
+        P1 = "LEFT = BEST MATCH #" + str(picture_index) + " d=" + str(sorted_curr_picture.distance)
+        P2 = " at " + sorted_curr_picture.path.name
+        P3 = "| RIGHT = ORIGINAL IMAGE"
+        P4 = " at " + target_picture.path.name + "\n"
+
+        if sorted_curr_picture.description is not None:
+            P5 = str(len(sorted_curr_picture.description)) + " descriptors for LEFT "
+        else:
+            P5 = "NONE DESCRIPTORS LEFT "
+
+        if target_picture.description is not None:
+            P6 = str(len(target_picture.description)) + " descriptors for RIGHT "
+        else:
+            P6 = "NONE DESCRIPTORS RIGHT "
+
+        if sorted_curr_picture.matches is not None:
+            P7 = str(len(sorted_curr_picture.matches)) + "# matches "
+        else:
+            P7 = "NONE MATCHES "
+
+        tmp_title = P1 + P2 + P3 + P4 + P5 + P6 + P7
+        self.text_and_outline(draw, 10, y_offset + 10, tmp_title, font_size=max_width // 60)
+
+        return draw
