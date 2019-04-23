@@ -61,7 +61,6 @@ class Execution_handler():
 
         # Default Local_picture that has to be overwrite
         self.Local_Picture_class_ref = picture_class.Picture
-        self.save_picture = self.conf.SAVE_PICTURE
 
         # Used during process
         self.target_picture = None
@@ -171,7 +170,7 @@ class Execution_handler():
             if i%50 == 0 :
                 self.logger.info(f"PICTURE {i} picked as target ... (start current timer)")
                 self.logger.info(f"Target picture : {curr_target_picture.path}")
-                
+
             start_time = time.time()
 
             try:
@@ -266,8 +265,8 @@ class Execution_handler():
         return None
 
     def save_pictures(self, sorted_picture_list, target_picture):
-        if self.save_picture:
-            self.printer.save_picture_top_matches(sorted_picture_list, target_picture, self.conf.OUTPUT_DIR / target_picture.path.name)
+        # Will handle the printing according to configuration in self.conf
+        self.printer.save_pictures(sorted_picture_list, target_picture, self.conf.OUTPUT_DIR / target_picture.path.name)
 
     @staticmethod
     def print_list(list, threeshold=5):

@@ -21,6 +21,9 @@ class Picture():
         self.description = None
         self.image = self.load_image(self.path)
 
+        self.matchesMask = None # Only for RANSAC filtering : mask of matches indicating if a match is an in or outlier
+        self.transformation_matrix = None # Only for RANSAC filtering : transformation matrix between source and dest
+
         # Multipurpose storage, e.g. store some useful class for processing.
         # self.storage = None
         self.matches = None

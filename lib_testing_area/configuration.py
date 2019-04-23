@@ -24,6 +24,13 @@ class THRESHOLD_MODE(Enum):
     MAX_WRONG = auto()
     MAXIMIZE_TRUE_POSITIVE = auto()
 
+
+# Threshold finder
+class PICTURE_SAVE_MODE(Enum):
+    TOP3 = auto()
+    FEATURE_MATCHES_TOP3 = auto()
+    RANSAC_MATRIX = auto()
+
 class Default_configuration():
     def __init__(self):
         # Inputs
@@ -36,7 +43,7 @@ class Default_configuration():
         #Threshold
         self.THREESHOLD_EVALUATION = THRESHOLD_MODE.MAXIMIZE_TRUE_POSITIVE
         # Output
-        self.SAVE_PICTURE = False
+        self.SAVE_PICTURE_INSTRUCTION_LIST = []
         self.OUTPUT_DIR = None
 
 # ==================== ------------------------ ====================

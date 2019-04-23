@@ -17,7 +17,6 @@ import OpenCV.bow as bow
 import Void_baseline.void_baseline as void_baseline
 
 TO_ROUND = 5
-SAVE_PICTURES = False
 
 class Configuration_launcher():
     def __init__(self,
@@ -61,7 +60,7 @@ class Configuration_launcher():
         curr_configuration.SOURCE_DIR = self.source_pictures_dir
         curr_configuration.GROUND_TRUTH_PATH = self.ground_truth_json
         curr_configuration.IMG_TYPE = self.img_type
-        curr_configuration.SAVE_PICTURE = SAVE_PICTURES
+        curr_configuration.SAVE_PICTURE_INSTRUCTION_LIST = [] # No saving
         curr_configuration.OUTPUT_DIR = self.output_folder
 
         list_to_execute = [configuration.ALGO_TYPE.A_HASH,
@@ -97,7 +96,7 @@ class Configuration_launcher():
         curr_configuration.SOURCE_DIR = self.source_pictures_dir
         curr_configuration.GROUND_TRUTH_PATH = self.ground_truth_json
         curr_configuration.IMG_TYPE = self.img_type
-        curr_configuration.SAVE_PICTURE = SAVE_PICTURES
+        curr_configuration.SAVE_PICTURE_INSTRUCTION_LIST =  [] # No saving
         curr_configuration.OUTPUT_DIR = self.output_folder
 
         # Launch
@@ -130,7 +129,7 @@ class Configuration_launcher():
         curr_configuration.SOURCE_DIR = self.source_pictures_dir
         curr_configuration.GROUND_TRUTH_PATH = self.ground_truth_json
         curr_configuration.IMG_TYPE = self.img_type
-        curr_configuration.SAVE_PICTURE = SAVE_PICTURES
+        curr_configuration.SAVE_PICTURE_INSTRUCTION_LIST = [] # No saving
         curr_configuration.OUTPUT_DIR = self.output_folder
 
         curr_configuration.ALGO = configuration.ALGO_TYPE.ORB
@@ -178,7 +177,7 @@ class Configuration_launcher():
         curr_configuration.SOURCE_DIR = self.source_pictures_dir
         curr_configuration.GROUND_TRUTH_PATH = self.ground_truth_json
         curr_configuration.IMG_TYPE = self.img_type
-        curr_configuration.SAVE_PICTURE = SAVE_PICTURES
+        curr_configuration.SAVE_PICTURE_INSTRUCTION_LIST =  [configuration.PICTURE_SAVE_MODE.RANSAC_MATRIX] # No saving
         curr_configuration.OUTPUT_DIR = self.output_folder
 
         curr_configuration.ALGO = configuration.ALGO_TYPE.ORB
@@ -218,7 +217,7 @@ class Configuration_launcher():
         curr_configuration.SOURCE_DIR = self.source_pictures_dir
         curr_configuration.GROUND_TRUTH_PATH = self.ground_truth_json
         curr_configuration.IMG_TYPE = self.img_type
-        curr_configuration.SAVE_PICTURE = False
+        curr_configuration.SAVE_PICTURE_INSTRUCTION_LIST =  [] # No saving
         curr_configuration.OUTPUT_DIR = self.output_folder / "void_baseline"
 
         self.logger.info(f"Current configuration : {curr_configuration.__dict__} ")
@@ -410,9 +409,9 @@ if __name__ == '__main__':
         Configuration_launcher.create_latex_tldr(folder=output_folder, output_file=output_latex_overview_file)
 
         # Create overview for paired results
-        Configuration_launcher.create_paired_results(input_folder=output_folder, target_pair_folder=paired_output_folder, ground_truth_json=ground_truth_json)
-        Configuration_launcher.create_tldr(folder=paired_output_folder, output_file=output_overview_paired_file)
+        # Configuration_launcher.create_paired_results(input_folder=output_folder, target_pair_folder=paired_output_folder, ground_truth_json=ground_truth_json)
+        # Configuration_launcher.create_tldr(folder=paired_output_folder, output_file=output_overview_paired_file)
 
         # Create matrixes
-        Configuration_launcher.create_and_export_inclusion_matrix(folder=output_folder, output_file=output_similarity_matrix)
-        Configuration_launcher.create_and_export_pair_matrix(input_folder=output_folder, ground_truth_json=ground_truth_json, output_file=output_paired_matrix)
+        # Configuration_launcher.create_and_export_inclusion_matrix(folder=output_folder, output_file=output_similarity_matrix)
+        # Configuration_launcher.create_and_export_pair_matrix(input_folder=output_folder, ground_truth_json=ground_truth_json, output_file=output_paired_matrix)
