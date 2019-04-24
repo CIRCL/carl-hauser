@@ -7,7 +7,9 @@ import utility_lib.json_class as json_class
 import utility_lib.filesystem_lib as filesystem_lib
 import configuration
 import pprint
+import cv2
 
+import utility_lib.models.edge_detector.edge as deepEdgeDetector
 
 DEFAULT_TARGET_DIR = pathlib.Path("../../datasets/raw_phishing_bmp/")
 DEFAULT_BASELINE_PATH = pathlib.Path("../../datasets/raw_phishing.json")
@@ -44,6 +46,41 @@ def create_bmp_from_png():
     json_handler.json_to_export = bmp_json
     json_handler.json_export()
 
+def run_edge_detector_deep(source_dir : pathlib.Path, target_dir: pathlib.Path):
+    ded = deepEdgeDetector.DeepEdgeDetector(pathlib.Path("./models/edge_detector/deploy.prototxt"), pathlib.Path("./models/edge_detector/hed_pretrained_bsds.caffemodel"))
+
+    p = source_dir.glob('**/*')
+    files = [x for x in p if x.is_file()]
+
+    print(f"files list : {files}")
+
+    # Convert pictures
+    for file in files:
+        name_img_source = source_dir / file.name
+        name_img_target = target_dir / file.name
+
+        ded.original_edgify_picture(name_img_source, name_img_target)
+
+
+def run_edge_detector_canny(source_dir : pathlib.Path, target_dir: pathlib.Path):
+    ded = deepEdgeDetector.DeepEdgeDetector(pathlib.Path("./models/edge_detector/deploy.prototxt"), pathlib.Path("./models/edge_detector/hed_pretrained_bsds.caffemodel"))
+
+    p = source_dir.glob('**/*')
+    files = [x for x in p if x.is_file()]
+
+    print(f"files list : {files}")
+
+    # Convert pictures
+    for file in files:
+        name_img_source = source_dir / file.name
+        name_img_target = target_dir / file.name
+
+        img = cv2.imread(str(name_img_source.resolve()), 0)
+        edges = cv2.Canny(img, 100, 200)
+        cv2.imwrite(str(name_img_target.resolve()), edges)
+
+
+
 def get_max_score(path_best : pathlib.Path):
     data = filesystem_lib.File_System.load_json(path_best)
 
@@ -71,4 +108,7 @@ def manual_score(total_nodes, outliers_nodes):
 if __name__ == '__main__':
     # create_bmp_from_png()
 
-    get_max_score(DEFAULT_BASELINE_PATH)
+    # get_max_score(DEFAULT_BASELINE_PATH)
+
+    # run_edge_detector_deep(pathlib.Path("../../datasets/raw_phishing/"),pathlib.Path("../../datasets/raw_phishing_EDGES_DEEP/"))
+    # run_edge_detector_canny(pathlib.Path("../../datasets/raw_phishing/"),pathlib.Path("../../datasets/raw_phishing_EDGES_CANNY/"))

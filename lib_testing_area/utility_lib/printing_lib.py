@@ -17,7 +17,19 @@ class Printer():
         self.offsets = offsets
         self.logger =  logging.getLogger('__main__.' + __name__)
 
-        # self.conf = conf
+        self.conf = conf
+
+    def save_pictures(self, sorted_picture_list: List[Picture], target_picture: Picture, file_name : pathlib.Path):
+        if configuration.PICTURE_SAVE_MODE.TOP3 in self.conf.SAVE_PICTURE_INSTRUCTION_LIST :
+            new_directory = file_name.parent / "TOP3"
+            if not new_directory.exists() : new_directory.mkdir()
+            self.save_pictures_top_3(sorted_picture_list, target_picture, file_name=new_directory / pathlib.Path(file_name.with_suffix("").name + "_BEST").with_suffix(".png"))
+        if configuration.PICTURE_SAVE_MODE.FEATURE_MATCHES_TOP1 in self.conf.SAVE_PICTURE_INSTRUCTION_LIST:
+            # raise Exception("PICTURE SAVING MODE (top matches) INCORRECT FOR SELECTED ALGORITHM. ABORTED")
+            self.logger.error("PICTURE SAVING MODE (top matches) INCORRECT FOR SELECTED ALGORITHM. ABORTED")
+        if configuration.PICTURE_SAVE_MODE.RANSAC_MATRIX in self.conf.SAVE_PICTURE_INSTRUCTION_LIST:
+            # raise Exception("PICTURE SAVING MODE (ransac) INCORRECT FOR SELECTED ALGORITHM. ABORTED")
+            self.logger.error("PICTURE SAVING MODE (ransac) INCORRECT FOR SELECTED ALGORITHM. ABORTED")
 
     # @staticmethod
     def text_and_outline(self, draw, x, y, text, font_size):
@@ -35,7 +47,8 @@ class Printer():
         draw.text((x, y), text, fillcolor, font=sans16)
 
     # @staticmethod
-    def save_picture_top_matches(self, sorted_picture_list: List[Picture], target_picture: Picture, file_name='test.png'):
+    def save_pictures_top_3(self, sorted_picture_list: List[Picture], target_picture: Picture, file_name):
+
         image_path_list = []
         image_name_list = []
 
@@ -71,6 +84,8 @@ class Printer():
             self.text_and_outline(draw, x_offset, 10, tmp_title, total_width // 120)
             x_offset += im.size[0]
 
+
+        print(file_name)
         new_im.save(file_name)
 
     def print_title(self, img, title):

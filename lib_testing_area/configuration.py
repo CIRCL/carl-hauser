@@ -24,6 +24,13 @@ class THRESHOLD_MODE(Enum):
     MAX_WRONG = auto()
     MAXIMIZE_TRUE_POSITIVE = auto()
 
+
+# Threshold finder
+class PICTURE_SAVE_MODE(Enum):
+    TOP3 = auto()
+    FEATURE_MATCHES_TOP3 = auto()
+    RANSAC_MATRIX = auto()
+
 class Default_configuration():
     def __init__(self):
         # Inputs
@@ -36,7 +43,7 @@ class Default_configuration():
         #Threshold
         self.THREESHOLD_EVALUATION = THRESHOLD_MODE.MAXIMIZE_TRUE_POSITIVE
         # Output
-        self.SAVE_PICTURE = False
+        self.SAVE_PICTURE_INSTRUCTION_LIST = []
         self.OUTPUT_DIR = None
 
 # ==================== ------------------------ ====================
@@ -46,15 +53,17 @@ class Default_configuration():
 class DISTANCE_TYPE(Enum):
     LEN_MIN = auto()
     LEN_MAX = auto()
-    # LEN_MEAN = auto() # DOESNT WORK
+    # LEN_MEAN = auto() # DOESNT WORK AT ALL
     MEAN_DIST_PER_PAIR = auto()
     MEAN_AND_MAX = auto()
 
 class FILTER_TYPE(Enum):
-    RATIO_BAD = auto() # NOT with KNN
+    RATIO_BAD = auto() # NOT with KNN # DOESNT WORK WELL
     RATIO_CORRECT = auto() # ONLY with KNN
-    FAR_THREESHOLD = auto() # NOT with KNN = THREESHOLD DISTANCE
+    FAR_THREESHOLD = auto() # NOT with KNN = THREESHOLD DISTANCE # DOESNT WORK WELL
+    #### BASIC_THRESHOLD = auto() # DOESNT WORK WELL
     NO_FILTER = auto()
+    RANSAC = auto()
 
 class MATCH_TYPE(Enum):
     STD = auto() # Standard
@@ -62,13 +71,17 @@ class MATCH_TYPE(Enum):
 
 class DATASTRUCT_TYPE(Enum):
     BRUTE_FORCE = auto()
-    # FLANN_KDTREE = auto()  # DOESNT WORK
+    # FLANN_KDTREE = auto()  # DOESNT WORK AT ALL
     FLANN_LSH = auto()
 
 class CROSSCHECK(Enum):
     ENABLED = auto()
     DISABLED = auto()
     AUTO = auto()
+
+class POST_FILTER(Enum):
+    NONE = auto()
+    MATRIX_CHECK = auto()
 
 class ORB_default_configuration(Default_configuration):
     def __init__(self):
@@ -95,6 +108,10 @@ class ORB_default_configuration(Default_configuration):
 
         # Crosscheck is handled automatically
         self.CROSSCHECK = CROSSCHECK.AUTO
+
+        # RANSAC parameter
+        self.RANSAC_ACCELERATOR_THRESHOLD = 65 # Remove farthest matches
+        self.POST_FILTER_CHOSEN = POST_FILTER.NONE
 
 # ==================== ------------------------ ====================
 #                      BoW ORB POSSIBLE CONFIGURATIONS

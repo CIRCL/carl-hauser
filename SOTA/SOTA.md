@@ -295,6 +295,7 @@ Estimation of the homography, searches for the best relative pose between images
 “RANSAC loop involves selecting four feature pairs randomly. It computes Homography H (mapping between any two points with the same center of projection). For each key point, there may be more than one candidate matches in the other processed image. We choose the best matching based on the distance between their descriptors” from \[1\]
 
 A good illustration video is available at <https://youtu.be/1YNjMxxXO-E?t=95>
+**RANSAC** can also be used to filter matches. Only inliers are kept and evaluated as “good matches”.
 
 #### Least Meadian
 
@@ -871,12 +872,12 @@ Is a corner detector, based on machine learning. More accuracy, kept with high s
 
 <span>Kind of descriptor ?</span>
 
+Feature descriptor
+------------------
+
 #### Bag Of Feature
 
 <span>To detail + Not sure it’s a feature detector ! </span>
-
-Feature descriptor
-------------------
 
 Feature detector and descriptor
 -------------------------------
@@ -1105,9 +1106,32 @@ Remove outliers and bad matches :
 
 -   **CrossCheck** is an alternative to the ratio test. Cross-check does matching of two sets of descriptors D1 and D2 in both directions (D1 to D2 and D2 to D1) retaining matches that exists in both.
 
+        //C++ version of the code. Python version can directly be found in the library
+        BruteForceMatcher<L2<float> > descriptorMatcher;
+        vector<DMatch> filteredMatches12, matches12, matches21;
+        descriptorMatcher.match( descriptors1, descriptors2, matches12 );
+        descriptorMatcher.match( descriptors2, descriptors1, matches21 );
+        for( size_t i = 0; i < matches12.size(); i++ )
+        { 
+            DMatch forward = matches12[i]; 
+            DMatch backward = matches21[forward.trainIdx]; 
+            if( backward.trainIdx == forward.queryIdx ) 
+                filteredMatches12.push_back( forward ); 
+        }
+
 -   A **ratio test** can be performed on each k-uplets. Repetitive patterns are detected if the distance between one descriptor of the target picture is the same with the two best descriptors of the candidate picture. 2 points on the candidate picture matched 1 point on the target picture.
 
-**RANSAC** filter matches. (TO CHECK)
+        //C++ version of the code. Python version can directly be found in the library
+        void RatioCheck::filter(std::vector<vector<DMatch> > &nmatches, double RatioT=0.8) { 
+            vector<vector<DMatch>> knmatches; 
+                for(int i=0; i<nmatches.size(); i++) { 
+                    if((nmatches[i].size()==1)||
+                        (nmatches[i][0].distance/nmatches[i][1].distance<RatioT)) { 
+                    knmatches.push_back(nmatches[i]); 
+                    } 
+                } 
+            nmatches = knmatches; 
+        }
 
 Print nice graphs :
 
@@ -1129,7 +1153,7 @@ Distance can be computed in many ways. Here is an analysis of each of the used d
 
 -   Mean of matches : it makes use of the “internal distance of a match” : the distance of one descriptor to the other. The distance between two pictures is computed as the mean of the matches distance. This doesn’t work well, for the same reason as min-length : if one of both pictures has a low number of descriptors, it will act as an “attractor” : this picture will have very few matches with others, but this small set of matches will have very “good distances”.
 
-A question remains, about “How to select good and batch matches”. Ratio approach (as in SIFT) are for example usable. A simple threeshold can be used :
+A question remains, about “How to select good and batch matches”. Ratio approach (as in SIFT) are for example usable. A simple threeshold can be used, see Figure \[fig:generalized-matching\]
 
 ![Threeshold to use from \[70\]<span data-label="fig:generalized-matching"></span>](sota-ressources/threeshold.png)
 
@@ -1138,12 +1162,6 @@ A question remains, about “How to select good and batch matches”. Ratio appr
 <span>0.43</span> <img src="sota-ressources/outputs-evaluation/orb_min/attractor_problem_min.png" title="fig:" alt="Results - ORB - min version" />
 
 <span>0.6</span> <img src="sota-ressources/outputs-evaluation/orb_min/how_handle_no_descriptors.png" title="fig:" alt="Results - ORB - min version" />
-
-<span>0.51</span> <img src="sota-ressources/outputs-evaluation/orb_max/KBC_perfect_match.png" title="fig:" alt="Results - ORB - max version" />
-
-<span>0.48</span> <img src="sota-ressources/outputs-evaluation/orb_max/Microsoft_good_match_threeshold.png" title="fig:" alt="Results - ORB - max version" />
-
-<span>0.8</span> <img src="sota-ressources/outputs-evaluation/orb_max/swedish_bank_good_match.png" title="fig:" alt="Results - ORB - max version" />
 
 <span>0.51</span> <img src="sota-ressources/outputs-evaluation/orb_max/KBC_perfect_match.png" title="fig:" alt="Results - ORB - max version" />
 
@@ -1181,6 +1199,34 @@ Few tips to analyze following pictures :
 <span>0.5</span> <img src="sota-ressources/outputs-evaluation/orb_matches/text_problem_long_3.png" title="fig:" alt="Results - ORB - drawbacks examples 3/3" />
 
 <span>0.48</span> <img src="sota-ressources/outputs-evaluation/orb_matches/whitepagetextproblem.png" title="fig:" alt="Results - ORB - drawbacks examples 3/3" />
+
+RANSAC outputs a homography between the request picture (the one which should be labelled) and the current picture of all pictures of the database. Please note that ’transformation’ refers to the transformation matrix that RANSAC ouputs, which determines which matches are insiders and which are outliers. A ’strong transformation’ is a significant rotation/translation/scale-up or down/deformation. A ’light transformation’ is a near direct translation, without rotation, scaling or deformation. Figure \[fig:ransac1\] and \[fig:ransac2\]
+
+The transformation matrix is equivalent to the transformation that should be applied to the request picture to “fit” the current picture of the database it is compared to. Displaying the request picture with its transformation gives an idea of “how much” the request picture should be transformed. If the transformation is strong (high distortion) then the match is probably low. Figure \[fig:matrixtransformation\]
+
+<span>0.45</span> <img src="sota-ressources/outputs-evaluation/RANSAC_ORB/good_match.png" title="fig:" alt="Results - ORB - RANSAC Filtering - No matrix filter" />
+
+<span>0.54</span> <img src="sota-ressources/outputs-evaluation/RANSAC_ORB/Outlook96.png" title="fig:" alt="Results - ORB - RANSAC Filtering - No matrix filter" />
+
+<span>0.5</span> <img src="sota-ressources/outputs-evaluation/RANSAC_ORB/Outlook_impressive_bis.png" title="fig:" alt="Results - ORB - RANSAC Filtering - No matrix filter" />
+
+<span>0.48</span> <img src="sota-ressources/outputs-evaluation/RANSAC_ORB/threshold_clear.png" title="fig:" alt="Results - ORB - RANSAC Filtering - No matrix filter" />
+
+<span>1</span> <img src="sota-ressources/outputs-evaluation/RANSAC_ORB/avoidable_example.png" title="fig:" alt="Issues - ORB - RANSAC Filtering - No matrix filter" />
+
+<span>1</span> <img src="sota-ressources/outputs-evaluation/RANSAC_ORB/problem_ransac_block_text.png" title="fig:" alt="Issues - ORB - RANSAC Filtering - No matrix filter" />
+
+<span>1</span> <img src="sota-ressources/outputs-evaluation/RANSAC_ORB/very_good_matching_ransac.png" title="fig:" alt="Issues - ORB - RANSAC Filtering - No matrix filter" />
+
+<span>0.9</span> <img src="sota-ressources/outputs-evaluation/RANSAC_Matrix_ORB/easy_match_low_distortion_microsoft.png" title="fig:" alt="Matrix transformation visualisation - ORB - RANSAC Filtering - Visualisation of transformation matrix applied to request picture. From left to right : database picture (example), target picture (request), deformed target picture thanks to RANSAC transformation matrix " />
+
+<span>0.9</span> <img src="sota-ressources/outputs-evaluation/RANSAC_Matrix_ORB/medium_distortion.png" title="fig:" alt="Matrix transformation visualisation - ORB - RANSAC Filtering - Visualisation of transformation matrix applied to request picture. From left to right : database picture (example), target picture (request), deformed target picture thanks to RANSAC transformation matrix " />
+
+<span>0.9</span> <img src="sota-ressources/outputs-evaluation/RANSAC_Matrix_ORB/flipped_picture.png" title="fig:" alt="Matrix transformation visualisation - ORB - RANSAC Filtering - Visualisation of transformation matrix applied to request picture. From left to right : database picture (example), target picture (request), deformed target picture thanks to RANSAC transformation matrix " />
+
+<span>0.9</span> <img src="sota-ressources/outputs-evaluation/RANSAC_Matrix_ORB/butterfly_configuration.png" title="fig:" alt="Matrix transformation visualisation - ORB - RANSAC Filtering - Visualisation of transformation matrix applied to request picture. From left to right : database picture (example), target picture (request), deformed target picture thanks to RANSAC transformation matrix " />
+
+<span>0.9</span> <img src="sota-ressources/outputs-evaluation/RANSAC_Matrix_ORB/obvious_mismatch_text.png" title="fig:" alt="Matrix transformation visualisation - ORB - RANSAC Filtering - Visualisation of transformation matrix applied to request picture. From left to right : database picture (example), target picture (request), deformed target picture thanks to RANSAC transformation matrix " />
 
 <img src="sota-ressources/memory_consumption/ORB_only_PNG_1/ORB_Memory.png" alt="Memory consumption of ORB. 84 Mo of pictures are loaded and kept in memory for debug and output purposes. Each spike is a different ORB configuration trial. About 60 configurations are successfully tested. Overhead of the framework is displayed page Figure [fig:frameworkmemory]" />
 

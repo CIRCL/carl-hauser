@@ -18,13 +18,13 @@ import Void_baseline.void_baseline as void_baseline
 
 TO_ROUND = 5
 
-
 class Configuration_launcher():
     def __init__(self,
                  source_pictures_dir: pathlib.Path,
                  output_folder: pathlib.Path,
                  ground_truth_json: pathlib.Path,
-                 img_type: configuration.SUPPORTED_IMAGE_TYPE):
+                 img_type: configuration.SUPPORTED_IMAGE_TYPE,
+                 overwrite_folder : bool):
 
         # /!\ Logging doesn't work in IDE, but works in terminal /!\
 
@@ -42,13 +42,15 @@ class Configuration_launcher():
         self.filesystem_handler = filesystem_lib.File_System(conf=tmp_conf)
         self.filesystem_handler.clean_folder(self.source_pictures_dir)
 
+        self.overwrite_folder = overwrite_folder
+
     def auto_launch(self):
         self.logger.info("==== ----- LAUNCHING AUTO CONF LAUNCHER ---- ==== ")
         self.auto_launch_image_hash()
         self.auto_launch_tlsh()
         self.auto_launch_orb()
         self.auto_launch_orb_BOW()
-        # self.auto_launch_void()
+        self.auto_launch_void()
 
     def auto_launch_image_hash(self):
         self.logger.info("==== ----- LAUNCHING IMAGE HASH ALGOS ---- ==== ")
@@ -58,7 +60,7 @@ class Configuration_launcher():
         curr_configuration.SOURCE_DIR = self.source_pictures_dir
         curr_configuration.GROUND_TRUTH_PATH = self.ground_truth_json
         curr_configuration.IMG_TYPE = self.img_type
-        curr_configuration.SAVE_PICTURE = False
+        curr_configuration.SAVE_PICTURE_INSTRUCTION_LIST = [] # No saving
         curr_configuration.OUTPUT_DIR = self.output_folder
 
         list_to_execute = [configuration.ALGO_TYPE.A_HASH,
@@ -72,6 +74,12 @@ class Configuration_launcher():
         for type in list_to_execute:
             curr_configuration.ALGO = type
             curr_configuration.OUTPUT_DIR = self.output_folder / image_hash.Image_hash_execution_handler.conf_to_string(curr_configuration)
+
+            # Jump to next configuration if we are not overwriting current results
+            if not self.overwrite_folder and curr_configuration.OUTPUT_DIR.exists() :
+                self.logger.warning(f"Configuration skipped, no overwrite and already exists : {curr_configuration.OUTPUT_DIR}")
+                continue
+
             try:
                 self.logger.info(f"Current configuration : {curr_configuration.__dict__} ")
                 eh = image_hash.Image_hash_execution_handler(conf=curr_configuration)
@@ -88,7 +96,7 @@ class Configuration_launcher():
         curr_configuration.SOURCE_DIR = self.source_pictures_dir
         curr_configuration.GROUND_TRUTH_PATH = self.ground_truth_json
         curr_configuration.IMG_TYPE = self.img_type
-        curr_configuration.SAVE_PICTURE = False
+        curr_configuration.SAVE_PICTURE_INSTRUCTION_LIST =  [] # No saving
         curr_configuration.OUTPUT_DIR = self.output_folder
 
         # Launch
@@ -99,6 +107,12 @@ class Configuration_launcher():
         for type in list_to_execute:
             curr_configuration.ALGO = type
             curr_configuration.OUTPUT_DIR = self.output_folder / tlsh.TLSH_execution_handler.conf_to_string(curr_configuration)
+
+            # Jump to next configuration if we are not overwriting current results
+            if not self.overwrite_folder and curr_configuration.OUTPUT_DIR.exists() :
+                self.logger.warning(f"Configuration skipped, no overwrite and already exists : {curr_configuration.OUTPUT_DIR}")
+                continue
+
             try:
                 self.logger.info(f"Current configuration : {curr_configuration.__dict__} ")
                 eh = tlsh.TLSH_execution_handler(conf=curr_configuration)
@@ -115,12 +129,15 @@ class Configuration_launcher():
         curr_configuration.SOURCE_DIR = self.source_pictures_dir
         curr_configuration.GROUND_TRUTH_PATH = self.ground_truth_json
         curr_configuration.IMG_TYPE = self.img_type
-        curr_configuration.SAVE_PICTURE = False
+        curr_configuration.SAVE_PICTURE_INSTRUCTION_LIST = [] # No saving
         curr_configuration.OUTPUT_DIR = self.output_folder
 
         curr_configuration.ALGO = configuration.ALGO_TYPE.ORB
         curr_configuration.ORB_KEYPOINTS_NB = 500
 
+        curr_configuration.SAVE_PICTURE_INSTRUCTION_LIST = [configuration.PICTURE_SAVE_MODE.TOP3,
+                                                            configuration.PICTURE_SAVE_MODE.FEATURE_MATCHES_TOP3,
+                                                            configuration.PICTURE_SAVE_MODE.RANSAC_MATRIX]  # No saving
         for match in configuration.MATCH_TYPE:
             for datastruct in configuration.DATASTRUCT_TYPE:
                 for filter in configuration.FILTER_TYPE:
@@ -142,6 +159,11 @@ class Configuration_launcher():
 
                             curr_configuration.OUTPUT_DIR = self.output_folder / opencv.OpenCV_execution_handler.conf_to_string(curr_configuration)
 
+                            # Jump to next configuration if we are not overwriting current results
+                            if not self.overwrite_folder and curr_configuration.OUTPUT_DIR.exists():
+                                self.logger.warning(f"Configuration skipped, no overwrite and already exists : {curr_configuration.OUTPUT_DIR}")
+                                continue
+
                             try:
                                 self.logger.info(f"Current configuration : {curr_configuration.__dict__} ")
                                 eh = opencv.OpenCV_execution_handler(conf=curr_configuration)
@@ -158,7 +180,7 @@ class Configuration_launcher():
         curr_configuration.SOURCE_DIR = self.source_pictures_dir
         curr_configuration.GROUND_TRUTH_PATH = self.ground_truth_json
         curr_configuration.IMG_TYPE = self.img_type
-        curr_configuration.SAVE_PICTURE = False
+        # curr_configuration.SAVE_PICTURE_INSTRUCTION_LIST =  [configuration.PICTURE_SAVE_MODE.RANSAC_MATRIX] # No saving
         curr_configuration.OUTPUT_DIR = self.output_folder
 
         curr_configuration.ALGO = configuration.ALGO_TYPE.ORB
@@ -175,6 +197,11 @@ class Configuration_launcher():
                 curr_configuration.BOW_CMP_HIST = hist_cmp
 
                 curr_configuration.OUTPUT_DIR = self.output_folder / opencv.OpenCV_execution_handler.conf_to_string(curr_configuration)
+
+                # Jump to next configuration if we are not overwriting current results
+                if not self.overwrite_folder and curr_configuration.OUTPUT_DIR.exists():
+                    self.logger.warning(f"Configuration skipped, no overwrite and already exists : {curr_configuration.OUTPUT_DIR}")
+                    continue
 
                 try:
                     self.logger.info(f"Current configuration : {curr_configuration.__dict__} ")
@@ -193,7 +220,7 @@ class Configuration_launcher():
         curr_configuration.SOURCE_DIR = self.source_pictures_dir
         curr_configuration.GROUND_TRUTH_PATH = self.ground_truth_json
         curr_configuration.IMG_TYPE = self.img_type
-        curr_configuration.SAVE_PICTURE = False
+        curr_configuration.SAVE_PICTURE_INSTRUCTION_LIST =  [] # No saving
         curr_configuration.OUTPUT_DIR = self.output_folder / "void_baseline"
 
         self.logger.info(f"Current configuration : {curr_configuration.__dict__} ")
@@ -338,9 +365,11 @@ if __name__ == '__main__':
     logger.addHandler(handler)
 
     base_path = [["../datasets/raw_phishing", configuration.SUPPORTED_IMAGE_TYPE.PNG],
-                 ["../datasets/raw_phishing_bmp", configuration.SUPPORTED_IMAGE_TYPE.BMP],
-                 ["../datasets/raw_phishing_COLORED", configuration.SUPPORTED_IMAGE_TYPE.PNG],
-                 ["../datasets/raw_phishing_Tesseract", configuration.SUPPORTED_IMAGE_TYPE.PNG]
+                 # ["../datasets/raw_phishing_bmp", configuration.SUPPORTED_IMAGE_TYPE.BMP],
+                 # ["../datasets/raw_phishing_COLORED", configuration.SUPPORTED_IMAGE_TYPE.PNG],
+                 # ["../datasets/raw_phishing_Tesseract", configuration.SUPPORTED_IMAGE_TYPE.PNG],
+                 # ["../datasets/raw_phishing_EDGES_CANNY", configuration.SUPPORTED_IMAGE_TYPE.PNG],
+                 # ["../datasets/raw_phishing_EDGES_DEEP", configuration.SUPPORTED_IMAGE_TYPE.PNG]
                  ]
 
     for curr_base_path, img_type in base_path:
@@ -352,8 +381,11 @@ if __name__ == '__main__':
         ground_truth_json = pathlib.Path.cwd() / pathlib.Path(curr_base_path + ".json")
         # Output folder for statistics of executions folders
         output_folder = pathlib.Path.cwd() / pathlib.Path(curr_base_path + "_output/")
+        if not output_folder.resolve().exists() : output_folder.resolve().mkdir()
+
         # Outut folder for statics of executions for paired results
         paired_output_folder = pathlib.Path.cwd() / pathlib.Path(curr_base_path + "_output_paired/")
+        if not paired_output_folder.resolve().exists() : paired_output_folder.resolve().mkdir()
 
         # Output overview files
         output_overview_file = pathlib.Path.cwd() / pathlib.Path(curr_base_path + "_output.overview")
@@ -369,18 +401,19 @@ if __name__ == '__main__':
         config_launcher = Configuration_launcher(source_pictures_dir=source_pictures_dir.resolve(),
                                                  output_folder=output_folder.resolve(),
                                                  ground_truth_json=ground_truth_json.resolve(),
-                                                 img_type=img_type)
+                                                 img_type=img_type,
+                                                 overwrite_folder=False)
         # For profiling : cProfile.run("
-        # config_launcher.auto_launch()
+        config_launcher.auto_launch()
         # ")
 
         # Create overview for simple results
-        # Configuration_launcher.create_tldr(folder=output_folder, output_file=output_overview_file)
-        # Configuration_launcher.create_latex_tldr(folder=output_folder, output_file=output_latex_overview_file)
+        Configuration_launcher.create_tldr(folder=output_folder, output_file=output_overview_file)
+        Configuration_launcher.create_latex_tldr(folder=output_folder, output_file=output_latex_overview_file)
 
         # Create overview for paired results
-        # Configuration_launcher.create_paired_results(input_folder=output_folder, target_pair_folder=paired_output_folder, ground_truth_json=ground_truth_json)
-        # Configuration_launcher.create_tldr(folder=paired_output_folder, output_file=output_overview_paired_file)
+        Configuration_launcher.create_paired_results(input_folder=output_folder, target_pair_folder=paired_output_folder, ground_truth_json=ground_truth_json)
+        Configuration_launcher.create_tldr(folder=paired_output_folder, output_file=output_overview_paired_file)
 
         # Create matrixes
         Configuration_launcher.create_and_export_inclusion_matrix(folder=output_folder, output_file=output_similarity_matrix)

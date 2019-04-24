@@ -61,7 +61,6 @@ class Execution_handler():
 
         # Default Local_picture that has to be overwrite
         self.Local_Picture_class_ref = picture_class.Picture
-        self.save_picture = self.conf.SAVE_PICTURE
 
         # Used during process
         self.target_picture = None
@@ -126,7 +125,7 @@ class Execution_handler():
         self.print_elapsed_time(self.results_storage.TIME_TO_LOAD_PICTURES, 1)
         return picture_list
 
-    @profile(stream=fp)
+    #@profile(stream=fp)
     def prepare_dataset(self, picture_list):
         self.logger.info("Prepare dataset pictures ... (Launch timer)")
         start_time = time.time()
@@ -142,7 +141,7 @@ class Execution_handler():
         raise Exception("PREPARE_DATASET HASN'T BEEN OVERWRITE. PLEASE DO OVERWRITE PARENT FUNCTION BEFORE LAUNCH")
         return picture_list
 
-    @profile(stream=fp)
+    # PROFILER # @profile(stream=fp)
     def prepare_target_picture(self, target_picture):
         self.logger.info("Prepare target picture ... (Launch timer)")
         start_time = time.time()
@@ -167,6 +166,11 @@ class Execution_handler():
         for i, curr_target_picture in enumerate(picture_list):
             self.logger.debug(f"PICTURE {i} picked as target ... (start current timer)")
             self.logger.debug(f"Target picture : {curr_target_picture.path}")
+
+            if i%50 == 0 :
+                self.logger.info(f"PICTURE {i} picked as target ... (start current timer)")
+                self.logger.info(f"Target picture : {curr_target_picture.path}")
+
             start_time = time.time()
 
             try:
@@ -230,7 +234,7 @@ class Execution_handler():
             self.logger.debug("original picture : \t" + str(target_picture.path))
             self.logger.debug("min found : \t" + str(min_object.path) + " with " + str(min))
 
-    @profile(stream=fp)
+    # PROFILER # @profile(stream=fp)
     def find_top_k_closest_pictures(self, picture_list, target_picture):
         # Compute distances
         for curr_pic in picture_list:
@@ -243,7 +247,7 @@ class Execution_handler():
         sorted_picture_list = self.get_top(picture_list, target_picture)
         return sorted_picture_list
 
-    @profile(stream=fp)
+    # PROFILER # @profile(stream=fp)
     def get_top(self, picture_list, target_picture):
         for curr_picture in picture_list:
             curr_picture.distance = self.TO_OVERWRITE_compute_distance(curr_picture, target_picture)
@@ -261,8 +265,8 @@ class Execution_handler():
         return None
 
     def save_pictures(self, sorted_picture_list, target_picture):
-        if self.save_picture:
-            self.printer.save_picture_top_matches(sorted_picture_list, target_picture, self.conf.OUTPUT_DIR / target_picture.path.name)
+        # Will handle the printing according to configuration in self.conf
+        self.printer.save_pictures(sorted_picture_list, target_picture, self.conf.OUTPUT_DIR / target_picture.path.name)
 
     @staticmethod
     def print_list(list, threeshold=5):

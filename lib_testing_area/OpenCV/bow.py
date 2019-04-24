@@ -35,6 +35,8 @@ class BoW_execution_handler(execution_handler.Execution_handler):
         self.Local_Picture_class_ref = Local_Picture
         self.conf = conf
 
+        # self.printer = Custom_printer(self.conf)
+
         # ===================================== ALGORITHM TYPE =====================================
         self.algo = cv2.ORB_create(nfeatures=conf.ORB_KEYPOINTS_NB)
         # SIFT, BRISK, SURF, .. # Available to change nFeatures=1000 for example. Limited to 500 by default
