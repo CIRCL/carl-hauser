@@ -210,7 +210,7 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
             #Do nothing
             self.logger.debug("No post filtering")
         elif self.conf.POST_FILTER_CHOSEN == configuration.POST_FILTER.MATRIX_CHECK :
-            self.matrix_filtering()
+            dist = self.matrix_filtering(dist, pic1, pic2)
         else :
             raise Exception('OPENCV WRAPPER : POST_FILTER CHOSEN NOT CORRECT.')
 
@@ -289,7 +289,7 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
         # ======================= --------------------------- =======================
         #                        Compute homography with RANSAC
 
-        if len(matches) > MIN_MATCH_COUNT:
+        if len(diminished_matches) > MIN_MATCH_COUNT:
             src_pts = np.float32([pic1.key_points[m.queryIdx].pt for m in diminished_matches]).reshape(-1, 1, 2)
             dst_pts = np.float32([pic2.key_points[m.trainIdx].pt for m in diminished_matches]).reshape(-1, 1, 2)
 
@@ -317,13 +317,100 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
 
         return good, transformation_matrix
 
-    def matrix_filtering(self):
+    def matrix_filtering(self, dist, pic1, pic2):
+        # Ideas from :
+        # - https://stackoverflow.com/questions/10972438/detecting-garbage-homographies-from-findhomography-in-opencv/10981249#10981249
+        # - https://stackoverflow.com/questions/14954220/how-to-check-if-obtained-homography-matrix-is-good?noredirect=1&lq=1
+        # - https://stackoverflow.com/questions/16439792/how-can-i-compute-svd-and-and-verify-that-the-ratio-of-the-first-to-last-singula?noredirect=1&lq=1
+        # - https://answers.opencv.org/question/2588/check-if-homography-is-good/
+
+        if pic1.transformation_matrix is None :
+            self.logger.error(f"NO TRANSFORMATION MATRIX FOR : {pic1.path}")
+            return dist
+
+
         '''
         Compute the determinant of the homography, and see if it's too close to zero for comfort.
-Even better, compute its SVD, and verify that the ratio of the first-to-last singular value is sane (not too high). Either result will tell you whether the matrix is close to singular.
-Compute the images of the image corners and of its center (i.e. the points you get when you apply the homography to those corners and center), and verify that they make sense, i.e. are they inside the image canvas (if you expect them to be)? Are they well separated from each other?
-Plot in matlab/octave the output (data) points you fitted the homography to, along with their computed values from the input ones, using the homography, and verify that they are close (i.e. the error is low).
+        Compute the determinant of the top left 2x2 homography matrix, and check if it's "too close" to zero for comfort...
+        btw you can also check if it's *too *far from zero because then the invert matrix would have a determinant too close to zero.
         '''
+        det = pic1.transformation_matrix[0][0] * pic1.transformation_matrix[0][0] - pic1.transformation_matrix[1][0]*pic1.transformation_matrix[0][1]
+
+        '''
+        A determinant of zero would mean the matrix is not inversible, too close to zero would mean *singular
+        (like you see the plane object at 90°, which is almost impossible if you use *good matches).
+        '''
+        threshold = 1
+        if math.fabs(det) > threshold : # or math.fabs(det) < (1.0 / threshold) :
+            self.logger.warning(f"Almost 90° rotation for : {pic1.path}")
+            return 1 # bad
+
+        '''
+        And while we are at it...if det<0 the homography is not conserving the orientation (clockwise<->anticlockwise), 
+        except if you are watching the object in a mirror...it is certainly not good (plus the sift/surf descriptors are not done to be mirror invariants as far as i know, so you would probably don'thave good maches).
+        Else if the determinant is < 0, it is orientation-reversing.
+        '''
+        # H.at < double > (0, 0) * H.at < double > (1, 1) - H.at < double > (1, 0) * H.at < double > (0, 1);
+        if det < 0 :
+            self.logger.warning(f"Mirror scene for : {pic1.path}")
+            return 1 # no mirrors in the scene
+
+        '''
+        Even better, compute its SVD, and verify that the ratio of the first-to-last singular value is sane (not too high). 
+        Either result will tell you whether the matrix is close to singular.
+        you'd have to verify that the largest eigen-value isn't too small too.
+        '''
+
+        '''
+        Compute the images of the image corners and of its center (i.e. the points you get when you apply the homography to those corners and center), 
+        and verify that they make sense, i.e. are they inside the image canvas (if you expect them to be)? Are they well separated from each other?
+        '''
+
+        # Get the size of the current matching picture
+        h, w, d = pic1.image.shape
+        # Get the position of the 4 corners of the current matching picture
+        pts = np.float32([[0, 0], [0, h - 1], [w - 1, h - 1], [w - 1, 0]]).reshape(-1, 1, 2)
+
+        try:
+            # Transform the 4 corners thanks to the transformation matrix calculated
+            dst = cv2.perspectiveTransform(pts, pic1.transformation_matrix)
+        except Exception as e:
+            self.logger.error(f"Inverting RANSAC transformation matrix impossible due to : {e} on picture {pic1.path}")
+
+        # Draw the transformed 4 corners on the target picture (pic2, request)
+        dist = cv2.norm(pts - dst, cv2.NORM_L2)
+
+        #TODO : fill this equation
+        # min(X_max - X_min) > 0.2 * width_picture
+
+        '''
+        Plot in matlab/octave the output (data) points you fitted the homography to, along with their computed values from the input ones, 
+        using the homography, and verify that they are close (i.e. the error is low).
+        '''
+
+        '''
+        Homography should preserve the direction of polygonal points. 
+        Design a simple test. points (0,0), (imwidth,0), (width,height), (0,height) represent a quadrilateral with clockwise arranged points. 
+        Apply homography on those points and see if they are still clockwise arranged if they become counter clockwise your homography is flipping (mirroring) 
+        the image which is sometimes still ok. But if your points are out of order than you have a "bad homography"
+        '''
+
+        '''
+        The homography doesn't change the scale of the object too much. For example if you expect it to shrink or enlarge the image by a factor of up to X, just check this rule. Transform the 4 points (0,0), (imwidth,0), (width-1,height), (0,height) with homography and calculate the area of the quadrilateral (opencv method of calculating area of polygon) if the ratio of areas is too big (or too small), you probably have an error.
+        '''
+
+        '''
+        Good homography is usually uses low values of perspectivity. 
+        Typically if the size of the image is ~1000x1000 pixels those values should be ~0.005-0.001. 
+        High perspectivity will cause enormous distortions which are probably an error. If you don't know where those values are located read my post: 
+        trying to understand the Affine Transform . It explains the affine transform math and the other 2 values are perspective parameters.
+        '''
+
+        '''
+        Compute the area before/after
+        '''
+
+        return dist
 
 class Custom_printer(printing_lib.Printer):
 

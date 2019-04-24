@@ -110,8 +110,8 @@ class ORB_default_configuration(Default_configuration):
         self.CROSSCHECK = CROSSCHECK.AUTO
 
         # RANSAC parameter
-        self.RANSAC_ACCELERATOR_THRESHOLD = 50 # Remove farthest matches
-        self.POST_FILTER_CHOSEN =
+        self.RANSAC_ACCELERATOR_THRESHOLD = 65 # Remove farthest matches
+        self.POST_FILTER_CHOSEN = POST_FILTER.NONE
 
 # ==================== ------------------------ ====================
 #                      BoW ORB POSSIBLE CONFIGURATIONS

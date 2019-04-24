@@ -46,11 +46,11 @@ class Configuration_launcher():
 
     def auto_launch(self):
         self.logger.info("==== ----- LAUNCHING AUTO CONF LAUNCHER ---- ==== ")
-        # self.auto_launch_image_hash()
-        # self.auto_launch_tlsh()
+        self.auto_launch_image_hash()
+        self.auto_launch_tlsh()
         self.auto_launch_orb()
-        # self.auto_launch_orb_BOW()
-        # self.auto_launch_void()
+        self.auto_launch_orb_BOW()
+        self.auto_launch_void()
 
     def auto_launch_image_hash(self):
         self.logger.info("==== ----- LAUNCHING IMAGE HASH ALGOS ---- ==== ")
@@ -180,7 +180,7 @@ class Configuration_launcher():
         curr_configuration.SOURCE_DIR = self.source_pictures_dir
         curr_configuration.GROUND_TRUTH_PATH = self.ground_truth_json
         curr_configuration.IMG_TYPE = self.img_type
-        curr_configuration.SAVE_PICTURE_INSTRUCTION_LIST =  [configuration.PICTURE_SAVE_MODE.RANSAC_MATRIX] # No saving
+        # curr_configuration.SAVE_PICTURE_INSTRUCTION_LIST =  [configuration.PICTURE_SAVE_MODE.RANSAC_MATRIX] # No saving
         curr_configuration.OUTPUT_DIR = self.output_folder
 
         curr_configuration.ALGO = configuration.ALGO_TYPE.ORB
@@ -412,9 +412,9 @@ if __name__ == '__main__':
         Configuration_launcher.create_latex_tldr(folder=output_folder, output_file=output_latex_overview_file)
 
         # Create overview for paired results
-        # Configuration_launcher.create_paired_results(input_folder=output_folder, target_pair_folder=paired_output_folder, ground_truth_json=ground_truth_json)
-        # Configuration_launcher.create_tldr(folder=paired_output_folder, output_file=output_overview_paired_file)
+        Configuration_launcher.create_paired_results(input_folder=output_folder, target_pair_folder=paired_output_folder, ground_truth_json=ground_truth_json)
+        Configuration_launcher.create_tldr(folder=paired_output_folder, output_file=output_overview_paired_file)
 
         # Create matrixes
-        # Configuration_launcher.create_and_export_inclusion_matrix(folder=output_folder, output_file=output_similarity_matrix)
-        # Configuration_launcher.create_and_export_pair_matrix(input_folder=output_folder, ground_truth_json=ground_truth_json, output_file=output_paired_matrix)
+        Configuration_launcher.create_and_export_inclusion_matrix(folder=output_folder, output_file=output_similarity_matrix)
+        Configuration_launcher.create_and_export_pair_matrix(input_folder=output_folder, ground_truth_json=ground_truth_json, output_file=output_paired_matrix)
