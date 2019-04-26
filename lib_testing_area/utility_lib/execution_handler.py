@@ -4,6 +4,7 @@ import operator
 import logging
 import pprint
 import json
+import traceback
 
 # from memory_profiler import profile, LogFile
 import sys
@@ -179,14 +180,14 @@ class Execution_handler():
             except Exception as e:
                 self.logger.error(
                     f"An Exception has occured during the tentative to find a (k-top) match to {curr_target_picture.path.name} : " + str(e))
-                raise e
+                self.logger.error(traceback.print_tb(e.__traceback__))
 
             try:
                 self.save_pictures(curr_sorted_picture_list, curr_target_picture)
             except Exception as e:
                 self.logger.error(
                     f"An Exception has occured during the tentative save the result picture of {curr_target_picture.path.name} : " + str(e))
-                raise e
+                self.logger.error(traceback.print_tb(e.__traceback__))
 
             try:
                 # if curr_sorted_picture_list[0].distance < THREESHOLD :
@@ -194,7 +195,7 @@ class Execution_handler():
             except Exception as e:
                 self.logger.error(
                     f"An Exception has occured during the tentative to add result to json for {curr_target_picture.path.name} : " + str(e))
-                raise e
+                self.logger.error(traceback.print_tb(e.__traceback__))
 
             elapsed = time.time() - start_time
             self.print_elapsed_time(elapsed, 1, to_add="current ")

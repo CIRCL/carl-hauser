@@ -104,9 +104,9 @@ class ORB_default_configuration(Default_configuration):
         # Facultative depending on upper
         self.MATCH_K_FOR_KNN = 2
 
-        self.FLANN_KDTREE_INDEX = 0
-        self.FLANN_KDTREE_INDEX_params = dict(algorithm=self.FLANN_KDTREE_INDEX, trees=5)
-        self.FLANN_KDTREE_SEARCH_params = dict(checks=50)
+        # self.FLANN_KDTREE_INDEX = 0
+        # self.FLANN_KDTREE_INDEX_params = dict(algorithm=self.FLANN_KDTREE_INDEX, trees=5)
+        # self.FLANN_KDTREE_SEARCH_params = dict(checks=50)
 
         self.FLANN_LSH_INDEX = 6
         self.FLANN_LSH_INDEX_params = dict(algorithm=self.FLANN_LSH_INDEX, table_number=6, key_size=12, multi_probe_level=1)

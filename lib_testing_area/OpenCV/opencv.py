@@ -300,7 +300,7 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
 
         else:
             logger = logging.getLogger()
-            logger.info("not enough matches")
+            logger.info(f"not enough matches between {pic1.path} and {pic2.path}")
 
         return good, transformation_matrix
 
