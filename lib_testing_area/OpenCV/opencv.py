@@ -300,7 +300,7 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
 
         else:
             logger = logging.getLogger()
-            logger.info(f"not enough matches between {pic1.path} and {pic2.path}")
+            logger.info(f"not enough matches between {pic1.path.name} and {pic2.path.name}")
 
         return good, transformation_matrix
 
@@ -312,7 +312,7 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
         # - https://answers.opencv.org/question/2588/check-if-homography-is-good/
 
         if pic1.transformation_matrix is None :
-            self.logger.error(f"NO TRANSFORMATION MATRIX FOR : {pic1.path}")
+            self.logger.error(f"NO TRANSFORMATION MATRIX FOR : {pic1.path.name}")
             return dist
 
 
@@ -329,7 +329,7 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
         '''
         threshold = 1
         if math.fabs(det) > threshold : # or math.fabs(det) < (1.0 / threshold) :
-            self.logger.warning(f"Almost 90° rotation for : {pic1.path}")
+            self.logger.warning(f"Almost 90° rotation for : {pic1.path.name}")
             return 1 # bad
 
         '''
@@ -339,7 +339,7 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
         '''
         # H.at < double > (0, 0) * H.at < double > (1, 1) - H.at < double > (1, 0) * H.at < double > (0, 1);
         if det < 0 :
-            self.logger.warning(f"Mirror scene for : {pic1.path}")
+            self.logger.warning(f"Mirror scene for : {pic1.path.name}")
             return 1 # no mirrors in the scene
 
         '''
@@ -352,6 +352,13 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
         Compute the images of the image corners and of its center (i.e. the points you get when you apply the homography to those corners and center), 
         and verify that they make sense, i.e. are they inside the image canvas (if you expect them to be)? Are they well separated from each other?
         '''
+        # And at the same time :
+        '''
+        Homography should preserve the direction of polygonal points. 
+        Design a simple test. points (0,0), (imwidth,0), (width,height), (0,height) represent a quadrilateral with clockwise arranged points. 
+        Apply homography on those points and see if they are still clockwise arranged if they become counter clockwise your homography is flipping (mirroring) 
+        the image which is sometimes still ok. But if your points are out of order than you have a "bad homography"
+        '''
 
         self.logger.info(f"Previously calculated distance : {dist}")
 
@@ -363,6 +370,7 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
         max = 4 * cv2.norm(np.float32([[w,h]]), cv2.NORM_L2)
         # max = 1 if max == 0 else max
 
+        dst = None
         try:
             # Transform the 4 corners thanks to the transformation matrix calculated
             dst = cv2.perspectiveTransform(pts, pic1.transformation_matrix)
@@ -372,10 +380,26 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
 
             self.logger.info(f"Ransac corners calculated distance : {tmp_dist}")
 
-            dist = tmp_dist
-
+            # Totally an heuristic (geometry based):
+            if tmp_dist < 0.20 :
+                dist = tmp_dist
         except Exception as e:
             self.logger.error(f"Inverting RANSAC transformation matrix impossible due to : {e} on picture {pic1.path}")
+
+        if dst is not None:
+            # Direction of polygones : check if order is consistent
+            corner_TL = dst[0][0] # Top Left
+            corner_TR = dst[3][0] # Top Right
+            corner_BL = dst[1][0] # Bottom Left
+            corner_BR = dst[2][0] # Bottom Right
+
+            if not (corner_TL[0] < corner_TR[0] and corner_BL[0] < corner_BR[0] and corner_TL[1] < corner_BL[1] and corner_TR[1] < corner_BR[1]):
+                self.logger.warning(f"Bad points rotation : {pic1.path}")
+                return 1
+        else :
+            self.logger.info("Dist has not been calculated properly. The value is still 'None'. Does an error had been thrown just before concerning transformation matrix not invertible ?")
+
+
 
 
         #TODO : fill this equation
@@ -386,12 +410,7 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
         using the homography, and verify that they are close (i.e. the error is low).
         '''
 
-        '''
-        Homography should preserve the direction of polygonal points. 
-        Design a simple test. points (0,0), (imwidth,0), (width,height), (0,height) represent a quadrilateral with clockwise arranged points. 
-        Apply homography on those points and see if they are still clockwise arranged if they become counter clockwise your homography is flipping (mirroring) 
-        the image which is sometimes still ok. But if your points are out of order than you have a "bad homography"
-        '''
+
 
         '''
         The homography doesn't change the scale of the object too much. For example if you expect it to shrink or enlarge the image by a factor of up to X, just check this rule. Transform the 4 points (0,0), (imwidth,0), (width-1,height), (0,height) with homography and calculate the area of the quadrilateral (opencv method of calculating area of polygon) if the ratio of areas is too big (or too small), you probably have an error.
