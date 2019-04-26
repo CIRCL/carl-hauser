@@ -1,6 +1,12 @@
 # ==================== ------------------------ ====================
 #                      Configuration declaration
 from enum import Enum, auto
+import logging
+
+# Utilities
+TO_ROUND = 5
+FORMATTER = logging.Formatter('%(asctime)s - + %(relativeCreated)d - %(name)s - %(levelname)s - %(message)s')
+
 
 class SUPPORTED_IMAGE_TYPE(Enum):
     PNG = auto()
@@ -40,11 +46,12 @@ class Default_configuration():
         # Processing
         self.ALGO = ALGO_TYPE.A_HASH
         self.SELECTION_THREESHOLD = None #TODO : To fix and to use, to prevent "forced linked" if none
-        #Threshold
+        # Threshold
         self.THREESHOLD_EVALUATION = THRESHOLD_MODE.MAXIMIZE_TRUE_POSITIVE
         # Output
         self.SAVE_PICTURE_INSTRUCTION_LIST = []
         self.OUTPUT_DIR = None
+
 
 # ==================== ------------------------ ====================
 #                      ORB POSSIBLE CONFIGURATIONS
@@ -58,7 +65,7 @@ class DISTANCE_TYPE(Enum):
     MEAN_AND_MAX = auto()
 
 class FILTER_TYPE(Enum):
-    RATIO_BAD = auto() # NOT with KNN # DOESNT WORK WELL
+    # RATIO_BAD = auto() # NOT with KNN # DOESNT WORK WELL
     RATIO_CORRECT = auto() # ONLY with KNN
     FAR_THREESHOLD = auto() # NOT with KNN = THREESHOLD DISTANCE # DOESNT WORK WELL
     #### BASIC_THRESHOLD = auto() # DOESNT WORK WELL
