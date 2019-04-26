@@ -51,3 +51,4 @@ class Stats_handler():
         filesystem_lib.File_System.save_json(results, file_path=filepath)
 
         self.logger.debug(f"Statistics file saved as {filepath}.")
+

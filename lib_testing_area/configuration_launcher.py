@@ -5,6 +5,7 @@ import argparse
 import pathlib
 import json
 import traceback
+import pprint
 
 # Own imports
 import utility_lib.filesystem_lib as filesystem_lib
@@ -47,7 +48,7 @@ class Configuration_launcher():
         self.args = args
 
     def add_logfile(self, curr_configuration):
-        curr_configuration.OUTPUT_DIR.mkdir()
+        if not curr_configuration.OUTPUT_DIR.exists() : curr_configuration.OUTPUT_DIR.mkdir()
         logger = logging.getLogger()  # See : https://stackoverflow.com/questions/50714316/how-to-use-logging-getlogger-name-in-multiple-modules
         tmp_log_file_handler = logging.FileHandler(str(curr_configuration.OUTPUT_DIR / pathlib.Path('execution.log')),
                                                    'w')
@@ -67,7 +68,8 @@ class Configuration_launcher():
         tmp_log_handler = self.add_logfile(curr_configuration)
 
         try:
-            self.logger.info(f"Current configuration : {curr_configuration.__dict__} ")
+            self.logger.info(f"Current configuration : \n {pprint.pformat(curr_configuration.__dict__)}")
+
             eh = exec_handler(conf=curr_configuration)
             eh.do_full_test()
         except Exception as e:
@@ -79,10 +81,13 @@ class Configuration_launcher():
     def skip_if_already_computed(self, curr_configuration):
         # Jump to next configuration if we are not overwriting current results
         if not self.overwrite_folder and curr_configuration.OUTPUT_DIR.exists():
-            self.logger.warning(f"Configuration skipped, no overwrite and already exists : {curr_configuration.OUTPUT_DIR}")
+            self.logger.warning(f"Configuration skipped, no overwrite and already exists : {curr_configuration.OUTPUT_DIR} \n")
             return True
-        else:
-            self.logger.warning(f"Configuration does not exist, executing : {curr_configuration.OUTPUT_DIR}")
+        elif self.overwrite_folder :
+            self.logger.info(f"Configuration overwriten. Name generation : {curr_configuration.OUTPUT_DIR}")
+            return False
+        else :
+            self.logger.info(f"Configuration absent. Name generation : {curr_configuration.OUTPUT_DIR}")
             return False
 
     def auto_launch(self):
@@ -185,22 +190,22 @@ class Configuration_launcher():
 
                                 # Check configuration
                                 if filter == configuration.FILTER_TYPE.FAR_THREESHOLD and match == configuration.MATCH_TYPE.STD :
-                                    self.logger.warning("Detected FAR THRESHOLD + STD MATCH : configuration aborted.")
+                                    self.logger.warning("Detected FAR THRESHOLD + STD MATCH : configuration aborted.\n")
                                     continue
 
                                 if filter != configuration.FILTER_TYPE.RANSAC and postfilter == configuration.POST_FILTER.MATRIX_CHECK:
-                                    self.logger.warning("Detected not RANSAC + with RANSAC MATRIX_CHECK FILTER : configuration aborted.")
+                                    self.logger.warning("Detected not RANSAC + with RANSAC MATRIX_CHECK FILTER : configuration aborted.\n")
                                     continue
 
                                 if filter != configuration.FILTER_TYPE.RANSAC and configuration.PICTURE_SAVE_MODE.RANSAC_MATRIX in saving_list:
                                     tmp_saving_list = saving_list.copy()
-                                    tmp_saving_list = tmp_saving_list.remove(configuration.PICTURE_SAVE_MODE.RANSAC_MATRIX)
-                                    self.logger.warning("Detected RANSAC matches saving mode without RANSAC filter. Removing this instruction for this execution configuration.")
+                                    tmp_saving_list.remove(configuration.PICTURE_SAVE_MODE.RANSAC_MATRIX)
+                                    self.logger.warning("Detected RANSAC matches saving mode without RANSAC filter. Removing this instruction for this execution configuration.\n")
                                 else :
                                     tmp_saving_list = saving_list
 
                                 if filter == configuration.FILTER_TYPE.RATIO_CORRECT and match == configuration.MATCH_TYPE.STD:
-                                    self.logger.warning("Detected RATIO CORRECT + STD MATCH : configuration aborted.")
+                                    self.logger.warning("Detected RATIO CORRECT + STD MATCH : configuration aborted.\n")
                                     continue
 
                                 # if filter == configuration.FILTER_TYPE.FAR_THREESHOLD and match == configuration.MATCH_TYPE.STD :

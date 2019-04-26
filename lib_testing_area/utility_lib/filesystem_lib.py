@@ -8,6 +8,7 @@ import cv2
 import configuration
 import logging
 import pickle
+import pprint
 
 # PERSONAL LIBRARIES
 TOP_K_EDGE = 1
@@ -99,6 +100,42 @@ class File_System():
 
     @staticmethod
     def save_json(obj, file_path : pathlib.Path):
+        logger = logging.getLogger()
+
+        # Create parents if they does not exist
+        file_path.parent.mkdir(parents=True, exist_ok=True)
+
+        try :
+            with file_path.open("w", encoding="utf-8") as f:
+                f.write(pprint.pformat(vars(obj)))
+        except Exception as e:
+            try:
+                logger.error(f"Saving Object to JSON file failed. Trying to save it as json dump... {file_path}")
+                with open(str(file_path.resolve()), 'w+') as f:
+                    json.dump(obj, f, default=lambda x: x.__dict__)
+            except Exception as e:
+                logger.error(f"Saving Object to JSON file failed again. Abort saving. {file_path}")
+
+        logger.debug(f"File saved as {file_path}.")
+
+
+    '''
+
+
+    def write_configuration_to_folder(self, conf: configuration.Default_configuration):
+        fn = "conf.txt"
+        filepath = conf.OUTPUT_DIR / fn
+        with filepath.open("w", encoding="utf-8") as f:
+            f.write(pprint.pformat(vars(conf)))
+
+        # data = json.dumps(results)
+        # with filepath.open("w", encoding="utf-8") as f:
+        #       f.write(data)
+
+        self.logger.debug(f"Configuration file saved as {filepath}.")
+
+    @staticmethod
+    def save_json(obj, file_path : pathlib.Path):
         # Create path
         file_path.parent.mkdir(parents=True, exist_ok=True)
         # Store object
@@ -106,6 +143,7 @@ class File_System():
         with open(str(file_path.resolve()), 'w+') as f:
             json.dump(obj, f, default=lambda x: x.__dict__)
         # Please see : https://stackoverflow.com/questions/10252010/serializing-class-instance-to-json
+    '''
 
     @staticmethod
     def load_json(file_path: pathlib.Path ):
@@ -119,11 +157,11 @@ class File_System():
                     data = json.loads(json_file)
                 except Exception as e :
                     try :
-                        logger.warning("JSON tried to load is not a correctly formatted json. Try to perform recover ...")
+                        logger.error("JSON tried to load is not a correctly formatted json. Try to perform recover ...")
                         tmp_json_file = str(json_file.read()).replace("'", '"').replace("\n", '')
                         data = json.loads(tmp_json_file)
                     except Exception as e :
-                        logger.warning("Recover failed. Loading file as text only ...")
+                        logger.error("Recover failed. Loading file as text only ...")
                         data = str(json_file.read())
 
         else:

@@ -24,7 +24,7 @@ class Printer():
             new_directory = file_name.parent / "TOP3"
             if not new_directory.exists() : new_directory.mkdir()
             self.save_pictures_top_3(sorted_picture_list, target_picture, file_name=new_directory / pathlib.Path(file_name.with_suffix("").name + "_BEST").with_suffix(".png"))
-        if configuration.PICTURE_SAVE_MODE.FEATURE_MATCHES_TOP1 in self.conf.SAVE_PICTURE_INSTRUCTION_LIST:
+        if configuration.PICTURE_SAVE_MODE.FEATURE_MATCHES_TOP3 in self.conf.SAVE_PICTURE_INSTRUCTION_LIST:
             # raise Exception("PICTURE SAVING MODE (top matches) INCORRECT FOR SELECTED ALGORITHM. ABORTED")
             self.logger.error("PICTURE SAVING MODE (top matches) INCORRECT FOR SELECTED ALGORITHM. ABORTED")
         if configuration.PICTURE_SAVE_MODE.RANSAC_MATRIX in self.conf.SAVE_PICTURE_INSTRUCTION_LIST:

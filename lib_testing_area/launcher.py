@@ -210,7 +210,7 @@ if __name__ == '__main__':
             source_pictures_dir = pathlib.Path.cwd() / pathlib.Path(curr_base_path + "/")
 
         source_pictures_dir = source_pictures_dir.resolve()
-        logger.warning(f"Input path : {source_pictures_dir}")
+        logger.info(f"Input path : {source_pictures_dir}")
 
         # Source ground truth json
         if tmp_path_gt is not None:
@@ -220,7 +220,7 @@ if __name__ == '__main__':
             ground_truth_json = pathlib.Path.cwd() / pathlib.Path(curr_base_path + ".json")
 
         ground_truth_json = ground_truth_json.resolve()
-        logger.warning(f"Ground truth path : {ground_truth_json}")
+        logger.info(f"Ground truth path : {ground_truth_json}")
 
         curr_base_path = pathlib.Path(curr_base_path)
 
@@ -255,7 +255,7 @@ if __name__ == '__main__':
         output_similarity_matrix = base_path / pathlib.Path(curr_base_path.name + "_output.matrix")
         output_paired_matrix = base_path / pathlib.Path(curr_base_path.name + "_output_paired.matrix")
 
-        logger.warning(f"Output path : {output_folder}")
+        logger.info(f"Output path : {output_folder}")
 
         # =============================
         # img_type = configuration.SUPPORTED_IMAGE_TYPE.PNG
@@ -265,14 +265,14 @@ if __name__ == '__main__':
                                                  img_type=img_type,
                                                  overwrite_folder=args.overwrite,
                                                  args=args)
-        # For profiling : cProfile.run("
         try:
+            # For profiling : cProfile.run("
             config_launcher.auto_launch()
+            # ")
         except Exception as e:
             logger.error(f"Launch of whole configuration launcher aborted due to : {e}")
             logger.error(traceback.print_tb(e.__traceback__))
 
-        # ")
 
         # Create overview for simple results
         try:

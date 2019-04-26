@@ -28,6 +28,15 @@ harvest = np.array([[0.8, 2.4, 2.5, 3.9, 0.0, 4.0, 0.0],
 '''
 # From : https://matplotlib.org/gallery/images_contours_and_fields/image_annotated_heatmap.html
 
+class Graphe():
+    def __init__(self):
+        self.nodes = []
+        self.edges = []
+
+    def load_from_json(self, json):
+        self.nodes = json["nodes"]
+        self.edges = json["edges"]
+
 class Graph_handler():
     def __init__(self):
         self.ord = None
@@ -213,7 +222,7 @@ class Graph_handler():
             if x.is_dir():
 
                 tmp_to_write = {"name": x.name}
-                curr_graphe_file = x / "graphe.json"
+                curr_graphe_file = x / "graphe.py"
 
                 try:
                     data = filesystem_lib.File_System.load_json(curr_graphe_file)
@@ -375,7 +384,7 @@ class Graph_handler():
                 future_folder_path = target_pair_folder / new_name
                 future_folder_path.mkdir(parents=True, exist_ok=True)
 
-                tmp_file_path = future_folder_path / "graphe.json"
+                tmp_file_path = future_folder_path / "graphe.py"
 
                 # Generate merged stats
                 tmp_results = results.RESULTS()
@@ -434,7 +443,7 @@ class Graph_handler():
         # output_file = output_folder / "inclusion_matrix.json"
         filesystem_lib.File_System.save_json(matrix, file_path=output_file)
         '''
-                f = open(str(output_file.resolve()), "w+")  # Overwrite and create if does not exist
+        f = open(str(output_file.resolve()), "w+")  # Overwrite and create if does not exist
         tmp_json = json.dumps(similarity_matrix)
         f.write(tmp_json)
         f.close()

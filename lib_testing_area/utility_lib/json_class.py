@@ -7,6 +7,7 @@ import logging
 import configuration
 import results
 import utility_lib.filesystem_lib as filesystem_lib
+import utility_lib.graph_lib as graph_lib
 import matplotlib.pyplot as plt
 
 TOP_K_EDGE = 1
@@ -16,7 +17,7 @@ MULT_FACTOR_VALUE = 10  # See : http://visjs.org/docs/network/edges.html (Min 1,
 class Json_handler():
     def __init__(self, conf: configuration.Default_configuration):
         self.conf = conf
-        self.json_to_export = {}
+        self.graphe = graph_lib.Graphe()
         self.quality = None
 
     # =========================== -------------------------- ===========================
@@ -33,8 +34,8 @@ class Json_handler():
         return json_imported
 
     def json_export(self):
-        file_out = self.conf.OUTPUT_DIR / "graphe.json"
-        filesystem_lib.File_System.save_json(self.json_to_export, file_path=file_out)
+        file_out = self.conf.OUTPUT_DIR / "graphe.py"
+        filesystem_lib.File_System.save_json(self.graphe, file_path=file_out)
         '''
         with open(pathlib.Path(file_out), 'w') as outfile:
         json.dump(self.json_to_export, outfile)
@@ -49,21 +50,16 @@ class Json_handler():
         for curr_picture in picture_list:
             nodes_list.append(curr_picture.to_node_json_object())
 
-        self.json_to_export["nodes"] = nodes_list
+        self.graphe.nodes = nodes_list
 
         return self
 
-    @staticmethod
-    def mapFromTo(x, a, b, c, d):
-        y = (x - a) / (b - a) * (d - c) + c
-        return y
-
-    def json_add_top_matches(self, json_tmp, sorted_picture_list: List[Picture], target_picture: Picture, k_edge=TOP_K_EDGE):
+    def json_add_top_matches(self, sorted_picture_list: List[Picture], target_picture: Picture, k_edge=TOP_K_EDGE):
         # Preprocess to remove target picture from matches
         offset = remove_target_picture_from_matches(sorted_picture_list, target_picture)
 
         # Get current list of matches
-        edges_list = json_tmp.get("edges", [])
+        edges_list = self.graphe.edges
 
         # Add all edges with labels
         for i in range(0, min(len(sorted_picture_list), k_edge)):
@@ -78,32 +74,31 @@ class Json_handler():
             tmp_obj["title"] = sorted_picture_list[i + offset].distance
 
         # Store in JSON variable
-        json_tmp["edges"] = edges_list
+        self.graphe.edges = edges_list
 
-        return json_tmp
+        return self
 
-    def evaluate_json(self, baseline_path: pathlib.PosixPath, results: results.RESULTS):
-        json_imported = self.import_json(baseline_path)
-        results.TRUE_POSITIVE_RATE = matching_graphe_percentage(self.json_to_export, json_imported)
+    # =========================== -------------------------- ===========================
+    #                        EVALUATION AND THRESHOLD COMPUTATION
 
-        mapping_dict = create_node_mapping(self.json_to_export, json_imported)
+    def evaluate_json(self, ground_truth_path: pathlib.PosixPath, results: results.RESULTS):
 
-        results.COMPUTED_THREESHOLD = self.find_threeshold(self.json_to_export, mapping_dict, json_imported)
-        results.TRUE_POSITIVE_RATE_THREESHOLD = matching_graphe_percentage(self.get_thresholded_graphe(self.json_to_export,
-                                                                                                       results.COMPUTED_THREESHOLD),json_imported)
+        # Load groundtruth graphe
+        json_imported = self.import_json(ground_truth_path)
+        imported_graphe = graph_lib.Graphe()
+        imported_graphe.load_from_json(json_imported)
+
+        mapping_dict = create_node_mapping(self.graphe, imported_graphe)
+
+        # Evaluated
+        results.TRUE_POSITIVE_RATE = matching_graphe_percentage(self.graphe, imported_graphe)
+        results.COMPUTED_THREESHOLD = self.find_threeshold(self.graphe, mapping_dict, imported_graphe)
+
+        # TODO : Review following function. Does not operate as they should ?
+        threesholded_graphe = self.get_thresholded_graphe(self.graphe,results.COMPUTED_THREESHOLD)
+        results.TRUE_POSITIVE_RATE_THREESHOLD = matching_graphe_percentage(threesholded_graphe,imported_graphe)
 
         return self, results
-
-    def replace_type(selfs, json, target_type='.bmp'):
-        nodes = json["nodes"]
-
-        # Convert the extension of images in a graphe json file
-        for curr_node in nodes:
-            curr_node["image"] = str(pathlib.Path(curr_node["image"]).with_suffix(target_type))
-
-        json["nodes"] = nodes
-        return json
-
 
     def find_threeshold(self, candidate_graphe, mapping_dict, ground_truth_graphe):
 
@@ -122,7 +117,7 @@ class Json_handler():
             # Median :
             threshold = wrong_edges[len(wrong_edges)//2]["title"]
         elif mode == configuration.THRESHOLD_MODE.MAXIMIZE_TRUE_POSITIVE :
-            threshold = self.find_best_threeshold(candidate_graphe["edges"], mapping_dict, wrong_edges, self.conf.OUTPUT_DIR / "threshold.png")
+            threshold = self.find_best_threeshold(candidate_graphe.edges, mapping_dict, wrong_edges, self.conf.OUTPUT_DIR / "threshold.png")
         else :
             raise Exception("Incorrect mode for threshold finder.")
 
@@ -166,20 +161,37 @@ class Json_handler():
 
 
     def get_thresholded_graphe(self, candidate_graphe, threshold):
-        modified_graphe = candidate_graphe.copy()
+        modified_graphe = graph_lib.Graphe()
+        modified_graphe.nodes = candidate_graphe.nodes
 
         good = []
 
         # For all candidate edge
-        for curr_edge in modified_graphe["edges"]:
+        for curr_edge in candidate_graphe.edges:
             if curr_edge["title"] >= threshold:
                 good.append(curr_edge)
 
-        modified_graphe["edges"] = good
+        modified_graphe.edges = good
 
         return modified_graphe
 
+    # =========================== -------------------------- ===========================
+    #                                     UTILITY
 
+    def replace_type(selfs, json, target_type='.bmp'):
+        nodes = json["nodes"]
+
+        # Convert the extension of images in a graphe json file
+        for curr_node in nodes:
+            curr_node["image"] = str(pathlib.Path(curr_node["image"]).with_suffix(target_type))
+
+        json["nodes"] = nodes
+        return json
+
+    @staticmethod
+    def mapFromTo(x, a, b, c, d):
+        y = (x - a) / (b - a) * (d - c) + c
+        return y
 
 # =========================== -------------------------- ===========================
 #                                MISC TOOLS
@@ -205,7 +217,7 @@ def matching_graphe_percentage(candidate_graphe, ground_truth_graphe):
     mapping_dict = create_node_mapping(candidate_graphe, ground_truth_graphe)
     wrong = is_graphe_included(candidate_graphe, mapping_dict, ground_truth_graphe)
 
-    edges_length = len(candidate_graphe["edges"])
+    edges_length = len(candidate_graphe.edges)
     wrong_length = len(wrong)
 
     return 1 - wrong_length / edges_length
@@ -220,8 +232,8 @@ def create_node_mapping(candidate_graphe, ground_truth_graphe):
     '''
     mapping_dict = {}
 
-    candidate_nodes = candidate_graphe["nodes"]
-    ground_truth_nodes = ground_truth_graphe["nodes"]
+    candidate_nodes = candidate_graphe.nodes
+    ground_truth_nodes = ground_truth_graphe.nodes
 
     # For all pictures of the output, give the matching picture in the ground truth dictionnary
     for curr_picture in candidate_nodes:
@@ -234,7 +246,7 @@ def create_node_mapping(candidate_graphe, ground_truth_graphe):
     return mapping_dict
 
 
-def is_graphe_included(candidate_graphe, mapping_dict, ground_truth_graphe):
+def is_graphe_included(candidate_graphe , mapping_dict, ground_truth_graphe):
     '''
     Answer the question : "Does all candidate graphes edges are included in the ground truth graphe edges ?"
     :param candidate_graphe:
@@ -243,8 +255,8 @@ def is_graphe_included(candidate_graphe, mapping_dict, ground_truth_graphe):
     :return:
     '''
 
-    candidate_edges = candidate_graphe["edges"]
-    ground_truth_edges = ground_truth_graphe["edges"]
+    candidate_edges = candidate_graphe.edges
+    ground_truth_edges = ground_truth_graphe.edges
     logger = logging.getLogger(__name__)
 
     wrong = []
@@ -288,21 +300,21 @@ def merge_graphes(graphe1, to_graphe2):
 
     future_graphe = {}
 
-    if len(graphe1["nodes"]) != len(to_graphe2["nodes"]):
+    if len(graphe1.nodes) != len(to_graphe2.nodes):
         logger = logging.getLogger(__name__)
         logger.error("Graphs to merge don't have the same number of nodes ! ")
         # TODO : probably a problem to handle here
 
-    future_graphe["nodes"] = to_graphe2["nodes"].copy()
-    future_graphe["edges"] = to_graphe2["edges"].copy()
+    future_graphe.nodes = to_graphe2.nodes.copy()
+    future_graphe.edges = to_graphe2.edges.copy()
 
     # Get edge information and translate it
-    for curr_edge in graphe1["edges"]:
+    for curr_edge in graphe1.edges:
         tmp_future_edge = {}
         tmp_future_edge["from"] = mapping_dict[curr_edge["from"]]
         tmp_future_edge["to"] = mapping_dict[curr_edge["to"]]
         tmp_future_edge["label"] = curr_edge["label"]
         # Add the edge
-        future_graphe["edges"].append(tmp_future_edge)
+        future_graphe.edges.append(tmp_future_edge)
 
     return future_graphe
