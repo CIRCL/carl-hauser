@@ -1,8 +1,14 @@
 # ==================== ------------------------ ====================
 #                       Results declaration
 from enum import Enum, auto
+import configuration
 
-class RESULTS():
+class RESULTS(configuration.JSON_parsable_Dict):
+    '''
+    Datastructure to handle results gathered during run of the framework
+    Inherit from JSON_parsable_dict to allow to export it in a JSON with a custom JSON Encoder
+    '''
+
     def __init__(self):
         self.TOTAL_TIME = None
 

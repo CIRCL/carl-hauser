@@ -12,7 +12,7 @@ class test_template(unittest.TestCase):
         self.conf = configuration.Default_configuration()
         self.test_file_path = pathlib.Path.cwd() / pathlib.Path("tests/test_files/utility/graph/")
         self.result_folder_path = self.test_file_path / 'raw_results'
-        self.baseline_path = self.test_file_path / 'baseline' / "graphe.json"
+        self.baseline_path = self.test_file_path / 'baseline' / "graphe.py"
 
     def test_absolute_truth_and_meaning(self):
         assert True

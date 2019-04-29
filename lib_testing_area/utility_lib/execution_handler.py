@@ -4,11 +4,12 @@ import operator
 import logging
 import pprint
 import json
+import traceback
 
-from memory_profiler import profile, LogFile
+# from memory_profiler import profile, LogFile
 import sys
-sys.stdout = LogFile('memory_profile_log')
-fp=open('memory_profiler.log','w+')
+# sys.stdout = LogFile('memory_profile_log')
+# fp=open('memory_profiler.log','w+')
 
 from utility_lib import filesystem_lib
 from utility_lib import printing_lib
@@ -179,22 +180,22 @@ class Execution_handler():
             except Exception as e:
                 self.logger.error(
                     f"An Exception has occured during the tentative to find a (k-top) match to {curr_target_picture.path.name} : " + str(e))
-                raise e
+                self.logger.error(traceback.print_tb(e.__traceback__))
+            else:
+                try:
+                    self.save_pictures(curr_sorted_picture_list, curr_target_picture)
+                except Exception as e:
+                    self.logger.error(
+                        f"An Exception has occured during the tentative save the result picture of {curr_target_picture.path.name} : " + str(e))
+                    self.logger.error(traceback.print_tb(e.__traceback__))
 
-            try:
-                self.save_pictures(curr_sorted_picture_list, curr_target_picture)
-            except Exception as e:
-                self.logger.error(
-                    f"An Exception has occured during the tentative save the result picture of {curr_target_picture.path.name} : " + str(e))
-                raise e
-
-            try:
-                # if curr_sorted_picture_list[0].distance < THREESHOLD :
-                json_handler = self.add_top_matches_to_JSON(curr_sorted_picture_list, curr_target_picture, json_handler)
-            except Exception as e:
-                self.logger.error(
-                    f"An Exception has occured during the tentative to add result to json for {curr_target_picture.path.name} : " + str(e))
-                raise e
+                try:
+                    # if curr_sorted_picture_list[0].distance < THREESHOLD :
+                    json_handler = self.add_top_matches_to_JSON(curr_sorted_picture_list, curr_target_picture, json_handler)
+                except Exception as e:
+                    self.logger.error(
+                        f"An Exception has occured during the tentative to add result to json for {curr_target_picture.path.name} : " + str(e))
+                    self.logger.error(traceback.print_tb(e.__traceback__))
 
             elapsed = time.time() - start_time
             self.print_elapsed_time(elapsed, 1, to_add="current ")
@@ -282,7 +283,7 @@ class Execution_handler():
 
     def add_top_matches_to_JSON(self, sorted_picture_list, target_picture, json_handler):
         self.logger.debug("Save result for final Json ... ")  # TODO DEBUG OR INFO ?
-        json_handler.json_to_export = json_handler.json_add_top_matches(json_handler.json_to_export, sorted_picture_list, target_picture)
+        json_handler = json_handler.json_add_top_matches(sorted_picture_list, target_picture)
         return json_handler
 
     def export_final_JSON(self, json_handler):
@@ -331,6 +332,9 @@ class Execution_handler():
             answer += final_char + conf.MATCH.name
             if conf.MATCH == configuration.MATCH_TYPE.KNN:
                 answer += final_char + str(conf.MATCH_K_FOR_KNN)
+            if conf.POST_FILTER_CHOSEN == configuration.POST_FILTER.MATRIX_CHECK:
+                answer += final_char + str(conf.POST_FILTER_CHOSEN.name)
+                answer += final_char + str(conf.RANSAC_ACCELERATOR_THRESHOLD)
             answer += final_char + conf.DATASTRUCT.name
             answer += final_char + conf.CROSSCHECK.name
 
@@ -338,6 +342,9 @@ class Execution_handler():
             answer += final_char + str(conf.ORB_KEYPOINTS_NB)
             answer += final_char + str(conf.BOW_SIZE)
             answer += final_char + str(conf.BOW_CMP_HIST)
+
+        logger = logging.getLogger(__name__)
+        logger.debug(f"GENERATED configuration name : {answer}")
 
         return answer
 
@@ -349,7 +356,12 @@ class Execution_handler():
     def write_configuration_to_folder(self, conf: configuration.Default_configuration):
         fn = "conf.txt"
         filepath = conf.OUTPUT_DIR / fn
-        with filepath.open("w", encoding="utf-8") as f:
+
+        filesystem_lib.File_System.save_json(conf, file_path=filepath)
+
+        self.logger.debug(f"Configuration file saved as {filepath}.")
+
+        '''        with filepath.open("w", encoding="utf-8") as f:
             f.write(pprint.pformat(vars(conf)))
 
         # data = json.dumps(results)
@@ -357,3 +369,7 @@ class Execution_handler():
         #       f.write(data)
 
         self.logger.debug(f"Configuration file saved as {filepath}.")
+        
+        '''
+
+

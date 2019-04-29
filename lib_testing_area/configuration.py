@@ -1,12 +1,23 @@
 # ==================== ------------------------ ====================
 #                      Configuration declaration
 from enum import Enum, auto
+import logging
 
-class SUPPORTED_IMAGE_TYPE(Enum):
+# Utilities
+TO_ROUND = 5
+FORMATTER = logging.Formatter('%(asctime)s - + %(relativeCreated)d - %(name)s - %(levelname)s - %(message)s')
+
+class JSON_parsable_Enum():
+    pass
+
+class JSON_parsable_Dict():
+    pass
+
+class SUPPORTED_IMAGE_TYPE(JSON_parsable_Enum, Enum):
     PNG = auto()
     BMP = auto()
 
-class ALGO_TYPE(Enum):
+class ALGO_TYPE(JSON_parsable_Enum, Enum):
     A_HASH = auto()
     P_HASH = auto()
     P_HASH_SIMPLE = auto()
@@ -18,7 +29,7 @@ class ALGO_TYPE(Enum):
     ORB = auto()
 
 # Threshold finder
-class THRESHOLD_MODE(Enum):
+class THRESHOLD_MODE(JSON_parsable_Enum, Enum):
     MIN_WRONG = auto()
     MEDIAN_WRONG = auto()
     MAX_WRONG = auto()
@@ -26,12 +37,12 @@ class THRESHOLD_MODE(Enum):
 
 
 # Threshold finder
-class PICTURE_SAVE_MODE(Enum):
+class PICTURE_SAVE_MODE(JSON_parsable_Enum, Enum):
     TOP3 = auto()
     FEATURE_MATCHES_TOP3 = auto()
     RANSAC_MATRIX = auto()
 
-class Default_configuration():
+class Default_configuration(JSON_parsable_Dict):
     def __init__(self):
         # Inputs
         self.SOURCE_DIR = None
@@ -40,50 +51,51 @@ class Default_configuration():
         # Processing
         self.ALGO = ALGO_TYPE.A_HASH
         self.SELECTION_THREESHOLD = None #TODO : To fix and to use, to prevent "forced linked" if none
-        #Threshold
+        # Threshold
         self.THREESHOLD_EVALUATION = THRESHOLD_MODE.MAXIMIZE_TRUE_POSITIVE
         # Output
         self.SAVE_PICTURE_INSTRUCTION_LIST = []
         self.OUTPUT_DIR = None
 
+
 # ==================== ------------------------ ====================
 #                      ORB POSSIBLE CONFIGURATIONS
 # See options there : https://docs.opencv.org/trunk/dc/d8c/namespacecvflann.html
 
-class DISTANCE_TYPE(Enum):
+class DISTANCE_TYPE(JSON_parsable_Enum, Enum):
     LEN_MIN = auto()
     LEN_MAX = auto()
     # LEN_MEAN = auto() # DOESNT WORK AT ALL
     MEAN_DIST_PER_PAIR = auto()
     MEAN_AND_MAX = auto()
 
-class FILTER_TYPE(Enum):
-    RATIO_BAD = auto() # NOT with KNN # DOESNT WORK WELL
+class FILTER_TYPE(JSON_parsable_Enum, Enum):
+    # RATIO_BAD = auto() # NOT with KNN # DOESNT WORK WELL
     RATIO_CORRECT = auto() # ONLY with KNN
     FAR_THREESHOLD = auto() # NOT with KNN = THREESHOLD DISTANCE # DOESNT WORK WELL
     #### BASIC_THRESHOLD = auto() # DOESNT WORK WELL
     NO_FILTER = auto()
     RANSAC = auto()
 
-class MATCH_TYPE(Enum):
+class MATCH_TYPE(JSON_parsable_Enum, Enum):
     STD = auto() # Standard
     KNN = auto()
 
-class DATASTRUCT_TYPE(Enum):
+class DATASTRUCT_TYPE(JSON_parsable_Enum, Enum):
     BRUTE_FORCE = auto()
     # FLANN_KDTREE = auto()  # DOESNT WORK AT ALL
     FLANN_LSH = auto()
 
-class CROSSCHECK(Enum):
+class CROSSCHECK(JSON_parsable_Enum, Enum):
     ENABLED = auto()
     DISABLED = auto()
     AUTO = auto()
 
-class POST_FILTER(Enum):
+class POST_FILTER(JSON_parsable_Enum, Enum):
     NONE = auto()
     MATRIX_CHECK = auto()
 
-class ORB_default_configuration(Default_configuration):
+class ORB_default_configuration(Default_configuration, JSON_parsable_Dict):
     def __init__(self):
         super().__init__()
 
@@ -97,9 +109,9 @@ class ORB_default_configuration(Default_configuration):
         # Facultative depending on upper
         self.MATCH_K_FOR_KNN = 2
 
-        self.FLANN_KDTREE_INDEX = 0
-        self.FLANN_KDTREE_INDEX_params = dict(algorithm=self.FLANN_KDTREE_INDEX, trees=5)
-        self.FLANN_KDTREE_SEARCH_params = dict(checks=50)
+        # self.FLANN_KDTREE_INDEX = 0
+        # self.FLANN_KDTREE_INDEX_params = dict(algorithm=self.FLANN_KDTREE_INDEX, trees=5)
+        # self.FLANN_KDTREE_SEARCH_params = dict(checks=50)
 
         self.FLANN_LSH_INDEX = 6
         self.FLANN_LSH_INDEX_params = dict(algorithm=self.FLANN_LSH_INDEX, table_number=6, key_size=12, multi_probe_level=1)
@@ -117,11 +129,11 @@ class ORB_default_configuration(Default_configuration):
 #                      BoW ORB POSSIBLE CONFIGURATIONS
 #
 
-class BOW_CMP_HIST(Enum):
+class BOW_CMP_HIST(JSON_parsable_Enum, Enum):
     CORREL = auto() # Standard
     BHATTACHARYYA = auto()
 
-class BoW_ORB_default_configuration(Default_configuration):
+class BoW_ORB_default_configuration(Default_configuration, JSON_parsable_Dict):
     def __init__(self):
         super().__init__()
 
