@@ -49,8 +49,8 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
         if self.conf.DATASTRUCT == configuration.DATASTRUCT_TYPE.BRUTE_FORCE:
             self.matcher = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=self.CROSSCHECK)
             # NORML1 (SIFT/SURF) NORML2 (SIFT/SURG) HAMMING (ORB,BRISK, # BRIEF) HAMMING2 (ORB WTAK=3,4)
-        elif self.conf.DATASTRUCT == configuration.DATASTRUCT_TYPE.FLANN_KDTREE:
-            self.matcher = cv2.FlannBasedMatcher(conf.FLANN_KDTREE_INDEX_params, conf.FLANN_KDTREE_SEARCH_params)
+        # elif self.conf.DATASTRUCT == configuration.DATASTRUCT_TYPE.FLANN_KDTREE:
+        #    self.matcher = cv2.FlannBasedMatcher(conf.FLANN_KDTREE_INDEX_params, conf.FLANN_KDTREE_SEARCH_params)
         elif self.conf.DATASTRUCT == configuration.DATASTRUCT_TYPE.FLANN_LSH:
             self.matcher = cv2.FlannBasedMatcher(conf.FLANN_LSH_INDEX_params, conf.FLANN_LSH_SEARCH_params)
         else:
@@ -150,6 +150,8 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
             matches = self.matcher.match(pic1.description, pic2.description)
             # self.matches = sorted(matches, key=lambda x: x.distance)  # Sort matches by distance.  Best come first.
         elif self.conf.MATCH == configuration.MATCH_TYPE.KNN:
+            if self.conf.CROSSCHECK :
+                raise Exception("CROSSCHECK ACTIVATED WITH KNN_MATCH : ABORTED")
             matches = self.matcher.knnMatch(pic1.description, pic2.description, k=self.conf.MATCH_K_FOR_KNN)
         else:
             raise Exception('OPENCV WRAPPER : MATCH_CHOSEN NOT CORRECT')
@@ -329,7 +331,7 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
         '''
         threshold = 1
         if math.fabs(det) > threshold : # or math.fabs(det) < (1.0 / threshold) :
-            self.logger.warning(f"Almost 90° rotation for : {pic1.path.name}")
+            self.logger.debug(f"Almost 90° rotation for : {pic1.path.name}")
             return 1 # bad
 
         '''
@@ -339,7 +341,7 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
         '''
         # H.at < double > (0, 0) * H.at < double > (1, 1) - H.at < double > (1, 0) * H.at < double > (0, 1);
         if det < 0 :
-            self.logger.warning(f"Mirror scene for : {pic1.path.name}")
+            self.logger.debug(f"Mirror scene for : {pic1.path.name}")
             return 1 # no mirrors in the scene
 
         '''
@@ -360,7 +362,7 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
         the image which is sometimes still ok. But if your points are out of order than you have a "bad homography"
         '''
 
-        self.logger.info(f"Previously calculated distance : {dist}")
+        self.logger.debug(f"Previously calculated distance : {dist}")
 
 
         # Get the size of the current matching picture
@@ -378,7 +380,7 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
             # Draw the transformed 4 corners on the target picture (pic2, request)
             tmp_dist = round(cv2.norm(pts - dst, cv2.NORM_L2) / max ,10)# sqrt((X1-X2)²+(Y1-Y2)²+...)
 
-            self.logger.info(f"Ransac corners calculated distance : {tmp_dist}")
+            self.logger.debug(f"Ransac corners calculated distance : {tmp_dist}")
 
             # Totally an heuristic (geometry based):
             if tmp_dist < 0.20 :
@@ -394,7 +396,7 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
             corner_BR = dst[2][0] # Bottom Right
 
             if not (corner_TL[0] < corner_TR[0] and corner_BL[0] < corner_BR[0] and corner_TL[1] < corner_BL[1] and corner_TR[1] < corner_BR[1]):
-                self.logger.warning(f"Bad points rotation : {pic1.path}")
+                self.logger.debug(f"Bad points rotation : {pic1.path.name}")
                 return 1
         else :
             self.logger.info("Dist has not been calculated properly. The value is still 'None'. Does an error had been thrown just before concerning transformation matrix not invertible ?")

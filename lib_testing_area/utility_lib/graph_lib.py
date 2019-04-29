@@ -28,14 +28,23 @@ harvest = np.array([[0.8, 2.4, 2.5, 3.9, 0.0, 4.0, 0.0],
 '''
 # From : https://matplotlib.org/gallery/images_contours_and_fields/image_annotated_heatmap.html
 
-class Graphe():
+class Graphe(configuration.JSON_parsable_Dict):
+    '''
+    Datastructure to handle graphes
+    Inherit from JSON_parsable_dict to allow to export it in a JSON with a custom JSON Encoder
+    '''
     def __init__(self):
         self.nodes = []
         self.edges = []
 
     def load_from_json(self, json):
-        self.nodes = json["nodes"]
-        self.edges = json["edges"]
+        if isinstance(json, Graphe):
+            self.nodes = json.nodes
+            self.edges = json.edges
+        else :
+            self.nodes = json["nodes"]
+            self.edges = json["edges"]
+
 
 class Graph_handler():
     def __init__(self):
@@ -226,7 +235,9 @@ class Graph_handler():
 
                 try:
                     data = filesystem_lib.File_System.load_json(curr_graphe_file)
-                    tmp_to_write["graphe"] = data
+                    tmp_graphe = Graphe()
+                    tmp_graphe.load_from_json(data)
+                    tmp_to_write["graphe"] = tmp_graphe
                 except Exception as e:
                     # We do not store something without graphe
                     tmp_to_write["graphe"] = None
@@ -286,7 +297,7 @@ class Graph_handler():
                 wrong_edge_list = json_class.is_graphe_included(curr_graphe_a['graphe'], tmp_mapping_dict, curr_graphe_b['graphe'])
 
                 # Compute similarity based on inclusion (card(inclusion)/card(source))
-                nb_edges = len(curr_graphe_a['graphe']["edges"])
+                nb_edges = len(curr_graphe_a['graphe'].edges)
                 curr_similarity = 1 - (len(wrong_edge_list) / nb_edges)
 
                 # Store the similarity in an array
@@ -321,7 +332,11 @@ class Graph_handler():
         logger.info(f"Creating pair matrix for {folder}")
 
         graphe_list = Graph_handler.get_graph_list(folder)
+
+        # Get grund_truth graphe
+        ground_truth_graphe = Graphe()
         ground_truth_json_values = json_class.Json_handler.import_json(ground_truth_json.resolve())
+        ground_truth_graphe.load_from_json(ground_truth_json_values)
 
         # For all graphe A
         global_result = []
@@ -340,7 +355,7 @@ class Graph_handler():
                 merged_graphe = json_class.merge_graphes(curr_graphe_a['graphe'], curr_graphe_b['graphe'])
 
                 # Evaluating
-                true_positive_rate = json_class.matching_graphe_percentage(merged_graphe, ground_truth_json_values)
+                true_positive_rate = json_class.matching_graphe_percentage(merged_graphe, ground_truth_graphe)
 
                 # Store the similarity in an array
                 tmp_dict = {}
@@ -375,7 +390,12 @@ class Graph_handler():
             for curr_graphe_b in graphe_list:
 
                 # Merge
-                merged_graphe = json_class.merge_graphes(curr_graphe_a['graphe'], curr_graphe_b['graphe'])
+                tmp_graphe_1 = Graphe()
+                tmp_graphe_1.load_from_json(curr_graphe_a['graphe'])
+                tmp_graphe_2 = Graphe()
+                tmp_graphe_2.load_from_json(curr_graphe_b['graphe'])
+
+                merged_graphe = json_class.merge_graphes(tmp_graphe_1, tmp_graphe_2)
 
                 # Generate name
                 new_name = curr_graphe_a["name"] + "_AND_" + curr_graphe_b['name']
@@ -421,12 +441,16 @@ class Graph_handler():
 
         tmp_conf = configuration.Default_configuration()
         tmp_stats = stats_lib.Stats_handler(conf=tmp_conf)
+
+        # Get grund_truth graphe
+        ground_truth_graphe = Graphe()
         ground_truth_json_values = json_class.Json_handler.import_json(ground_truth_json.resolve())
+        ground_truth_graphe.load_from_json(ground_truth_json_values)
 
         # For all pair of graphes
         for curr_graphe_a in graphe_list:
             # Evaluating
-            true_positive_rate = json_class.matching_graphe_percentage(curr_graphe_a['graphe'], ground_truth_json_values)
+            true_positive_rate = json_class.matching_graphe_percentage(curr_graphe_a['graphe'], ground_truth_graphe)
 
             # define the results
             tmp_results = curr_graphe_a['stats']

@@ -111,11 +111,11 @@ def manual():
         ground_truth_json = pathlib.Path.cwd() / pathlib.Path(curr_base_path + ".json")
         # Output folder for statistics of executions folders
         output_folder = pathlib.Path.cwd() / pathlib.Path(curr_base_path + "_output/")
-        if not output_folder.resolve().exists(): output_folder.resolve().mkdir()
+        output_folder.resolve().mkdir(exist_ok=True)
 
         # Outut folder for statics of executions for paired results
         paired_output_folder = pathlib.Path.cwd() / pathlib.Path(curr_base_path + "_output_paired/")
-        if not paired_output_folder.resolve().exists(): paired_output_folder.resolve().mkdir()
+        paired_output_folder.resolve().mkdir(exist_ok=True)
 
         # Output overview files
         output_overview_file = pathlib.Path.cwd() / pathlib.Path(curr_base_path + "_output.overview")

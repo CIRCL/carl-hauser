@@ -21,15 +21,18 @@ class Printer():
 
     def save_pictures(self, sorted_picture_list: List[Picture], target_picture: Picture, file_name : pathlib.Path):
         if configuration.PICTURE_SAVE_MODE.TOP3 in self.conf.SAVE_PICTURE_INSTRUCTION_LIST :
-            new_directory = file_name.parent / "TOP3"
-            if not new_directory.exists() : new_directory.mkdir()
-            self.save_pictures_top_3(sorted_picture_list, target_picture, file_name=new_directory / pathlib.Path(file_name.with_suffix("").name + "_BEST").with_suffix(".png"))
+            try :
+                new_directory = file_name.parent / "TOP3"
+                if not new_directory.exists() : new_directory.mkdir()
+                self.save_pictures_top_3(sorted_picture_list, target_picture, file_name=new_directory / pathlib.Path(file_name.with_suffix("").name + "_BEST").with_suffix(".png"))
+            except Exception as e :
+                self.logger.error(f"Error during the saving of TOP3 for {target_picture.path.name}")
         if configuration.PICTURE_SAVE_MODE.FEATURE_MATCHES_TOP3 in self.conf.SAVE_PICTURE_INSTRUCTION_LIST:
             # raise Exception("PICTURE SAVING MODE (top matches) INCORRECT FOR SELECTED ALGORITHM. ABORTED")
-            self.logger.error("PICTURE SAVING MODE (top matches) INCORRECT FOR SELECTED ALGORITHM. ABORTED")
+            self.logger.error("PICTURE SAVING MODE (top matches) INCORRECT FOR SELECTED ALGORITHM. CURRENT PICTURE SAVING REGARDING CONF. ABORTED")
         if configuration.PICTURE_SAVE_MODE.RANSAC_MATRIX in self.conf.SAVE_PICTURE_INSTRUCTION_LIST:
             # raise Exception("PICTURE SAVING MODE (ransac) INCORRECT FOR SELECTED ALGORITHM. ABORTED")
-            self.logger.error("PICTURE SAVING MODE (ransac) INCORRECT FOR SELECTED ALGORITHM. ABORTED")
+            self.logger.error("PICTURE SAVING MODE (ransac) INCORRECT FOR SELECTED ALGORITHM. CURRENT PICTURE SAVING REGARDING CONF. ABORTED")
 
     # @staticmethod
     def text_and_outline(self, draw, x, y, text, font_size):

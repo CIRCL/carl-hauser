@@ -220,6 +220,10 @@ def matching_graphe_percentage(candidate_graphe, ground_truth_graphe):
     edges_length = len(candidate_graphe.edges)
     wrong_length = len(wrong)
 
+    # Prevent 0-division
+    if edges_length == 0 :
+        return 1
+
     return 1 - wrong_length / edges_length
 
 
@@ -298,7 +302,7 @@ def merge_graphes(graphe1, to_graphe2):
     '''
     mapping_dict = create_node_mapping(graphe1, to_graphe2)
 
-    future_graphe = {}
+    future_graphe = graph_lib.Graphe()
 
     if len(graphe1.nodes) != len(to_graphe2.nodes):
         logger = logging.getLogger(__name__)

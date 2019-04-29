@@ -25,25 +25,34 @@ class Custom_printer(printing_lib.Printer):
     def save_pictures(self, sorted_picture_list: List[Local_Picture], target_picture: Local_Picture, file_name : pathlib.Path):
 
         if configuration.PICTURE_SAVE_MODE.TOP3 in self.conf.SAVE_PICTURE_INSTRUCTION_LIST:
-            new_directory = file_name.parent / "TOP3"
-            if not new_directory.exists() :new_directory.mkdir()
-            self.save_pictures_top_3(sorted_picture_list, target_picture, file_name=new_directory / pathlib.Path(file_name.with_suffix("").name + "_top3").with_suffix(".png"))
-
+            try :
+                new_directory = file_name.parent / "TOP3"
+                if not new_directory.exists() :new_directory.mkdir()
+                self.save_pictures_top_3(sorted_picture_list, target_picture, file_name=new_directory / pathlib.Path(file_name.with_suffix("").name + "_top3").with_suffix(".png"))
+            except Exception as e :
+                self.logger.error(f"Error during the saving of TOP3 for {target_picture.path.name}")
         if configuration.PICTURE_SAVE_MODE.FEATURE_MATCHES_TOP3 in self.conf.SAVE_PICTURE_INSTRUCTION_LIST:
-            new_directory = file_name.parent / "MATCHES"
-            if not new_directory.exists() :new_directory.mkdir()
-            self.save_pictures_matches_top_3(sorted_picture_list, target_picture, file_name=new_directory / pathlib.Path(file_name.with_suffix("").name + "_matches").with_suffix(".png"))
-
+            try:
+                new_directory = file_name.parent / "MATCHES"
+                if not new_directory.exists() :new_directory.mkdir()
+                self.save_pictures_matches_top_3(sorted_picture_list, target_picture, file_name=new_directory / pathlib.Path(file_name.with_suffix("").name + "_matches").with_suffix(".png"))
+            except Exception as e :
+                self.logger.error(f"Error during the saving of TOP3 MATCHES for {target_picture.path.name}")
         if configuration.PICTURE_SAVE_MODE.FEATURE_MATCHES_TOP3 in self.conf.SAVE_PICTURE_INSTRUCTION_LIST:
-            new_directory = file_name.parent / "MATCHES_INOUTLINERS"
-            if not new_directory.exists() :new_directory.mkdir()
-            self.save_pictures_matches_top_3_red_green(sorted_picture_list, target_picture, file_name=new_directory / pathlib.Path(file_name.with_suffix("").name + "_inoutliners").with_suffix(".png"))
-
+            try:
+                new_directory = file_name.parent / "MATCHES_INOUTLINERS"
+                if not new_directory.exists() :new_directory.mkdir()
+                self.save_pictures_matches_top_3_red_green(sorted_picture_list, target_picture, file_name=new_directory / pathlib.Path(file_name.with_suffix("").name + "_inoutliners").with_suffix(".png"))
+            except Exception as e :
+                self.logger.error(f"Error during the saving of TOP3 RED/GREEN for {target_picture.path.name}")
         if configuration.PICTURE_SAVE_MODE.RANSAC_MATRIX in self.conf.SAVE_PICTURE_INSTRUCTION_LIST :
             if self.conf.FILTER == configuration.FILTER_TYPE.RANSAC :
-                new_directory = file_name.parent / "RANSAC"
-                if not new_directory.exists() :new_directory.mkdir()
-                self.save_pictures_ransac(sorted_picture_list, target_picture, file_name=new_directory / pathlib.Path(file_name.with_suffix("").name + "_ransac").with_suffix(".png"))
+                try:
+                    new_directory = file_name.parent / "RANSAC"
+                    if not new_directory.exists() :new_directory.mkdir()
+                    self.save_pictures_ransac(sorted_picture_list, target_picture, file_name=new_directory / pathlib.Path(file_name.with_suffix("").name + "_ransac").with_suffix(".png"))
+                except Exception as e:
+                    self.logger.error(f"Error during the saving of RANSAC for {target_picture.path.name}")
             else :
                 self.logger.warning("RANSAC filter not selected for computation, but launch configuration is asking to save RANSAC pictures. Aborting this instruction.")
 
