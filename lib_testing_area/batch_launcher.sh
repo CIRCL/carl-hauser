@@ -1,0 +1,7 @@
+pipenv run screen -d  -S normal -m python3 ./launcher.py -v -i ../../INPUT/raw_phishing/ -o /mnt/ssd/OUTPUT/ -gt ../../INPUT/Phishing_vol_1.json -t PNG -sp -ao -aa
+pipenv run screen -d  -S blured -m python3 ./launcher.py -v -i ../../INPUT/raw_phishing_BLURED/ -o /mnt/ssd/OUTPUT/ -gt ../../INPUT/Phishing_vol_1.json -t PNG -sp -ao -aa -Ov
+pipenv run screen -d  -S bmp -m python3 ./launcher.py -v -i ../../INPUT/raw_phishing_bmp/ -o /mnt/ssd/OUTPUT/ -gt ../../INPUT/raw_phishing_bmp.json -t BMP -sp -ao -aa -Ov
+pipenv run screen -d  -S canny -m python3 ./launcher.py -v -i ../../INPUT/raw_phishing_EDGES_CANNY/ -o /mnt/ssd/OUTPUT/ -gt ../../INPUT/Phishing_vol_1.json -t PNG -sp -ao -aa -Ov
+pipenv run screen -d  -S colored -m python3 ./launcher.py -v -i ../../INPUT/raw_phishing_COLORED/ -o /mnt/ssd/OUTPUT/ -gt ../../INPUT/Phishing_vol_1.json -t PNG -sp -ao -aa -Ov
+pipenv run screen -d  -S deep -m python3 ./launcher.py -v -i ../../INPUT/raw_phishing_EDGES_DEEP/ -o /mnt/ssd/OUTPUT/ -gt ../../INPUT/Phishing_vol_1.json -t PNG -sp -ao -aa -Ov
+pipenv run screen -d  -S tesseract -m python3 ./launcher.py -v -i ../../INPUT/raw_phishing_Tesseract/ -o /mnt/ssd/OUTPUT/ -gt ../../INPUT/Phishing_vol_1.json -t PNG -sp -ao -aa -Ov
