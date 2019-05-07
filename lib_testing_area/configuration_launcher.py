@@ -282,6 +282,8 @@ class Configuration_launcher():
 
     @staticmethod
     def create_tldr(folder: pathlib.Path, output_file: pathlib.Path):
+        logger = logging.getLogger()
+
         f = open(str(output_file.resolve()), "w+")  # Append and create if does not exist
 
         global_list = []
@@ -294,18 +296,27 @@ class Configuration_launcher():
                 stat_file = x / "stats.txt"
                 if stat_file.exists():
 
-                    data = filesystem_lib.File_System.load_json(stat_file)
-                    LEN = 34
-                    global_txt += ("TRUE_POSITIVE = " + str(data["TRUE_POSITIVE_RATE"])).ljust(LEN, " ") + " \t"
-                    global_txt += ("PRE_COMPUTING = " + str(data["TIME_PER_PICTURE_PRE_COMPUTING"])).ljust(LEN, " ") + " \t"
-                    global_txt += ("MATCHING = " + str(data["TIME_PER_PICTURE_MATCHING"])).ljust(LEN, " ")
+                    try :
+                        data = filesystem_lib.File_System.load_json(stat_file)
+                    except Exception as e:
+                        logger.error(f"Impossible to load {stat_file}")
 
-                    if hasattr(data, "COMPUTED_THREESHOLD") : # Backwards compatibility with previously generated stats
-                        global_txt += ("THREESHOLD DIST = " + str(data["COMPUTED_THREESHOLD"])).ljust(LEN, " ")
-                    if hasattr(data, "TRUE_POSITIVE_RATE_THREESHOLD") : # Backwards compatibility with previously generated stats
-                        global_txt += ("TRUE_POSITIVE_W_T = " + str(data["TRUE_POSITIVE_RATE_THREESHOLD"])).ljust(LEN, " ")
+                        global_txt += "FILE READING ERROR (JSON LOAD)"
 
-                    global_list.append([global_txt, data["TRUE_POSITIVE_RATE"]])
+                        global_list.append([global_txt, -1])
+
+                    else :
+                        LEN = 34
+                        global_txt += ("TRUE_POSITIVE = " + str(data["TRUE_POSITIVE_RATE"])).ljust(LEN, " ") + " \t"
+                        global_txt += ("PRE_COMPUTING = " + str(data["TIME_PER_PICTURE_PRE_COMPUTING"])).ljust(LEN, " ") + " \t"
+                        global_txt += ("MATCHING = " + str(data["TIME_PER_PICTURE_MATCHING"])).ljust(LEN, " ")
+
+                        if hasattr(data, "COMPUTED_THREESHOLD") : # Backwards compatibility with previously generated stats
+                            global_txt += ("THREESHOLD DIST = " + str(data["COMPUTED_THREESHOLD"])).ljust(LEN, " ")
+                        if hasattr(data, "TRUE_POSITIVE_RATE_THREESHOLD") : # Backwards compatibility with previously generated stats
+                            global_txt += ("TRUE_POSITIVE_W_T = " + str(data["TRUE_POSITIVE_RATE_THREESHOLD"])).ljust(LEN, " ")
+
+                        global_list.append([global_txt, data["TRUE_POSITIVE_RATE"]])
 
                 else:
                     global_txt += "NO RESULT / ERROR"
@@ -327,6 +338,8 @@ class Configuration_launcher():
 
     @staticmethod
     def create_latex_tldr(folder: pathlib.Path, output_file: pathlib.Path):
+        logger = logging.getLogger()
+
         f = open(str(output_file.resolve()), "w+")  # Append and create if does not exist
         f.write("NAME & TRUE POSITIVE & PRE COMPUTING (sec) & MATCHING (sec)" + "\\\\ \hline \r\n")
 
@@ -340,12 +353,16 @@ class Configuration_launcher():
                 stat_file = x / "stats.txt"
                 if stat_file.exists():
 
-                    data = filesystem_lib.File_System.load_json(stat_file)
-                    global_txt += str(round(data["TRUE_POSITIVE_RATE"], configuration.TO_ROUND)) + " & "
-                    global_txt += str(round(data["TIME_PER_PICTURE_PRE_COMPUTING"], configuration.TO_ROUND)) + " & "
-                    global_txt += str(round(data["TIME_PER_PICTURE_MATCHING"], configuration.TO_ROUND)) + "\\\\ \hline "
+                    try :
+                        data = filesystem_lib.File_System.load_json(stat_file)
+                    except Exception as e:
+                        logger.error(f"Impossible to load {stat_file}")
+                    else :
+                        global_txt += str(round(data["TRUE_POSITIVE_RATE"], configuration.TO_ROUND)) + " & "
+                        global_txt += str(round(data["TIME_PER_PICTURE_PRE_COMPUTING"], configuration.TO_ROUND)) + " & "
+                        global_txt += str(round(data["TIME_PER_PICTURE_MATCHING"], configuration.TO_ROUND)) + "\\\\ \hline "
 
-                    global_list.append([global_txt, data["TRUE_POSITIVE_RATE"]])
+                        global_list.append([global_txt, data["TRUE_POSITIVE_RATE"]])
 
                 # else:
                 #     global_txt += "NO RESULT / ERROR"
