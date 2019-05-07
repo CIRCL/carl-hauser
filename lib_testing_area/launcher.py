@@ -192,7 +192,7 @@ if __name__ == '__main__':
     # Handle paths
     tmp_path_out = args.output_folder
 
-    # TODO : Checks on the input folder ? Already handled by the check (see up this file)
+    # TODO : Checks on the input folder ? Already handled by the check (see upper in this file)
 
     # ================================ ---------------------- ================================
     #                                           Launch
@@ -287,7 +287,7 @@ if __name__ == '__main__':
             logger.error(f"Creation of TLDR LATEX aborted due to : {e}")
             logger.error(traceback.print_tb(e.__traceback__))
 
-            # Create overview for paired results
+        # Create overview for paired results
         try:
             if args.pair_results: Configuration_launcher.create_paired_results(input_folder=output_folder,target_pair_folder=paired_output_folder,ground_truth_json=ground_truth_json)
         except Exception as e:

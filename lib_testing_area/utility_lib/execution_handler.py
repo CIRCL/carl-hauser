@@ -341,7 +341,7 @@ class Execution_handler():
         if type(conf) == configuration.BoW_ORB_default_configuration:
             answer += final_char + str(conf.ORB_KEYPOINTS_NB)
             answer += final_char + str(conf.BOW_SIZE)
-            answer += final_char + str(conf.BOW_CMP_HIST)
+            answer += final_char + str(conf.BOW_CMP_HIST.name)
 
         logger = logging.getLogger(__name__)
         logger.debug(f"GENERATED configuration name : {answer}")
