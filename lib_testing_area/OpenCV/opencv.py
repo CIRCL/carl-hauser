@@ -285,6 +285,12 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
             # Find the transformation between points
             transformation_matrix, mask = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, 5.0)
 
+            ## TODO : SEPARATE ?
+            # , inliers=rigid_mask ## rigid_mask =
+            #  .estimateRigidTransform(src_pts, dst_pts, False)
+            # Compute a rigid transformation (without depth, only scale + rotation + translation)
+            transformation_rigid_matrix = cv2.estimateAffinePartial2D(src_pts, dst_pts)
+
             # Get a mask list for matches = A list that says "This match is an in/out-lier"
             matchesMask = mask.ravel().tolist()
 
@@ -298,6 +304,7 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
 
             # img2 = cv2.polylines(img2, [np.int32(dst)], True, 255, 3, cv2.LINE_AA)
             pic1.transformation_matrix = transformation_matrix
+            pic1.transformation_rigid_matrix = transformation_rigid_matrix
             pic1.matchesMask = matchesMask
 
         else:
