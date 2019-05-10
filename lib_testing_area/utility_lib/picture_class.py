@@ -23,6 +23,7 @@ class Picture():
 
         self.matchesMask = None # Only for RANSAC filtering : mask of matches indicating if a match is an in or outlier
         self.transformation_matrix = None # Only for RANSAC filtering : transformation matrix between source and dest
+        self.transformation_rigid_matrix = None # Only for RANSAC filtering : transformation matrix between source and dest
 
         # Multipurpose storage, e.g. store some useful class for processing.
         # self.storage = None

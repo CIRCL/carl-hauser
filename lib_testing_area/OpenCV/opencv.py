@@ -289,7 +289,7 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
             # , inliers=rigid_mask ## rigid_mask =
             #  .estimateRigidTransform(src_pts, dst_pts, False)
             # Compute a rigid transformation (without depth, only scale + rotation + translation)
-            transformation_rigid_matrix = cv2.estimateAffinePartial2D(src_pts, dst_pts)
+            transformation_rigid_matrix, rigid_mask = cv2.estimateAffinePartial2D(src_pts, dst_pts)
 
             # Get a mask list for matches = A list that says "This match is an in/out-lier"
             matchesMask = mask.ravel().tolist()
@@ -384,14 +384,27 @@ class OpenCV_execution_handler(execution_handler.Execution_handler):
             # Transform the 4 corners thanks to the transformation matrix calculated
             dst = cv2.perspectiveTransform(pts, pic1.transformation_matrix)
 
+            # Make affine transformation
+            add_row = np.array([[0,0,1]])
+            affine_matrix = np.concatenate((pic1.transformation_rigid_matrix, add_row), axis=0)
+            dst_affine = cv2.perspectiveTransform(pts, affine_matrix)
+
             # Draw the transformed 4 corners on the target picture (pic2, request)
             tmp_dist = round(cv2.norm(pts - dst, cv2.NORM_L2) / max ,10)# sqrt((X1-X2)²+(Y1-Y2)²+...)
+
+            # Affine distance
+            tmp_dist_affine = round(cv2.norm(pts - dst_affine, cv2.NORM_L2) / max ,10)# sqrt((X1-X2)²+(Y1-Y2)²+...)
 
             self.logger.debug(f"Ransac corners calculated distance : {tmp_dist}")
 
             # Totally an heuristic (geometry based):
             if tmp_dist < 0.20 :
                 dist = tmp_dist
+
+            # TODO : Check which version we want
+            if tmp_dist_affine < 0.20 :
+                dist = tmp_dist_affine
+
         except Exception as e:
             self.logger.error(f"Inverting RANSAC transformation matrix impossible due to : {e} on picture {pic1.path}")
 
