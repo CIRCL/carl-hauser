@@ -4,7 +4,7 @@ import numpy as np
 import pathlib
 
 parser = argparse.ArgumentParser(
-        description='This sample shows how to define custom OpenCV deep learning layers in Python. '
+        description='This carlhauser_server shows how to define custom OpenCV deep learning layers in Python. '
                     'Holistically-Nested Edge Detection (https://arxiv.org/abs/1504.06375) neural network '
                     'is used as an example model. Find a pre-trained model at https://github.com/s9xie/hed.')
 parser.add_argument('--input', help='Path to image or video. Skip to capture frames from camera')
