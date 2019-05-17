@@ -6,6 +6,7 @@ import pathlib
 import argparse
 import traceback
 import pprint
+import resource
 
 
 from configuration_launcher import Configuration_launcher
@@ -54,6 +55,9 @@ group_algos.add_argument("-ob", "--orb_bow", dest='orb_bow', help="use orb BoW a
 group_algos.add_argument("-void", "--void", dest='void', help="use a void algorithm for reference", action="store_true")
 
 args = parser.parse_args()
+
+soft, hard = resource.getrlimit(resource.RLIMIT_NOFILE)
+resource.setrlimit(resource.RLIMIT_NOFILE, (hard, hard))
 
 if args.all_algos :
     args.imagehash = True
