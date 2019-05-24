@@ -1,11 +1,6 @@
 ## Installation
 
-### Core product
-
-< To be detailed >
-
 ### Library testing framework
-
 
 > \# Install system dependency  
 > sudo apt-get install libsm6 cmake python3.7 python3.7-dev 
