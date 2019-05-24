@@ -6,7 +6,6 @@ from typing import List
 import logging
 import pathlib
 
-
 import cv2
 import matplotlib.pyplot as plt
 from PIL import Image, ImageDraw
@@ -16,6 +15,7 @@ import numpy as np
 sys.path.append(os.path.abspath(os.path.pardir))
 from utility_lib import filesystem_lib, printing_lib, picture_class, execution_handler, json_class
 import configuration
+
 
 class Local_Picture(picture_class.Picture):
 
@@ -27,6 +27,7 @@ class Local_Picture(picture_class.Picture):
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)  # Convert from cv's BRG default color order to RGB
 
         return image
+
 
 # ==== Action definition ====
 class BoW_execution_handler(execution_handler.Execution_handler):
@@ -80,7 +81,7 @@ class BoW_execution_handler(execution_handler.Execution_handler):
                 # del picture_list[i]
 
                 # TODO : Parametered path
-                os.system("cp " + str((self.conf.SOURCE_DIR / curr_picture.path.name).resolve() ) + str(pathlib.Path(" ./RESULTS_BLANKS/") / curr_picture.path.name))
+                os.system("cp " + str((self.conf.SOURCE_DIR / curr_picture.path.name).resolve()) + str(pathlib.Path(" ./RESULTS_BLANKS/") / curr_picture.path.name))
             else:
                 clean_picture_list.append(curr_picture)
 
@@ -97,7 +98,6 @@ class BoW_execution_handler(execution_handler.Execution_handler):
 
         self.vocab = self.bow_trainer.cluster().astype(picture_list[0].description.dtype)
         self.bow_descriptor.setVocabulary(self.vocab)
-
 
     def describe_pictures_with_vocabulary(self, picture_list: List[Local_Picture]):
 
@@ -141,9 +141,9 @@ class BoW_execution_handler(execution_handler.Execution_handler):
                 return None
 
         # See : https://docs.opencv.org/2.4.13.7/doc/tutorials/imgproc/histograms/histogram_comparison/histogram_comparison.html
-        if self.conf.BOW_CMP_HIST == configuration.BOW_CMP_HIST.CORREL :
+        if self.conf.BOW_CMP_HIST == configuration.BOW_CMP_HIST.CORREL:
             dist = 1 - cv2.compareHist(pic1.description, pic2.description, cv2.HISTCMP_CORREL)
-        elif self.conf.BOW_CMP_HIST == configuration.BOW_CMP_HIST.BHATTACHARYYA :
+        elif self.conf.BOW_CMP_HIST == configuration.BOW_CMP_HIST.BHATTACHARYYA:
             dist = cv2.compareHist(pic1.description, pic2.description, cv2.HISTCMP_BHATTACHARYYA)
         else:
             raise Exception('BOW WRAPPER : HISTOGRAM COMPARISON MODE INCORRECT')
