@@ -13,11 +13,11 @@
 > sudo pip3 install pipenv  
 > 
 > \# Pipenv setup   
-> cd ./carl-hauser/ 
-> pipenv install --ignore-pipfile   
+> cd ./carl-hauser/     
+> pipenv install --ignore-pipfile       
 >
 > \# Export the local carlhauser path in an environement variable. Replace with the path of the carl-hauser installation    
-> export CARLHAUSER_HOME='/home/user/Desktop/carl-hauser
+> export CARLHAUSER_HOME='/home/user/Desktop/carl-hauser    
 
 #### Installation
 
