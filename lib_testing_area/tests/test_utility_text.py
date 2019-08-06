@@ -18,7 +18,7 @@ class test_text(unittest.TestCase):
         self.test_file_path = pathlib.Path.cwd() / pathlib.Path("tests/test_files/utility/text")
 
     def test_absolute_truth_and_meaning(self):
-        assert True
+        self.assertTrue(True)
 
     def test_load_picture_basic(self):
         simple_picture_path = self.test_file_path / "simple_text.png"

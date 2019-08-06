@@ -25,7 +25,7 @@ class test_template(unittest.TestCase):
         self.curr_configuration.ORB_KEYPOINTS_NB = 500
 
     def test_absolute_truth_and_meaning(self):
-        assert True
+        self.assertTrue(True)
 
     def test_BASIC(self):
         self.curr_configuration.OUTPUT_DIR = self.curr_configuration.OUTPUT_DIR / "STD"
