@@ -26,7 +26,7 @@ class test_template(unittest.TestCase):
         self.filesystem_handler = filesystem_lib.File_System(conf=self.tmp_conf)
 
     def test_absolute_truth_and_meaning(self):
-        assert True
+        self.assertTrue(True)
 
     def test_do_pair_orb_full(self):
         # Create conf

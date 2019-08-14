@@ -15,7 +15,7 @@ class test_template(unittest.TestCase):
         self.baseline_path = self.test_file_path / 'baseline' / "graphe.py"
 
     def test_absolute_truth_and_meaning(self):
-        assert True
+        self.assertTrue(True)
 
 
     def test_writing_similarity_json(self):

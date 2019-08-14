@@ -16,7 +16,7 @@ class test_template(unittest.TestCase):
         self.merge_folder = self.test_file_path / 'merge_test'
 
     def test_absolute_truth_and_meaning(self):
-        assert True
+        self.assertTrue(True)
 
 
     def test_import_json(self):

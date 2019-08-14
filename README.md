@@ -5,7 +5,10 @@ Strongly related to : [Douglas-Quaid](https://github.com/CIRCL/douglas-quaid)
 
 # Problem statement (@CIRCL)
 
+<img align="left" width="300" src="SOTA/carlhauser-doc/CarlHauser_cropped.svg">
 A lot of information collected or processed by CIRCL are related to images (at large from photos, screenshots of website or screenshots of sandboxes). The datasets become larger and analysts need to classify, search and correlate throught all the images. 
+
+
 
 ## Target
 
